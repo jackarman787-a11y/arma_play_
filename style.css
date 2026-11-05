@@ -33,3 +33,38 @@ button {
 button:hover {
     background-color: #1ed760;
 }
+.search-container {
+    margin-top: 20px;
+    padding: 15px;
+    background: #222;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 300px;
+}
+
+.search-container input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    border: none;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+#songList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#songList li {
+    padding: 8px;
+    background: #333;
+    margin-bottom: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#songList li:hover {
+    background: #444;
+}
