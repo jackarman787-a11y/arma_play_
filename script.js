@@ -1,96 +1,171 @@
 // ===== ELEMENTS =====
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+const searchInput  = document.getElementById('searchInput');
+const songList     = document.getElementById('songList');
+const statusMsg    = document.getElementById('statusMsg');
+const audioPlayer  = document.getElementById('audioPlayer');
+const playPauseBtn = document.getElementById('playPauseBtn');
+const nextBtn      = document.getElementById('nextBtn');
+const songTitle    = document.getElementById('songTitle');
+const artistName   = document.getElementById('artistName');
+const coverArt     = document.getElementById('coverArt');
+const downloadBtn  = document.getElementById('downloadBtn');
+const progressBar  = document.getElementById('progressBar');
 
-body {
-  background-color: #000;
-  color: #fff;
-  padding-bottom: 150px; /* Space for mini player and nav */
-  overflow-x: hidden;
+let songs = [];
+let currentIndex = -1;
+
+// ===== TAB SWITCHING (Home vs Search) =====
+function switchTab(tab) {
+    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+    if (tab === 'home') {
+        document.getElementById('homeScreen').classList.remove('hidden');
+        document.getElementById('searchScreen').classList.add('hidden');
+        document.querySelector('.nav-item:nth-child(1)').classList.add('active');
+    } else {
+        document.getElementById('homeScreen').classList.add('hidden');
+        document.getElementById('searchScreen').classList.remove('hidden');
+        document.querySelector('.nav-item:nth-child(2)').classList.add('active');
+    }
 }
 
-/* ===== COMMON ===== */
-.hidden { display: none !important; }
-.app-container { padding: 16px; }
+// ===== FETCH HOME DATA (Fake Spotify style) =====
+// Spotify API requires OAuth, so we use iTunes API to get real album arts for UI
+async function loadHomeScreen() {
+    const terms = ['arijit singh', 'karan aujla', 'atif aslam', 'khesari lal yadav'];
+    let allResults = [];
 
-/* ===== HEADER ===== */
-.header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; overflow-x: auto; }
-.profile-icon {
-  width: 36px; height: 36px; background: #ff4b8b; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;
-}
-.chips { display: flex; gap: 8px; }
-.chip {
-  padding: 6px 14px; background: #2a2a2a; border-radius: 20px; font-size: 13px; font-weight: 500; white-space: nowrap;
-}
-.chip.active { background: #1ed760; color: #000; }
+    for (let t of terms) {
+        try {
+            const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(t)}&media=music&limit=5`);
+            const data = await res.json();
+            if(data.results) allResults = allResults.concat(data.results);
+        } catch(e) { console.log("Error loading home data", e); }
+    }
 
-/* ===== SECTION TITLES ===== */
-.section-title { font-size: 22px; font-weight: 700; margin: 20px 0 12px 0; letter-spacing: -0.5px; }
+    // Filter out items without artwork
+    allResults = allResults.filter(s => s.artworkUrl100);
 
-/* ===== QUICK GRID (Top 8 items) ===== */
-.quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.quick-item {
-  display: flex; align-items: center; gap: 10px; background: #282828; border-radius: 4px;
-  overflow: hidden; height: 56px; cursor: pointer;
-}
-.quick-item img { width: 56px; height: 56px; object-fit: cover; }
-.quick-item span { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;}
+    // Populate Quick Grid (Top 8 items)
+    const quickGrid = document.getElementById('quickGrid');
+    quickGrid.innerHTML = allResults.slice(0, 8).map(s => `
+        <div class="quick-item" onclick="playFromHome('${s.previewUrl}', '${s.trackName.replace(/'/g, "")}', '${s.artistName.replace(/'/g, "")}', '${s.artworkUrl100}')">
+            <img src="${s.artworkUrl100}" alt="">
+            <span>${s.collectionName || s.trackName}</span>
+        </div>
+    `).join('');
 
-/* ===== CARD SCROLL (Horizontal scrolling) ===== */
-.card-scroll { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 10px; }
-.card-scroll::-webkit-scrollbar { display: none; }
-.card {
-  width: 150px; flex-shrink: 0; scroll-snap-align: start; cursor: pointer;
-}
-.card img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6px; margin-bottom: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-.card-title { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.card-subtitle { font-size: 12px; color: #a7a7a7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;}
+    // Populate Jump Back In (Cards)
+    const jumpBackIn = document.getElementById('jumpBackIn');
+    jumpBackIn.innerHTML = allResults.slice(8, 18).map(s => `
+        <div class="card" onclick="playFromHome('${s.previewUrl}', '${s.trackName.replace(/'/g, "")}', '${s.artistName.replace(/'/g, "")}', '${s.artworkUrl100}')">
+            <img src="${s.artworkUrl100.replace('100x100', '300x300')}" alt="">
+            <div class="card-title">${s.collectionName || s.trackName}</div>
+            <div class="card-subtitle">${s.artistName}</div>
+        </div>
+    `).join('');
 
-/* ===== SEARCH SCREEN ===== */
-.search-header h2 { font-size: 26px; margin-bottom: 15px; }
-.search-header input {
-  width: 100%; padding: 12px 16px; background: #242424; border: none; border-radius: 6px;
-  color: #fff; font-size: 16px; outline: none;
+    // Populate Recommended
+    const recommended = document.getElementById('recommended');
+    recommended.innerHTML = allResults.slice(18, 28).map(s => `
+        <div class="card" onclick="playFromHome('${s.previewUrl}', '${s.trackName.replace(/'/g, "")}', '${s.artistName.replace(/'/g, "")}', '${s.artworkUrl100}')">
+            <img src="${s.artworkUrl100.replace('100x100', '300x300')}" alt="">
+            <div class="card-title">${s.collectionName || s.trackName}</div>
+            <div class="card-subtitle">${s.artistName}</div>
+        </div>
+    `).join('');
 }
-.status-msg { color: #a7a7a7; margin-top: 20px; text-align: center; }
-.song-list { list-style: none; margin-top: 15px; }
-.song-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #1a1a1a; cursor: pointer; }
-.song-item img { width: 45px; height: 45px; border-radius: 4px; }
-.song-info { flex: 1; min-width: 0; }
-.song-info .t { font-size: 15px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-.song-info .a { font-size: 12px; color: #a7a7a7; }
-.song-item i { color: #1ed760; }
 
-/* ===== MINI PLAYER ===== */
-.mini-player {
-  position: fixed; bottom: 65px; left: 8px; right: 8px;
-  background: #1a1a1a; border-radius: 8px; padding: 10px;
-  display: flex; align-items: center; gap: 12px; z-index: 100;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.6); border: 1px solid #282828;
-}
-.mini-player img { width: 44px; height: 44px; border-radius: 4px; background: #282828; }
-.mp-text { flex: 1; min-width: 0; }
-#songTitle { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#artistName { font-size: 12px; color: #a7a7a7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.mini-player button, .mini-player a {
-  background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; padding: 4px;
-}
-#playPauseBtn { font-size: 26px; color: #1ed760; }
-#downloadBtn { color: #a7a7a7; font-size: 18px; }
-.mp-progress {
-  position: absolute; bottom: 0; left: 10px; right: 10px; height: 2px; background: #333; border-radius: 2px;
-}
-#progressBar { height: 100%; background: #1ed760; width: 0%; border-radius: 2px; transition: width 0.1s; }
+// Call on load
+window.onload = loadHomeScreen;
 
-/* ===== BOTTOM NAVIGATION ===== */
-.bottom-nav {
-  position: fixed; bottom: 0; left: 0; right: 0; height: 60px;
-  background: linear-gradient(to top, #000 70%, rgba(0,0,0,0.8));
-  display: flex; justify-content: space-around; align-items: center; z-index: 101;
+// Play from Home screen
+function playFromHome(url, title, artist, art) {
+    if(!url) return alert("Preview not available");
+    audioPlayer.src = url;
+    songTitle.textContent = title;
+    artistName.textContent = artist;
+    coverArt.src = art;
+    downloadBtn.href = url;
+    downloadBtn.setAttribute('download', `${title}.m4a`);
+    
+    audioPlayer.play().catch(e => console.log(e));
 }
-.nav-item {
-  display: flex; flex-direction: column; align-items: center; gap: 4px; color: #a7a7a7; cursor: pointer;
+
+// ===== SEARCH FUNCTIONALITY =====
+let timer;
+searchInput.addEventListener('input', () => {
+  clearTimeout(timer);
+  timer = setTimeout(searchSongs, 500);
+});
+
+async function searchSongs() {
+  const q = searchInput.value.trim();
+  if (!q) { songList.innerHTML = ''; statusMsg.textContent = ''; return; }
+
+  statusMsg.textContent = 'Searching...';
+
+  try {
+    const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&media=music&limit=20`);
+    const data = await res.json();
+    songs = (data.results || []).filter(s => s.previewUrl);
+
+    if (songs.length === 0) {
+      statusMsg.textContent = 'No songs found.';
+      songList.innerHTML = '';
+      return;
+    }
+
+    statusMsg.textContent = '';
+    
+    songList.innerHTML = songs.map((s, i) => `
+      <li class="song-item" onclick="loadAndPlay(${i})">
+        <img src="${s.artworkUrl60}" alt="">
+        <div class="song-info">
+          <p class="t">${s.trackName}</p>
+          <p class="a">${s.artistName}</p>
+        </div>
+        <i class="fa-solid fa-play"></i>
+      </li>
+    `).join('');
+
+  } catch (err) {
+    statusMsg.textContent = 'Error searching songs.';
+  }
 }
-.nav-item i { font-size: 20px; }
-.nav-item span { font-size: 11px; font-weight: 600; }
-.nav-item.active { color: #fff; }
+
+function loadAndPlay(index) {
+  if (index < 0 || index >= songs.length) return;
+  currentIndex = index;
+  const s = songs[index];
+  playFromHome(s.previewUrl, s.trackName, s.artistName, s.artworkUrl100 || s.artworkUrl60);
+}
+
+// ===== PLAYER CONTROLS =====
+playPauseBtn.addEventListener('click', () => {
+  if (!audioPlayer.src) return;
+  if (audioPlayer.paused) audioPlayer.play().catch(console.error);
+  else audioPlayer.pause();
+});
+
+nextBtn.addEventListener('click', () => {
+  // If playing from Search, play next search song
+  if (songs.length > 0 && currentIndex !== -1) {
+      currentIndex = (currentIndex + 1) % songs.length;
+      loadAndPlay(currentIndex);
+  } else {
+      // If playing from home, just alert for now (since we didn't store home array globally)
+      alert("Next song: Search tab me jakar gaana select karein");
+  }
+});
+
+// ===== SYNC UI & PROGRESS =====
+audioPlayer.addEventListener('play',  () => playPauseBtn.innerHTML = '<i class="fa-solid fa-pause"></i>');
+audioPlayer.addEventListener('pause', () => playPauseBtn.innerHTML = '<i class="fa-solid fa-play"></i>');
+audioPlayer.addEventListener('ended', () => playPauseBtn.innerHTML = '<i class="fa-solid fa-play"></i>');
+
+audioPlayer.addEventListener('timeupdate', () => {
+  if (audioPlayer.duration) {
+    const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+    progressBar.style.width = percent + '%';
+  }
+});
