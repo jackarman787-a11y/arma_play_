@@ -1,201 +1,372 @@
-// ===== ELEMENTS =====
-const searchInput  = document.getElementById('searchInput');
-const songList     = document.getElementById('songList');
-const statusMsg    = document.getElementById('statusMsg');
-const audioPlayer  = document.getElementById('audioPlayer');
-const playPauseBtn = document.getElementById('playPauseBtn');
-const nextBtn      = document.getElementById('nextBtn');
-const songTitle    = document.getElementById('songTitle');
-const artistName   = document.getElementById('artistName');
-const coverArt     = document.getElementById('coverArt');
-const downloadBtn  = document.getElementById('downloadBtn');
-const progressBar  = document.getElementById('progressBar');
+/* =========================================
+   ARMA PLAY - FULL SONG MUSIC PLAYER
+   ========================================= */
+
+const API_BASE = "https://YOUR-AUTHORIZED-API.com";
+
+const searchInput = document.getElementById("searchInput");
+const songList = document.getElementById("songList");
+const statusMsg = document.getElementById("statusMsg");
+const audioPlayer = document.getElementById("audioPlayer");
+const playPauseBtn = document.getElementById("playPauseBtn");
+const nextBtn = document.getElementById("nextBtn");
+const songTitle = document.getElementById("songTitle");
+const artistName = document.getElementById("artistName");
+const coverArt = document.getElementById("coverArt");
+const downloadBtn = document.getElementById("downloadBtn");
+const progressBar = document.getElementById("progressBar");
 
 let songs = [];
+let homeSongsList = [];
 let currentIndex = -1;
+let currentSource = "search";
+let searchTimer;
+let requestId = 0;
 
-// Piped API (YouTube se full audio stream karta hai)
-const API_BASE = "https://pipedapi.kavin.rocks";
+audioPlayer.preload = "metadata";
 
-// Mobile Back Button rokne ke liye
-history.pushState(null, null, location.href);
-window.onpopstate = function () { history.go(1); };
-
-// Media Session (Lock screen controls)
-function updateMediaSession(song) {
-    if ('mediaSession' in navigator) {
-        navigator.mediaSession.metadata = new MediaMetadata({
-            title: song.title,
-            artist: song.uploaderName,
-            album: 'Arma Play',
-            artwork: [{ src: song.thumbnail, sizes: '512x512', type: 'image/jpeg' }]
-        });
-        navigator.mediaSession.setActionHandler('play', () => audioPlayer.play());
-        navigator.mediaSession.setActionHandler('pause', () => audioPlayer.pause());
-        navigator.mediaSession.setActionHandler('nexttrack', () => nextBtn.click());
-    }
+// Format duration
+function formatTime(time) {
+    if (!Number.isFinite(time)) return "0:00";
+    const m = Math.floor(time / 60);
+    const s = Math.floor(time % 60);
+    return `${m}:${String(s).padStart(2, "0")}`;
 }
 
-// Tab Switch
-function switchTab(tab) {
-    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-    if (tab === 'home') {
-        document.getElementById('homeScreen').classList.remove('hidden');
-        document.getElementById('searchScreen').classList.add('hidden');
-        document.querySelector('.nav-item:nth-child(1)').classList.add('active');
-    } else {
-        document.getElementById('homeScreen').classList.add('hidden');
-        document.getElementById('searchScreen').classList.remove('hidden');
-        document.querySelector('.nav-item:nth-child(2)').classList.add('active');
-    }
+// Normalize API song
+function normalizeSong(s) {
+    return {
+        title: s.title || s.name || "Unknown Song",
+        artist: s.artist || s.uploaderName || "Unknown Artist",
+        thumbnail: s.thumbnail || s.cover || "",
+        audioUrl: s.audioUrl || s.audio_url ||
+                  s.streamUrl || s.stream_url || "",
+        duration: s.duration || 0
+    };
 }
 
-// Home Data Load
-async function loadHomeScreen() {
-    try {
-        document.getElementById('quickGrid').innerHTML = '<p style="color:#aaa; font-size:12px;">Loading...</p>';
-        
-        // Popular songs fetch karo
-        const res = await fetch(`${API_BASE}/search?q=arijit+singh&filter=music_songs`);
-        const data = await res.json();
-        
-        homeSongsList = data.items ? data.items.filter(i => i.type === 'stream') : [];
-
-        const quickGrid = document.getElementById('quickGrid');
-        if (homeSongsList.length > 0) {
-            quickGrid.innerHTML = homeSongsList.slice(0, 8).map((s, i) => `
-                <div class="quick-item" onclick="playSong(${i}, 'home')">
-                    <img src="${s.thumbnail}" alt="">
-                    <span>${s.title}</span>
-                </div>
-            `).join('');
-        }
-
-        const jumpBackIn = document.getElementById('jumpBackIn');
-        if (homeSongsList.length > 8) {
-            jumpBackIn.innerHTML = homeSongsList.slice(8, 18).map((s, i) => `
-                <div class="card" onclick="playSong(${i+8}, 'home')">
-                    <img src="${s.thumbnail}" alt="">
-                    <div class="card-title">${s.title}</div>
-                    <div class="card-subtitle">${s.uploaderName}</div>
-                </div>
-            `).join('');
-        }
-    } catch(e) { 
-        console.log("Home load error", e); 
-        document.getElementById('quickGrid').innerHTML = '<p style="color:red; font-size:12px;">Network error. Refresh karein.</p>';
-    }
+// Get playlist
+function getPlaylist() {
+    return currentSource === "home"
+        ? homeSongsList : songs;
 }
 
-// ===== FULL SONG PLAY (Direct Stream) =====
-function playSong(index, sourceType) {
-    let listToUse = sourceType === 'home' ? homeSongsList : songs;
-    if (index < 0 || index >= listToUse.length) return;
-    
+// Load full audio
+function loadSong(index, source = currentSource) {
+    const list = source === "home" ? homeSongsList : songs;
+    const song = list[index];
+
+    if (!song) return false;
+
+    if (!song.audioUrl) {
+        statusMsg.textContent =
+            "Full-length audio unavailable for this track.";
+        return false;
+    }
+
     currentIndex = index;
-    let s = listToUse[currentIndex];
+    currentSource = source;
 
-    // Piped API videoId deti hai, usse stream URL banega
-    // Hum direct URL nahi bana sakte kyunki API se stream fetch karna padta hai
-    // Toh hum stream fetch karne ke liye alag function call karenge
-    
-    statusMsg.textContent = "Loading audio...";
-    
-    // Piped API ka video stream endpoint
-    fetch(`${API_BASE}/streams/${s.url.split('=')[1]}`)
-        .then(res => res.json())
-        .then(data => {
-            // Audio stream link dhundho
-            let audioStream = data.audioStreams?.find(a => a.mimeType.includes('mp4'));
-            
-            if (!audioStream) throw new Error("Audio link nahi mila");
+    requestId++;
 
-            audioPlayer.src = audioStream.url;
-            songTitle.textContent = s.title;
-            artistName.textContent = s.uploaderName;
-            coverArt.src = s.thumbnail;
-            downloadBtn.href = audioStream.url;
-            
-            updateMediaSession(s);
-            statusMsg.textContent = "";
-            
-            audioPlayer.play().then(() => {
-                playPauseBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
-            }).catch(e => alert("Playback error: " + e.message));
-        })
-        .catch(err => {
-            alert("Gaana load nahi hua: " + err.message);
-            statusMsg.textContent = "";
-        });
+    audioPlayer.pause();
+    audioPlayer.src = song.audioUrl;
+    audioPlayer.load();
+
+    songTitle.textContent = song.title;
+    artistName.textContent = song.artist;
+    coverArt.src = song.thumbnail;
+
+    downloadBtn.href = song.audioUrl;
+    downloadBtn.removeAttribute("download");
+
+    progressBar.style.width = "0%";
+    statusMsg.textContent = "Loading full song...";
+
+    updateMediaSession(song);
+
+    return true;
 }
 
-// Search
-let timer;
-searchInput.addEventListener('input', () => {
-    clearTimeout(timer);
-    timer = setTimeout(searchSongs, 600);
-});
+// Play song
+async function playSong(index, source = currentSource) {
+    if (!loadSong(index, source)) return;
 
-async function searchSongs() {
-    const q = searchInput.value.trim();
-    if (!q) { songList.innerHTML = ''; statusMsg.textContent = ''; return; }
-    statusMsg.textContent = 'Searching...';
+    const id = requestId;
 
     try {
-        const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(q)}&filter=music_songs`);
-        const data = await res.json();
-        songs = data.items ? data.items.filter(i => i.type === 'stream') : [];
+        await audioPlayer.play();
 
-        if (songs.length === 0) {
-            statusMsg.textContent = 'No songs found.';
-            songList.innerHTML = '';
+        if (id === requestId) {
+            statusMsg.textContent = "";
+        }
+    } catch (error) {
+        if (id === requestId) {
+            statusMsg.textContent = "Playback failed. Check audio API.";
+        }
+        console.error(error);
+    }
+}
+
+// Play / Pause
+async function togglePlay() {
+    if (!audioPlayer.src) return;
+
+    try {
+        if (audioPlayer.paused) {
+            await audioPlayer.play();
+        } else {
+            audioPlayer.pause();
+        }
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+// Next
+function nextSong() {
+    const list = getPlaylist();
+    if (!list.length || currentIndex < 0) return;
+
+    playSong((currentIndex + 1) % list.length);
+}
+
+// Previous
+function previousSong() {
+    const list = getPlaylist();
+    if (!list.length || currentIndex < 0) return;
+
+    if (audioPlayer.currentTime > 3) {
+        audioPlayer.currentTime = 0;
+        return;
+    }
+
+    playSong((currentIndex - 1 + list.length) % list.length);
+}
+
+// Media session
+function updateMediaSession(song) {
+    if (!("mediaSession" in navigator)) return;
+
+    navigator.mediaSession.metadata = new MediaMetadata({
+        title: song.title,
+        artist: song.artist,
+        album: "ARMA PLAY",
+        artwork: song.thumbnail ? [{
+            src: song.thumbnail,
+            sizes: "512x512",
+            type: "image/jpeg"
+        }] : []
+    });
+
+    navigator.mediaSession.setActionHandler("play", () => audioPlayer.play());
+    navigator.mediaSession.setActionHandler("pause", () => audioPlayer.pause());
+    navigator.mediaSession.setActionHandler("nexttrack", nextSong);
+    navigator.mediaSession.setActionHandler("previoustrack", previousSong);
+}
+
+// Search songs
+async function searchSongs() {
+    const query = searchInput.value.trim();
+
+    if (!query) {
+        songs = [];
+        songList.innerHTML = "";
+        statusMsg.textContent = "";
+        return;
+    }
+
+    const id = ++requestId;
+    statusMsg.textContent = "Searching...";
+
+    try {
+        const response = await fetch(
+            `${API_BASE}/search?q=${encodeURIComponent(query)}`
+        );
+
+        if (!response.ok) throw new Error("API error");
+
+        const data = await response.json();
+
+        if (id !== requestId) return;
+
+        const results = Array.isArray(data)
+            ? data
+            : data.songs || data.items || [];
+
+        songs = results.map(normalizeSong);
+
+        if (!songs.length) {
+            statusMsg.textContent = "No songs found.";
+            songList.innerHTML = "";
             return;
         }
-        statusMsg.textContent = '';
-        
+
+        statusMsg.textContent = "";
+
         songList.innerHTML = songs.map((s, i) => `
-            <li class="song-item" onclick="playSong(${i}, 'search')">
-                <img src="${s.thumbnail}" alt="">
+            <li class="song-item" data-index="${i}">
+                <img src="${escapeHTML(s.thumbnail)}" alt="">
                 <div class="song-info">
-                    <p class="t">${s.title}</p>
-                    <p class="a">${s.uploaderName}</p>
+                    <p class="t">${escapeHTML(s.title)}</p>
+                    <p class="a">${escapeHTML(s.artist)}</p>
                 </div>
                 <i class="fa-solid fa-play"></i>
             </li>
-        `).join('');
-    } catch (err) {
-        statusMsg.textContent = 'Error searching.';
+        `).join("");
+
+    } catch (error) {
+        statusMsg.textContent = "Search API unavailable.";
+        console.error(error);
     }
 }
 
-// Controls
-playPauseBtn.addEventListener('click', () => {
-    if (!audioPlayer.src) return;
-    if (audioPlayer.paused) audioPlayer.play();
-    else audioPlayer.pause();
+// Escape text
+function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, c => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+    })[c]);
+}
+
+// Search delay
+searchInput.addEventListener("input", () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(searchSongs, 500);
 });
 
-nextBtn.addEventListener('click', () => {
-    let isHome = !document.getElementById('homeScreen').classList.contains('hidden');
-    let listToUse = isHome ? homeSongsList : songs;
-    if (listToUse.length > 0 && currentIndex !== -1) {
-        playSong((currentIndex + 1) % listToUse.length, isHome ? 'home' : 'search');
-    }
+// Select search song
+songList.addEventListener("click", event => {
+    const item = event.target.closest("[data-index]");
+    if (item) playSong(Number(item.dataset.index), "search");
 });
 
-// Sync UI
-audioPlayer.addEventListener('play',  () => playPauseBtn.innerHTML = '<i class="fa-solid fa-pause"></i>');
-audioPlayer.addEventListener('pause', () => playPauseBtn.innerHTML = '<i class="fa-solid fa-play"></i>');
-audioPlayer.addEventListener('ended', () => {
+// Progress bar
+audioPlayer.addEventListener("timeupdate", () => {
+    if (!Number.isFinite(audioPlayer.duration)) return;
+
+    const percent =
+        audioPlayer.currentTime / audioPlayer.duration * 100;
+
+    progressBar.style.width = percent + "%";
+
+    const current = document.getElementById("currentTime");
+    const total = document.getElementById("totalTime");
+
+    if (current) current.textContent = formatTime(audioPlayer.currentTime);
+    if (total) total.textContent = formatTime(audioPlayer.duration);
+});
+
+// Seek
+progressBar.parentElement.addEventListener("click", event => {
+    if (!Number.isFinite(audioPlayer.duration)) return;
+
+    const rect = event.currentTarget.getBoundingClientRect();
+    const percent = Math.max(0, Math.min(1,
+        (event.clientX - rect.left) / rect.width
+    ));
+
+    audioPlayer.currentTime = percent * audioPlayer.duration;
+});
+
+// Player controls
+playPauseBtn.addEventListener("click", togglePlay);
+nextBtn.addEventListener("click", nextSong);
+
+document.getElementById("previousBtn")
+    ?.addEventListener("click", previousSong);
+
+// Player icons
+audioPlayer.addEventListener("play", () => {
+    playPauseBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+});
+
+audioPlayer.addEventListener("pause", () => {
     playPauseBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
-    nextBtn.click();
 });
 
-// Progress
-audioPlayer.addEventListener('timeupdate', () => {
-    if (audioPlayer.duration) {
-        progressBar.style.width = ((audioPlayer.currentTime / audioPlayer.duration) * 100) + '%';
+// Automatic next song
+audioPlayer.addEventListener("ended", nextSong);
+
+// Loading and error
+audioPlayer.addEventListener("waiting", () => {
+    statusMsg.textContent = "Buffering...";
+});
+
+audioPlayer.addEventListener("playing", () => {
+    statusMsg.textContent = "";
+});
+
+audioPlayer.addEventListener("error", () => {
+    statusMsg.textContent = "Audio stream unavailable.";
+});
+
+// Home screen
+async function loadHomeScreen() {
+    try {
+        const response = await fetch(
+            `${API_BASE}/search?q=popular`
+        );
+
+        if (!response.ok) throw new Error("API error");
+
+        const data = await response.json();
+
+        const results = Array.isArray(data)
+            ? data : data.songs || data.items || [];
+
+        homeSongsList = results.map(normalizeSong);
+
+        const quickGrid = document.getElementById("quickGrid");
+        const jumpBackIn = document.getElementById("jumpBackIn");
+
+        quickGrid.innerHTML = homeSongsList.slice(0, 8)
+            .map((s, i) => `
+                <div class="quick-item" data-home="${i}">
+                    <img src="${escapeHTML(s.thumbnail)}">
+                    <span>${escapeHTML(s.title)}</span>
+                </div>
+            `).join("");
+
+        jumpBackIn.innerHTML = homeSongsList.slice(8, 18)
+            .map((s, i) => `
+                <div class="card" data-home="${i + 8}">
+                    <img src="${escapeHTML(s.thumbnail)}">
+                    <div class="card-title">${escapeHTML(s.title)}</div>
+                    <div class="card-subtitle">${escapeHTML(s.artist)}</div>
+                </div>
+            `).join("");
+
+    } catch (error) {
+        console.error("Home API error:", error);
     }
+}
+
+// Home click
+document.addEventListener("click", event => {
+    const item = event.target.closest("[data-home]");
+    if (item) playSong(Number(item.dataset.home), "home");
 });
 
-window.onload = loadHomeScreen;
+// Tabs
+function switchTab(tab) {
+    document.querySelectorAll(".nav-item")
+        .forEach(n => n.classList.remove("active"));
+
+    document.getElementById("homeScreen")
+        .classList.toggle("hidden", tab !== "home");
+
+    document.getElementById("searchScreen")
+        .classList.toggle("hidden", tab !== "search");
+
+    document.querySelector(
+        `.nav-item:nth-child(${tab === "home" ? 1 : 2})`
+    )?.classList.add("active");
+}
+
+// Start
+loadHomeScreen();
+                        
