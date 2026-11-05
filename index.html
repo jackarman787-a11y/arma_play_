@@ -77,3 +77,39 @@ j<!DOCTYPE html>
     <script src="script.js"></script>
 </body>
 </html>
+<input id="searchInput" placeholder="Search music...">
+<button onclick="searchMusic()">Search</button>
+<div id="results"></div>
+
+<script>
+async function searchMusic() {
+  const q = document.getElementById('searchInput').value;
+  if (!q) return alert("Enter a song name");
+
+  try {
+    // Example: iTunes Search API (CORS-friendly, no key needed)
+    const res = await fetch(
+      `https://itunes.apple.com/search?term=${encodeURIComponent(q)}&media=music&limit=10`
+    );
+    if (!res.ok) throw new Error("HTTP " + res.status);
+
+    const data = await res.json();
+    console.log("API response:", data); // 👈 check this in console
+
+    if (!data.results || data.results.length === 0) {
+      document.getElementById('results').innerHTML = "<p>No results found</p>";
+      return;
+    }
+
+    document.getElementById('results').innerHTML = data.results.map(song => `
+      <div>
+        <span>${song.trackName} — ${song.artistName}</span>
+        <button onclick="playSong('${song.previewUrl}')">▶ Play</button>
+      </div>
+    `).join('');
+  } catch (err) {
+    console.error("Search failed:", err); // 👈 open DevTools (F12) → Console
+    document.getElementById('results').innerHTML = "<p>Search error: " + err.message + "</p>";
+  }
+}
+</script>
