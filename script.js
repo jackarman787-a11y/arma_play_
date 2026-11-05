@@ -13,42 +13,22 @@ const progressBar  = document.getElementById('progressBar');
 
 let songs = [];
 let currentIndex = -1;
-let homeSongsList = [];
+
+// Piped API (YouTube se full audio stream karta hai)
+const API_BASE = "https://pipedapi.kavin.rocks";
 
 // Mobile Back Button rokne ke liye
 history.pushState(null, null, location.href);
 window.onpopstate = function () { history.go(1); };
 
-// ===== JIOSAAVN API & DECRYPTION SETUP =====
-const CORS_PROXY = "https://api.allorigins.win/raw?url=";
-const JIOSAAVN_SEARCH = "https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&_marker=0&api_version=4&ctx=web6dot0&q=";
-
-// JioSaavn ke encrypted link ko decrypt karne ka function
-function decryptUrl(encryptedUrl) {
-    try {
-        const key = CryptoJS.enc.Utf8.parse("38346591");
-        const decrypted = CryptoJS.DES.decrypt(
-            { ciphertext: CryptoJS.enc.Base64.parse(encryptedUrl) },
-            key,
-            { mode: CryptoJS.mode.ECB, padding: CryptoJS.pad.Pkcs7 }
-        );
-        let url = decrypted.toString(CryptoJS.enc.Utf8);
-        // 96kbps ko 320kbps mein convert karo
-        return url.replace('_96.mp4', '_320.mp4').replace('_96_p.mp4', '_320.mp4');
-    } catch (e) {
-        console.log("Decrypt error", e);
-        return null;
-    }
-}
-
 // Media Session (Lock screen controls)
 function updateMediaSession(song) {
     if ('mediaSession' in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
-            title: song.song || 'Unknown',
-            artist: song.primary_artists || 'Artist',
+            title: song.title,
+            artist: song.uploaderName,
             album: 'Arma Play',
-            artwork: [{ src: song.image || 'https://via.placeholder.com/512', sizes: '512x512', type: 'image/jpeg' }]
+            artwork: [{ src: song.thumbnail, sizes: '512x512', type: 'image/jpeg' }]
         });
         navigator.mediaSession.setActionHandler('play', () => audioPlayer.play());
         navigator.mediaSession.setActionHandler('pause', () => audioPlayer.pause());
@@ -70,20 +50,23 @@ function switchTab(tab) {
     }
 }
 
-// Home Screen Load (Arijit Singh ke songs)
+// Home Data Load
 async function loadHomeScreen() {
     try {
         document.getElementById('quickGrid').innerHTML = '<p style="color:#aaa; font-size:12px;">Loading...</p>';
-        const res = await fetch(`${CORS_PROXY}${encodeURIComponent(JIOSAAVN_SEARCH + 'arijit singh')}`);
+        
+        // Popular songs fetch karo
+        const res = await fetch(`${API_BASE}/search?q=arijit+singh&filter=music_songs`);
         const data = await res.json();
-        homeSongsList = data.results || [];
+        
+        homeSongsList = data.items ? data.items.filter(i => i.type === 'stream') : [];
 
         const quickGrid = document.getElementById('quickGrid');
         if (homeSongsList.length > 0) {
             quickGrid.innerHTML = homeSongsList.slice(0, 8).map((s, i) => `
                 <div class="quick-item" onclick="playSong(${i}, 'home')">
-                    <img src="${s.image || 'https://via.placeholder.com/56'}" alt="">
-                    <span>${s.song}</span>
+                    <img src="${s.thumbnail}" alt="">
+                    <span>${s.title}</span>
                 </div>
             `).join('');
         }
@@ -92,9 +75,9 @@ async function loadHomeScreen() {
         if (homeSongsList.length > 8) {
             jumpBackIn.innerHTML = homeSongsList.slice(8, 18).map((s, i) => `
                 <div class="card" onclick="playSong(${i+8}, 'home')">
-                    <img src="${s.image || 'https://via.placeholder.com/150'}" alt="">
-                    <div class="card-title">${s.song}</div>
-                    <div class="card-subtitle">${s.primary_artists}</div>
+                    <img src="${s.thumbnail}" alt="">
+                    <div class="card-title">${s.title}</div>
+                    <div class="card-subtitle">${s.uploaderName}</div>
                 </div>
             `).join('');
         }
@@ -104,7 +87,7 @@ async function loadHomeScreen() {
     }
 }
 
-// ===== FULL SONG PLAY =====
+// ===== FULL SONG PLAY (Direct Stream) =====
 function playSong(index, sourceType) {
     let listToUse = sourceType === 'home' ? homeSongsList : songs;
     if (index < 0 || index >= listToUse.length) return;
@@ -112,23 +95,38 @@ function playSong(index, sourceType) {
     currentIndex = index;
     let s = listToUse[currentIndex];
 
-    // Decrypt the link to get full 320kbps audio
-    let streamUrl = decryptUrl(s.encrypted_media_url);
+    // Piped API videoId deti hai, usse stream URL banega
+    // Hum direct URL nahi bana sakte kyunki API se stream fetch karna padta hai
+    // Toh hum stream fetch karne ke liye alag function call karenge
     
-    if (!streamUrl) return alert("Gaane ka link nahi mila. Agla try karein.");
+    statusMsg.textContent = "Loading audio...";
+    
+    // Piped API ka video stream endpoint
+    fetch(`${API_BASE}/streams/${s.url.split('=')[1]}`)
+        .then(res => res.json())
+        .then(data => {
+            // Audio stream link dhundho
+            let audioStream = data.audioStreams?.find(a => a.mimeType.includes('mp4'));
+            
+            if (!audioStream) throw new Error("Audio link nahi mila");
 
-    audioPlayer.src = streamUrl;
-    songTitle.textContent = s.song;
-    artistName.textContent = s.primary_artists;
-    coverArt.src = s.image;
-    downloadBtn.href = streamUrl;
-    downloadBtn.setAttribute('download', `${s.song}.mp4`);
-    
-    updateMediaSession(s);
-    
-    audioPlayer.play().then(() => {
-        playPauseBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
-    }).catch(e => alert("Playback error: " + e.message));
+            audioPlayer.src = audioStream.url;
+            songTitle.textContent = s.title;
+            artistName.textContent = s.uploaderName;
+            coverArt.src = s.thumbnail;
+            downloadBtn.href = audioStream.url;
+            
+            updateMediaSession(s);
+            statusMsg.textContent = "";
+            
+            audioPlayer.play().then(() => {
+                playPauseBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+            }).catch(e => alert("Playback error: " + e.message));
+        })
+        .catch(err => {
+            alert("Gaana load nahi hua: " + err.message);
+            statusMsg.textContent = "";
+        });
 }
 
 // Search
@@ -144,9 +142,9 @@ async function searchSongs() {
     statusMsg.textContent = 'Searching...';
 
     try {
-        const res = await fetch(`${CORS_PROXY}${encodeURIComponent(JIOSAAVN_SEARCH + q)}`);
+        const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(q)}&filter=music_songs`);
         const data = await res.json();
-        songs = data.results || [];
+        songs = data.items ? data.items.filter(i => i.type === 'stream') : [];
 
         if (songs.length === 0) {
             statusMsg.textContent = 'No songs found.';
@@ -157,10 +155,10 @@ async function searchSongs() {
         
         songList.innerHTML = songs.map((s, i) => `
             <li class="song-item" onclick="playSong(${i}, 'search')">
-                <img src="${s.image || 'https://via.placeholder.com/45'}" alt="">
+                <img src="${s.thumbnail}" alt="">
                 <div class="song-info">
-                    <p class="t">${s.song}</p>
-                    <p class="a">${s.primary_artists}</p>
+                    <p class="t">${s.title}</p>
+                    <p class="a">${s.uploaderName}</p>
                 </div>
                 <i class="fa-solid fa-play"></i>
             </li>
@@ -190,7 +188,7 @@ audioPlayer.addEventListener('play',  () => playPauseBtn.innerHTML = '<i class="
 audioPlayer.addEventListener('pause', () => playPauseBtn.innerHTML = '<i class="fa-solid fa-play"></i>');
 audioPlayer.addEventListener('ended', () => {
     playPauseBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
-    nextBtn.click(); // Auto next song
+    nextBtn.click();
 });
 
 // Progress
