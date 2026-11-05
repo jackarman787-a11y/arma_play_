@@ -25,23 +25,19 @@
         <!-- Section 1: Quick Grid -->
         <div class="section-title">Arma Play Picks</div>
         <div class="quick-grid" id="quickGrid">
-            <!-- JS se cards aayenge -->
+            <p style="color:#aaa; font-size: 14px;">Loading songs...</p>
         </div>
 
         <!-- Section 2: Jump Back In -->
         <div class="section-title">Jump back in</div>
-        <div class="card-scroll" id="jumpBackIn">
-            <!-- JS se cards aayenge -->
-        </div>
+        <div class="card-scroll" id="jumpBackIn"></div>
 
         <!-- Section 3: Recommended Stations -->
         <div class="section-title">Recommended Stations</div>
-        <div class="card-scroll" id="recommended">
-            <!-- JS se cards aayenge -->
-        </div>
+        <div class="card-scroll" id="recommended"></div>
     </div>
 
-    <!-- ===== SEARCH SCREEN (Hidden by default) ===== -->
+    <!-- ===== SEARCH SCREEN ===== -->
     <div class="app-container hidden" id="searchScreen">
         <div class="search-header">
             <h2>Search</h2>
@@ -53,7 +49,7 @@
 
     <!-- ===== MINI PLAYER BAR ===== -->
     <div class="mini-player" id="miniPlayer">
-        <img id="coverArt" src="" alt="">
+        <img id="coverArt" src="https://via.placeholder.com/44" alt="">
         <div class="mp-text">
             <p id="songTitle">ARMA PLAY</p>
             <p id="artistName">Select a song</p>
@@ -62,9 +58,9 @@
         <button id="nextBtn"><i class="fa-solid fa-forward-step"></i></button>
         <a id="downloadBtn" href="#" download><i class="fa-solid fa-download"></i></a>
         
-        <!-- Progress bar at bottom of mini player -->
+        <!-- Progress bar -->
         <div class="mp-progress"><div id="progressBar"></div></div>
-        <audio id="audioPlayer"></audio>
+        <audio id="audioPlayer" crossorigin="anonymous"></audio>
     </div>
 
     <!-- ===== BOTTOM NAVIGATION ===== -->
@@ -83,6 +79,186 @@
         </div>
     </nav>
 
-    <script src="script.js"></script>
+    <!-- ===== JAVASCRIPT SEEDHA YAHIN HAI ===== -->
+    <script>
+        const searchInput  = document.getElementById('searchInput');
+        const songList     = document.getElementById('songList');
+        const statusMsg    = document.getElementById('statusMsg');
+        const audioPlayer  = document.getElementById('audioPlayer');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const nextBtn      = document.getElementById('nextBtn');
+        const songTitle    = document.getElementById('songTitle');
+        const artistName   = document.getElementById('artistName');
+        const coverArt     = document.getElementById('coverArt');
+        const downloadBtn  = document.getElementById('downloadBtn');
+        const progressBar  = document.getElementById('progressBar');
+
+        let songs = [];
+        let currentIndex = -1;
+        let homeSongsList = []; // Home screen ke gaano ke liye
+
+        // 1. Tab Switch Function
+        function switchTab(tab) {
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            if (tab === 'home') {
+                document.getElementById('homeScreen').classList.remove('hidden');
+                document.getElementById('searchScreen').classList.add('hidden');
+                document.querySelector('.nav-item:nth-child(1)').classList.add('active');
+            } else {
+                document.getElementById('homeScreen').classList.add('hidden');
+                document.getElementById('searchScreen').classList.remove('hidden');
+                document.querySelector('.nav-item:nth-child(2)').classList.add('active');
+            }
+        }
+
+        // 2. Fetch Home Data
+        async function loadHomeScreen() {
+            try {
+                const terms = ['arijit singh', 'karan aujla', 'atif aslam', 'khesari lal yadav', 'diljit dosanjh'];
+                let allResults = [];
+
+                for (let t of terms) {
+                    const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(t)}&media=music&limit=6`);
+                    const data = await res.json();
+                    if(data.results) allResults = allResults.concat(data.results);
+                }
+
+                homeSongsList = allResults.filter(s => s.artworkUrl100);
+
+                // Quick Grid (Top 8)
+                const quickGrid = document.getElementById('quickGrid');
+                quickGrid.innerHTML = homeSongsList.slice(0, 8).map((s, i) => `
+                    <div class="quick-item" onclick="playSong(${i}, 'home')">
+                        <img src="${s.artworkUrl100}" alt="">
+                        <span>${s.collectionName || s.trackName}</span>
+                    </div>
+                `).join('');
+
+                // Jump Back In
+                document.getElementById('jumpBackIn').innerHTML = homeSongsList.slice(8, 18).map((s, i) => `
+                    <div class="card" onclick="playSong(${i+8}, 'home')">
+                        <img src="${s.artworkUrl100.replace('100x100', '300x300')}" alt="">
+                        <div class="card-title">${s.collectionName || s.trackName}</div>
+                        <div class="card-subtitle">${s.artistName}</div>
+                    </div>
+                `).join('');
+
+                // Recommended
+                document.getElementById('recommended').innerHTML = homeSongsList.slice(18, 28).map((s, i) => `
+                    <div class="card" onclick="playSong(${i+18}, 'home')">
+                        <img src="${s.artworkUrl100.replace('100x100', '300x300')}" alt="">
+                        <div class="card-title">${s.collectionName || s.trackName}</div>
+                        <div class="card-subtitle">${s.artistName}</div>
+                    </div>
+                `).join('');
+
+            } catch(e) {
+                console.log("Data load error", e);
+            }
+        }
+
+        // 3. Play Song Function
+        function playSong(index, sourceType) {
+            let listToUse = sourceType === 'home' ? homeSongsList : songs;
+            if (index < 0 || index >= listToUse.length) return;
+            
+            currentIndex = index;
+            let s = listToUse[currentIndex];
+
+            if(!s.previewUrl) return alert("Is gaane ka preview nahi hai!");
+
+            audioPlayer.src = s.previewUrl;
+            songTitle.textContent = s.trackName;
+            artistName.textContent = s.artistName;
+            coverArt.src = s.artworkUrl100 || s.artworkUrl60;
+            downloadBtn.href = s.previewUrl;
+            downloadBtn.setAttribute('download', `${s.trackName}.m4a`);
+            
+            audioPlayer.play().then(() => {
+                playPauseBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+            }).catch(e => {
+                alert("Playback error: " + e.message);
+            });
+        }
+
+        // 4. Search Functionality
+        let timer;
+        searchInput.addEventListener('input', () => {
+            clearTimeout(timer);
+            timer = setTimeout(searchSongs, 600);
+        });
+
+        async function searchSongs() {
+            const q = searchInput.value.trim();
+            if (!q) { songList.innerHTML = ''; statusMsg.textContent = ''; return; }
+
+            statusMsg.textContent = 'Searching...';
+
+            try {
+                const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&media=music&limit=20`);
+                const data = await res.json();
+                songs = (data.results || []).filter(s => s.previewUrl);
+
+                if (songs.length === 0) {
+                    statusMsg.textContent = 'No songs found.';
+                    songList.innerHTML = '';
+                    return;
+                }
+
+                statusMsg.textContent = '';
+                
+                songList.innerHTML = songs.map((s, i) => `
+                    <li class="song-item" onclick="playSong(${i}, 'search')">
+                        <img src="${s.artworkUrl60}" alt="">
+                        <div class="song-info">
+                            <p class="t">${s.trackName}</p>
+                            <p class="a">${s.artistName}</p>
+                        </div>
+                        <i class="fa-solid fa-play"></i>
+                    </li>
+                `).join('');
+
+            } catch (err) {
+                statusMsg.textContent = 'Error searching songs.';
+            }
+        }
+
+        // 5. Player Controls
+        playPauseBtn.addEventListener('click', () => {
+            if (!audioPlayer.src) return alert("Pehle koi gaana select karo!");
+            if (audioPlayer.paused) {
+                audioPlayer.play().catch(console.error);
+            } else {
+                audioPlayer.pause();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            // Check karta hai ki current source home tha ya search
+            let isHome = !document.getElementById('homeScreen').classList.contains('hidden');
+            let listToUse = isHome ? homeSongsList : songs;
+            
+            if (listToUse.length > 0 && currentIndex !== -1) {
+                let nextIndex = (currentIndex + 1) % listToUse.length;
+                playSong(nextIndex, isHome ? 'home' : 'search');
+            }
+        });
+
+        // 6. Audio State Sync
+        audioPlayer.addEventListener('play',  () => playPauseBtn.innerHTML = '<i class="fa-solid fa-pause"></i>');
+        audioPlayer.addEventListener('pause', () => playPauseBtn.innerHTML = '<i class="fa-solid fa-play"></i>');
+        audioPlayer.addEventListener('ended', () => playPauseBtn.innerHTML = '<i class="fa-solid fa-play"></i>');
+
+        // 7. Progress Bar Update
+        audioPlayer.addEventListener('timeupdate', () => {
+            if (audioPlayer.duration) {
+                const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+                progressBar.style.width = percent + '%';
+            }
+        });
+
+        // App Start
+        window.onload = loadHomeScreen;
+    </script>
 </body>
 </html>
