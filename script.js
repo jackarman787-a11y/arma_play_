@@ -1,145 +1,96 @@
 // ===== ELEMENTS =====
-const searchInput  = document.getElementById('searchInput');
-const songList     = document.getElementById('songList');
-const statusMsg    = document.getElementById('statusMsg');
-const audioPlayer  = document.getElementById('audioPlayer');
-const playPauseBtn = document.getElementById('playPauseBtn');
-const prevBtn      = document.getElementById('prevBtn');
-const nextBtn      = document.getElementById('nextBtn');
-const songTitle    = document.getElementById('songTitle');
-const artistName   = document.getElementById('artistName');
-const coverArt     = document.getElementById('coverArt');
-const downloadBtn  = document.getElementById('downloadBtn');
-const seekBar      = document.getElementById('seekBar');
-const currentTime  = document.getElementById('currentTime');
-const durationEl   = document.getElementById('duration');
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 
-let songs = [];
-let currentIndex = -1;
-
-// ===== SEARCH (debounced) =====
-let timer;
-searchInput.addEventListener('input', () => {
-  clearTimeout(timer);
-  timer = setTimeout(searchSongs, 500);
-});
-
-async function searchSongs() {
-  const q = searchInput.value.trim();
-  if (!q) { songList.innerHTML = ''; statusMsg.textContent = ''; return; }
-
-  statusMsg.textContent = 'Searching...';
-
-  try {
-    const url = `https://itunes.apple.com/search?term=${encodeURIComponent(q)}&media=music&limit=20`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-
-    const data = await res.json();
-    songs = (data.results || []).filter(s => s.previewUrl);
-
-    if (songs.length === 0) {
-      statusMsg.textContent = 'कोई गाना नहीं मिला';
-      songList.innerHTML = '';
-      return;
-    }
-
-    statusMsg.textContent = '';
-    renderSongs();
-  } catch (err) {
-    console.error(err);
-    statusMsg.textContent = 'Search error: ' + err.message;
-  }
+body {
+  background-color: #000;
+  color: #fff;
+  padding-bottom: 150px; /* Space for mini player and nav */
+  overflow-x: hidden;
 }
 
-// ===== RENDER LIST =====
-function renderSongs() {
-  songList.innerHTML = songs.map((s, i) => `
-    <li class="song-item ${i === currentIndex ? 'active' : ''}" data-index="${i}">
-      <img src="${s.artworkUrl60}" alt="">
-      <div class="song-info">
-        <p class="t">${s.trackName}</p>
-        <p class="a">${s.artistName}</p>
-      </div>
-      <a class="dl-one" href="${s.previewUrl}" download title="Download">⬇</a>
-      <button class="play-one">▶</button>
-    </li>
-  `).join('');
+/* ===== COMMON ===== */
+.hidden { display: none !important; }
+.app-container { padding: 16px; }
 
-  songList.querySelectorAll('.song-item').forEach(li => {
-    li.addEventListener('click', (e) => {
-      if (e.target.classList.contains('dl-one')) return; // download link pe click ho to play na ho
-      loadAndPlay(Number(li.dataset.index));
-    });
-  });
+/* ===== HEADER ===== */
+.header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; overflow-x: auto; }
+.profile-icon {
+  width: 36px; height: 36px; background: #ff4b8b; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;
 }
-
-// ===== LOAD + PLAY =====
-function loadAndPlay(index) {
-  if (index < 0 || index >= songs.length) return;
-  currentIndex = index;
-  const s = songs[index];
-
-  audioPlayer.src = s.previewUrl;
-  songTitle.textContent = s.trackName;
-  artistName.textContent = s.artistName;
-  coverArt.src = s.artworkUrl100 || s.artworkUrl60 || '';
-  downloadBtn.href = s.previewUrl;
-  downloadBtn.setAttribute('download', `${s.trackName} - ${s.artistName}.m4a`);
-
-  audioPlayer.play().catch(err => console.error('Play error:', err));
-
-  // highlight active song
-  songList.querySelectorAll('.song-item').forEach(li => li.classList.remove('active'));
-  const active = songList.querySelector(`.song-item[data-index="${index}"]`);
-  if (active) active.classList.add('active');
+.chips { display: flex; gap: 8px; }
+.chip {
+  padding: 6px 14px; background: #2a2a2a; border-radius: 20px; font-size: 13px; font-weight: 500; white-space: nowrap;
 }
+.chip.active { background: #1ed760; color: #000; }
 
-// ===== PLAY / PAUSE =====
-playPauseBtn.addEventListener('click', () => {
-  if (!audioPlayer.src) { alert('पहले कोई गाना चुनो'); return; }
-  if (audioPlayer.paused) audioPlayer.play().catch(console.error);
-  else audioPlayer.pause();
-});
+/* ===== SECTION TITLES ===== */
+.section-title { font-size: 22px; font-weight: 700; margin: 20px 0 12px 0; letter-spacing: -0.5px; }
 
-// ===== NEXT / PREVIOUS =====
-nextBtn.addEventListener('click', () => {
-  if (songs.length === 0) return;
-  loadAndPlay((currentIndex + 1) % songs.length);
-});
-
-prevBtn.addEventListener('click', () => {
-  if (songs.length === 0) return;
-  if (audioPlayer.currentTime > 3) { audioPlayer.currentTime = 0; return; }
-  loadAndPlay((currentIndex - 1 + songs.length) % songs.length);
-});
-
-// ===== SYNC UI =====
-audioPlayer.addEventListener('play',  () => playPauseBtn.textContent = '⏸');
-audioPlayer.addEventListener('pause', () => playPauseBtn.textContent = '▶');
-audioPlayer.addEventListener('ended', () => {
-  playPauseBtn.textContent = '▶';
-  if (songs.length > 0) loadAndPlay((currentIndex + 1) % songs.length);
-});
-
-// ===== PROGRESS BAR =====
-function fmt(t) {
-  if (!t || isNaN(t)) return '0:00';
-  const m = Math.floor(t / 60);
-  const s = Math.floor(t % 60).toString().padStart(2, '0');
-  return `${m}:${s}`;
+/* ===== QUICK GRID (Top 8 items) ===== */
+.quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.quick-item {
+  display: flex; align-items: center; gap: 10px; background: #282828; border-radius: 4px;
+  overflow: hidden; height: 56px; cursor: pointer;
 }
+.quick-item img { width: 56px; height: 56px; object-fit: cover; }
+.quick-item span { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;}
 
-audioPlayer.addEventListener('loadedmetadata', () => {
-  seekBar.max = audioPlayer.duration;
-  durationEl.textContent = fmt(audioPlayer.duration);
-});
+/* ===== CARD SCROLL (Horizontal scrolling) ===== */
+.card-scroll { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 10px; }
+.card-scroll::-webkit-scrollbar { display: none; }
+.card {
+  width: 150px; flex-shrink: 0; scroll-snap-align: start; cursor: pointer;
+}
+.card img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6px; margin-bottom: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+.card-title { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-subtitle { font-size: 12px; color: #a7a7a7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;}
 
-audioPlayer.addEventListener('timeupdate', () => {
-  seekBar.value = audioPlayer.currentTime;
-  currentTime.textContent = fmt(audioPlayer.currentTime);
-});
+/* ===== SEARCH SCREEN ===== */
+.search-header h2 { font-size: 26px; margin-bottom: 15px; }
+.search-header input {
+  width: 100%; padding: 12px 16px; background: #242424; border: none; border-radius: 6px;
+  color: #fff; font-size: 16px; outline: none;
+}
+.status-msg { color: #a7a7a7; margin-top: 20px; text-align: center; }
+.song-list { list-style: none; margin-top: 15px; }
+.song-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #1a1a1a; cursor: pointer; }
+.song-item img { width: 45px; height: 45px; border-radius: 4px; }
+.song-info { flex: 1; min-width: 0; }
+.song-info .t { font-size: 15px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+.song-info .a { font-size: 12px; color: #a7a7a7; }
+.song-item i { color: #1ed760; }
 
-seekBar.addEventListener('input', () => {
-  audioPlayer.currentTime = seekBar.value;
-});
+/* ===== MINI PLAYER ===== */
+.mini-player {
+  position: fixed; bottom: 65px; left: 8px; right: 8px;
+  background: #1a1a1a; border-radius: 8px; padding: 10px;
+  display: flex; align-items: center; gap: 12px; z-index: 100;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.6); border: 1px solid #282828;
+}
+.mini-player img { width: 44px; height: 44px; border-radius: 4px; background: #282828; }
+.mp-text { flex: 1; min-width: 0; }
+#songTitle { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#artistName { font-size: 12px; color: #a7a7a7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mini-player button, .mini-player a {
+  background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; padding: 4px;
+}
+#playPauseBtn { font-size: 26px; color: #1ed760; }
+#downloadBtn { color: #a7a7a7; font-size: 18px; }
+.mp-progress {
+  position: absolute; bottom: 0; left: 10px; right: 10px; height: 2px; background: #333; border-radius: 2px;
+}
+#progressBar { height: 100%; background: #1ed760; width: 0%; border-radius: 2px; transition: width 0.1s; }
+
+/* ===== BOTTOM NAVIGATION ===== */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; height: 60px;
+  background: linear-gradient(to top, #000 70%, rgba(0,0,0,0.8));
+  display: flex; justify-content: space-around; align-items: center; z-index: 101;
+}
+.nav-item {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; color: #a7a7a7; cursor: pointer;
+}
+.nav-item i { font-size: 20px; }
+.nav-item span { font-size: 11px; font-weight: 600; }
+.nav-item.active { color: #fff; }
