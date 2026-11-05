@@ -2,57 +2,86 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ARMA PLAY</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-    <!-- ===== TOP BAR + LOGO + SEARCH ===== -->
-    <header class="topbar">
-        <div class="logo">
-            <div class="logo-icon">🎵</div>
-            <h1>ARMA PLAY</h1>
-        </div>
-
-        <input type="text" id="searchInput" placeholder="गाने का नाम सर्च करें...">
-    </header>
-
-    <!-- ===== SEARCH RESULTS ===== -->
-    <main class="results-container">
-        <p id="statusMsg"></p>
-        <ul id="songList"></ul>
-    </main>
-
-    <!-- ===== BOTTOM PLAYER BAR ===== -->
-    <footer class="player-bar">
-
-        <!-- Song Info -->
-        <div class="now-playing">
-            <img id="coverArt" src="" alt="">
-            <div class="np-text">
-                <p id="songTitle">कोई गाना नहीं चला</p>
-                <p id="artistName"></p>
+    <!-- ===== MAIN APP SCREEN ===== -->
+    <div class="app-container" id="homeScreen">
+        <!-- Header -->
+        <div class="header">
+            <div class="profile-icon">A</div>
+            <div class="chips">
+                <span class="chip active">All</span>
+                <span class="chip">Music</span>
+                <span class="chip">Podcasts</span>
             </div>
-            <a id="downloadBtn" href="#" download title="Download">⬇</a>
         </div>
 
-        <!-- Controls -->
-        <div class="controls">
-            <button id="prevBtn" title="Previous">⏮</button>
-            <button id="playPauseBtn" title="Play/Pause">▶</button>
-            <button id="nextBtn" title="Next">⏭</button>
+        <!-- Section 1: Quick Grid -->
+        <div class="section-title">Arma Play Picks</div>
+        <div class="quick-grid" id="quickGrid">
+            <!-- JS se cards aayenge -->
         </div>
 
-        <!-- Progress -->
-        <div class="progress">
-            <span id="currentTime">0:00</span>
-            <input type="range" id="seekBar" value="0" min="0" max="100">
-            <span id="duration">0:00</span>
+        <!-- Section 2: Jump Back In -->
+        <div class="section-title">Jump back in</div>
+        <div class="card-scroll" id="jumpBackIn">
+            <!-- JS se cards aayenge -->
         </div>
 
+        <!-- Section 3: Recommended Stations -->
+        <div class="section-title">Recommended Stations</div>
+        <div class="card-scroll" id="recommended">
+            <!-- JS se cards aayenge -->
+        </div>
+    </div>
+
+    <!-- ===== SEARCH SCREEN (Hidden by default) ===== -->
+    <div class="app-container hidden" id="searchScreen">
+        <div class="search-header">
+            <h2>Search</h2>
+            <input type="text" id="searchInput" placeholder="What do you want to listen to?">
+        </div>
+        <ul id="songList" class="song-list"></ul>
+        <p id="statusMsg" class="status-msg"></p>
+    </div>
+
+    <!-- ===== MINI PLAYER BAR ===== -->
+    <div class="mini-player" id="miniPlayer">
+        <img id="coverArt" src="" alt="">
+        <div class="mp-text">
+            <p id="songTitle">ARMA PLAY</p>
+            <p id="artistName">Select a song</p>
+        </div>
+        <button id="playPauseBtn"><i class="fa-solid fa-play"></i></button>
+        <button id="nextBtn"><i class="fa-solid fa-forward-step"></i></button>
+        <a id="downloadBtn" href="#" download><i class="fa-solid fa-download"></i></a>
+        
+        <!-- Progress bar at bottom of mini player -->
+        <div class="mp-progress"><div id="progressBar"></div></div>
         <audio id="audioPlayer"></audio>
-    </footer>
+    </div>
+
+    <!-- ===== BOTTOM NAVIGATION ===== -->
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('home')">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('search')">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <span>Search</span>
+        </div>
+        <div class="nav-item">
+            <i class="fa-solid fa-book-open"></i>
+            <span>Your Library</span>
+        </div>
+    </nav>
 
     <script src="script.js"></script>
 </body>
