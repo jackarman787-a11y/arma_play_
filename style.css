@@ -68,3 +68,40 @@ button:hover {
 #songList li:hover {
     background: #444;
 }
+.search-container {
+    margin-top: 20px;
+    padding: 15px;
+    background: #222;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 300px;
+}
+
+.search-container input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    border: none;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+#songList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#songList li {
+    padding: 10px;
+    background: #333;
+    color: #ffffff; /* यह लाइन जोड़ना ज़रूरी है ताकि टेक्स्ट दिखे */
+    margin-bottom: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+#songList li:hover {
+    background: #444;
+}
