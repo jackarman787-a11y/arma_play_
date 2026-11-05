@@ -15,43 +15,29 @@ let songs = [];
 let currentIndex = -1;
 let homeSongsList = [];
 
-// ==========================================
-// 🎵 NAYA JIOSAAVN API (CORS Proxy ke saath)
-// ==========================================
-const PROXY = "https://corsproxy.io/?";
-const JIOSAAVN_SEARCH = "https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&_marker=0&api_version=4&ctx=web6dot0&q=";
-
-// Mobile Back Button rokne ke liye
+// Back button rokne ke liye
 history.pushState(null, null, location.href);
-window.onpopstate = function () {
-    history.go(1);
-};
+window.onpopstate = function () { history.go(1); };
 
-// Media Session API (Lock screen controls)
+// ===== NAYA API (Jo seedha decrypted link deta hai) =====
+// Yeh API JioSaavn ka data laati hai aur decrypt karke full link deti hai
+const API_BASE = "https://jiosaavn-api-private-phi.vercel.app";
+
+// Media Session (Lock screen controls)
 function updateMediaSession(song) {
     if ('mediaSession' in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
-            title: song.song || song.title || 'Unknown',
-            artist: song.primary_artists || song.singers || 'Artist',
+            title: song.name || song.title || 'Unknown',
+            artist: song.primaryArtists || song.singers || 'Artist',
             album: 'Arma Play',
-            artwork: [{ src: song.image || 'https://via.placeholder.com/512', sizes: '512x512', type: 'image/jpeg' }]
+            artwork: [{ src: song.image?.[2]?.link || song.image?.[1]?.link || 'https://via.placeholder.com/512', sizes: '512x512', type: 'image/jpeg' }]
         });
-
-        navigator.mediaSession.setActionHandler('play', () => {
-            audioPlayer.play();
-            playPauseBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
-        });
-        navigator.mediaSession.setActionHandler('pause', () => {
-            audioPlayer.pause();
-            playPauseBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
-        });
-        navigator.mediaSession.setActionHandler('nexttrack', () => {
-            nextBtn.click();
-        });
+        navigator.mediaSession.setActionHandler('play', () => audioPlayer.play());
+        navigator.mediaSession.setActionHandler('pause', () => audioPlayer.pause());
+        navigator.mediaSession.setActionHandler('nexttrack', () => nextBtn.click());
         navigator.mediaSession.setActionHandler('previoustrack', () => {
-            if (audioPlayer.currentTime > 3) {
-                audioPlayer.currentTime = 0;
-            } else {
+            if (audioPlayer.currentTime > 3) audioPlayer.currentTime = 0;
+            else {
                 let isHome = !document.getElementById('homeScreen').classList.contains('hidden');
                 let listToUse = isHome ? homeSongsList : songs;
                 if (listToUse.length > 0 && currentIndex !== -1) {
@@ -77,51 +63,36 @@ function switchTab(tab) {
     }
 }
 
-// ===== HOME DATA FETCH =====
+// Home load
 async function loadHomeScreen() {
     try {
-        const res = await fetch(`${PROXY}${JIOSAAVN_SEARCH}arijit%20singh`);
+        const res = await fetch(`${API_BASE}/api/search/songs?query=arijit singh&limit=20`);
         const data = await res.json();
-        homeSongsList = data.results || [];
+        homeSongsList = data.data?.results || data.results || [];
 
         const quickGrid = document.getElementById('quickGrid');
         if (homeSongsList.length > 0) {
             quickGrid.innerHTML = homeSongsList.slice(0, 8).map((s, i) => `
                 <div class="quick-item" onclick="playSong(${i}, 'home')">
-                    <img src="${s.image || 'https://via.placeholder.com/56'}" alt="">
-                    <span>${s.song || s.title}</span>
+                    <img src="${s.image?.[1]?.link || 'https://via.placeholder.com/56'}" alt="">
+                    <span>${s.name || s.title}</span>
                 </div>
             `).join('');
         }
-
         const jumpBackIn = document.getElementById('jumpBackIn');
         if (homeSongsList.length > 8) {
             jumpBackIn.innerHTML = homeSongsList.slice(8, 18).map((s, i) => `
                 <div class="card" onclick="playSong(${i+8}, 'home')">
-                    <img src="${s.image || 'https://via.placeholder.com/150'}" alt="">
-                    <div class="card-title">${s.song || s.title}</div>
-                    <div class="card-subtitle">${s.primary_artists || s.singers}</div>
+                    <img src="${s.image?.[2]?.link || 'https://via.placeholder.com/150'}" alt="">
+                    <div class="card-title">${s.name || s.title}</div>
+                    <div class="card-subtitle">${s.primaryArtists || 'Artist'}</div>
                 </div>
             `).join('');
         }
-
-        const recommended = document.getElementById('recommended');
-        if (homeSongsList.length > 18) {
-            recommended.innerHTML = homeSongsList.slice(18, 28).map((s, i) => `
-                <div class="card" onclick="playSong(${i+18}, 'home')">
-                    <img src="${s.image || 'https://via.placeholder.com/150'}" alt="">
-                    <div class="card-title">${s.song || s.title}</div>
-                    <div class="card-subtitle">${s.primary_artists || s.singers}</div>
-                </div>
-            `).join('');
-        }
-    } catch(e) {
-        console.log("Home load error", e);
-        document.getElementById('quickGrid').innerHTML = '<p style="color:red; font-size:12px;">Failed to load. Refresh karein.</p>';
-    }
+    } catch(e) { console.log("Home load error", e); }
 }
 
-// ===== SONG PLAY (Full 320kbps) =====
+// ===== PLAY SONG (FULL 320kbps) =====
 function playSong(index, sourceType) {
     let listToUse = sourceType === 'home' ? homeSongsList : songs;
     if (index < 0 || index >= listToUse.length) return;
@@ -129,12 +100,17 @@ function playSong(index, sourceType) {
     currentIndex = index;
     let s = listToUse[currentIndex];
 
-    // JioSaavn se 320kbps link nikalna
-    let streamUrl = s.media_url || s.downloadUrl || null;
+    // Naye API mein 'downloadUrl' array hota hai, jisme 320kbps ka link hota hai
+    // Format: downloadUrl = [{ quality: '12kbps', link: '...' }, ..., { quality: '320kbps', link: '...' }]
+    let streamUrl = null;
     
-    // Agar 96kbps link hai, toh 320kbps mein badlo
-    if (streamUrl && streamUrl.includes('_96')) {
-        streamUrl = streamUrl.replace('_96.mp4', '_320.mp4').replace('_96.mp3', '_320.mp4');
+    if (s.downloadUrl && Array.isArray(s.downloadUrl)) {
+        // 320kbps wala link dhundho
+        let highQuality = s.downloadUrl.find(d => d.quality === '320kbps');
+        streamUrl = highQuality ? highQuality.link : s.downloadUrl[s.downloadUrl.length - 1]?.link;
+    } else if (s.media_url) {
+        // Fallback: agar direct media_url hai toh use karo
+        streamUrl = s.media_url;
     }
 
     if (!streamUrl) {
@@ -142,14 +118,18 @@ function playSong(index, sourceType) {
         return;
     }
 
+    // Agar link 96kbps hai toh 320kbps mein badlo (backup logic)
+    if (streamUrl.includes('_96.mp4') || streamUrl.includes('_96_p.mp4')) {
+        streamUrl = streamUrl.replace(/_96_p?\.mp4/g, '_320.mp4').replace('preview.saavncdn.com', 'aac.saavncdn.com');
+    }
+
     audioPlayer.src = streamUrl;
-    songTitle.textContent = s.song || s.title || 'Unknown';
-    artistName.textContent = s.primary_artists || s.singers || 'Artist';
-    coverArt.src = s.image || 'https://via.placeholder.com/44';
+    songTitle.textContent = s.name || s.title || 'Unknown';
+    artistName.textContent = s.primaryArtists || s.singers || 'Artist';
+    coverArt.src = s.image?.[1]?.link || 'https://via.placeholder.com/44';
     downloadBtn.href = streamUrl;
     
     updateMediaSession(s);
-    
     audioPlayer.play().then(() => {
         playPauseBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
     }).catch(e => {
@@ -157,7 +137,7 @@ function playSong(index, sourceType) {
     });
 }
 
-// ===== SEARCH =====
+// Search
 let timer;
 searchInput.addEventListener('input', () => {
     clearTimeout(timer);
@@ -170,9 +150,9 @@ async function searchSongs() {
     statusMsg.textContent = 'Searching...';
 
     try {
-        const res = await fetch(`${PROXY}${JIOSAAVN_SEARCH}${encodeURIComponent(q)}`);
+        const res = await fetch(`${API_BASE}/api/search/songs?query=${encodeURIComponent(q)}&limit=20`);
         const data = await res.json();
-        songs = data.results || [];
+        songs = data.data?.results || data.results || [];
 
         if (songs.length === 0) {
             statusMsg.textContent = 'No songs found.';
@@ -183,21 +163,20 @@ async function searchSongs() {
         
         songList.innerHTML = songs.map((s, i) => `
             <li class="song-item" onclick="playSong(${i}, 'search')">
-                <img src="${s.image || 'https://via.placeholder.com/45'}" alt="">
+                <img src="${s.image?.[0]?.link || 'https://via.placeholder.com/45'}" alt="">
                 <div class="song-info">
-                    <p class="t">${s.song || s.title}</p>
-                    <p class="a">${s.primary_artists || s.singers || 'Artist'}</p>
+                    <p class="t">${s.name || s.title}</p>
+                    <p class="a">${s.primaryArtists || 'Artist'}</p>
                 </div>
                 <i class="fa-solid fa-play"></i>
             </li>
         `).join('');
     } catch (err) {
         statusMsg.textContent = 'Error searching.';
-        console.log(err);
     }
 }
 
-// ===== CONTROLS =====
+// Controls
 playPauseBtn.addEventListener('click', () => {
     if (!audioPlayer.src) return;
     if (audioPlayer.paused) audioPlayer.play();
@@ -217,7 +196,6 @@ audioPlayer.addEventListener('play',  () => playPauseBtn.innerHTML = '<i class="
 audioPlayer.addEventListener('pause', () => playPauseBtn.innerHTML = '<i class="fa-solid fa-play"></i>');
 audioPlayer.addEventListener('ended', () => {
     playPauseBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
-    // Auto-next
     let isHome = !document.getElementById('homeScreen').classList.contains('hidden');
     let listToUse = isHome ? homeSongsList : songs;
     if (listToUse.length > 0) playSong((currentIndex + 1) % listToUse.length, isHome ? 'home' : 'search');
@@ -230,5 +208,4 @@ audioPlayer.addEventListener('timeupdate', () => {
     }
 });
 
-// App Start
 window.onload = loadHomeScreen;
