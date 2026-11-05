@@ -1,115 +1,59 @@
-j<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arma Play</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="player">
-        <h2>Arma Play Music</h2>
-        <p id="song-name">Sample Song</p>
-        <audio id="audio" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
-        <div class="btns">
-            <button onclick="document.getElementById('audio').play()">▶ Play</button>
-            <button onclick="document.getElementById('audio').pause()">⏸ Pause</button>
-        </div>
-    </div>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arma Play - Music App</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="player-container">
-        <h2>Arma Play</h2>
-        <div class="album-art">🎵</div>
-        <p id="song-title">Song Title</p>
-        
-        <audio id="audio-player" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
-        
-        <div class="controls">
-            <button id="play-btn">▶ Play</button>
-            <button id="pause-btn">⏸ Pause</button>
-        </div>
-    </div>
-    <script src="script.js"></script>
-</body>
-</html>
-<!-- Search Section -->
-<div class="search-container">
-    <h3>Online Song Search</h3>
-    <input type="text" id="searchInput" placeholder="गाने का नाम सर्च करें..." onkeyup="searchSongs()">
-    <ul id="songList">
-        <!-- यहाँ सर्च रिजल्ट्स दिखेंगे -->
-    </ul>
-</div>
-<input type="text" id="searchInput" placeholder="गाने का नाम सर्च करें..." onkeyup="searchSongs()">
-<ul id="songList"></ul>
 <!DOCTYPE html>
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arma Play</title>
+    <title>ARMA PLAY</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="main-container">
-        <h1>Arma Play Music</h1>
-        
-        <!-- Search Section -->
-        <div class="search-container">
-            <h3>Online Song Search</h3>
-            <input type="text" id="searchInput" placeholder="गाने का नाम सर्च करें..." onkeyup="searchSongs()">
-            <ul id="songList"></ul>
+    <!-- ===== TOP BAR + LOGO + SEARCH ===== -->
+    <header class="topbar">
+        <div class="logo">
+            <div class="logo-icon">🎵</div>
+            <h1>ARMA PLAY</h1>
         </div>
-    </div>
 
-    <!-- यह लाइन बहुत ज़रूरी है, इसके बिना जावास्क्रिप्ट काम नहीं करेगी -->
+        <input type="text" id="searchInput" placeholder="गाने का नाम सर्च करें...">
+    </header>
+
+    <!-- ===== SEARCH RESULTS ===== -->
+    <main class="results-container">
+        <p id="statusMsg"></p>
+        <ul id="songList"></ul>
+    </main>
+
+    <!-- ===== BOTTOM PLAYER BAR ===== -->
+    <footer class="player-bar">
+
+        <!-- Song Info -->
+        <div class="now-playing">
+            <img id="coverArt" src="" alt="">
+            <div class="np-text">
+                <p id="songTitle">कोई गाना नहीं चला</p>
+                <p id="artistName"></p>
+            </div>
+            <a id="downloadBtn" href="#" download title="Download">⬇</a>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button id="prevBtn" title="Previous">⏮</button>
+            <button id="playPauseBtn" title="Play/Pause">▶</button>
+            <button id="nextBtn" title="Next">⏭</button>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress">
+            <span id="currentTime">0:00</span>
+            <input type="range" id="seekBar" value="0" min="0" max="100">
+            <span id="duration">0:00</span>
+        </div>
+
+        <audio id="audioPlayer"></audio>
+    </footer>
+
     <script src="script.js"></script>
 </body>
 </html>
-<input id="searchInput" placeholder="Search music...">
-<button onclick="searchMusic()">Search</button>
-<div id="results"></div>
-
-<script>
-async function searchMusic() {
-  const q = document.getElementById('searchInput').value;
-  if (!q) return alert("Enter a song name");
-
-  try {
-    // Example: iTunes Search API (CORS-friendly, no key needed)
-    const res = await fetch(
-      `https://itunes.apple.com/search?term=${encodeURIComponent(q)}&media=music&limit=10`
-    );
-    if (!res.ok) throw new Error("HTTP " + res.status);
-
-    const data = await res.json();
-    console.log("API response:", data); // 👈 check this in console
-
-    if (!data.results || data.results.length === 0) {
-      document.getElementById('results').innerHTML = "<p>No results found</p>";
-      return;
-    }
-
-    document.getElementById('results').innerHTML = data.results.map(song => `
-      <div>
-        <span>${song.trackName} — ${song.artistName}</span>
-        <button onclick="playSong('${song.previewUrl}')">▶ Play</button>
-      </div>
-    `).join('');
-  } catch (err) {
-    console.error("Search failed:", err); // 👈 open DevTools (F12) → Console
-    document.getElementById('results').innerHTML = "<p>Search error: " + err.message + "</p>";
-  }
-}
-</script>
