@@ -17,14 +17,10 @@ function fmt(s){ if(!s || isNaN(s)) return '0:00'; const m = Math.floor(s/60), s
 function uid(){ return Math.random().toString(36).slice(2,10); }
 function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-window.switchView = function(view) {
-  // Fake switch for now, just scrolls to top
-  document.querySelector('.app').scrollTo({top:0, behavior:'smooth'});
-};
-
-// --- ADD MUSIC ---
 getEl('file').addEventListener('change', e => {
   const files = [...e.target.files];
+  if(!files.length) return;
+  
   files.forEach(f => {
     const id = uid();
     const reader = new FileReader();
@@ -33,8 +29,11 @@ getEl('file').addEventListener('change', e => {
         id: id, name: f.name.replace(/\.[^.]+$/, ''), 
         url: event.target.result, addedAt: Date.now() 
       });
-      saveMeta(); renderAll();
-      if (tracks.length) { current = tracks.length - 1; loadTrack(current); }
+      saveMeta(); 
+      renderAll();
+      current = tracks.length - 1; 
+      loadTrack(current);
+      audio.play().catch(()=>{ miniPlayer.style.display = 'flex'; });
     };
     reader.readAsDataURL(f);
   });
@@ -47,7 +46,7 @@ window.loadTrack = function(i){
   audio.src = t.url;
   getEl('npTitle').textContent = t.name;
   getEl('fsTitle').textContent = t.name;
-  miniPlayer.style.display = 'flex'; // Show mini player
+  miniPlayer.style.display = 'flex'; 
   saveMeta(); renderAll();
 };
 
@@ -57,7 +56,7 @@ window.playById = function(id){
 };
 
 window.togglePlay = function(){ 
-  if (!tracks.length) { getEl('file').click(); return; } 
+  if (!tracks.length) return; 
   if (audio.paused) audio.play(); else audio.pause(); 
 };
 
@@ -123,7 +122,6 @@ window.removeTrack = function(id){
   saveMeta(); renderAll();
 };
 
-// Init
 renderAll();
 if (tracks.length) {
   current = Math.min(current, tracks.length - 1);
