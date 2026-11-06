@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>My Online Music App</title>
+    <title>My Spotify Clone</title>
     <style>
         /* =========================================
-           GLOBAL STYLING
+           GLOBAL STYLING (SPOTIFY DARK THEME)
            ========================================= */
         * {
             margin: 0;
@@ -19,14 +19,15 @@
         body {
             background-color: #121212;
             color: #ffffff;
-            padding-bottom: 150px;
+            padding-bottom: 170px; /* Player ke liye space */
             overflow-x: hidden;
         }
 
         h2 {
-            font-size: 22px;
-            font-weight: 700;
-            margin: 20px 20px 15px 20px;
+            font-size: 24px;
+            font-weight: 800;
+            margin: 25px 20px 15px 20px;
+            letter-spacing: -0.5px;
         }
 
         /* =========================================
@@ -37,18 +38,16 @@
             top: 0;
             background-color: #121212;
             z-index: 100;
+            padding-top: 15px;
             padding-bottom: 10px;
-            border-bottom: 1px solid #282828;
         }
 
         .top-nav {
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 15px 20px;
-            overflow-x: auto;
+            padding: 0 20px 15px 20px;
         }
-        .top-nav::-webkit-scrollbar { display: none; }
 
         .nav-pill {
             background-color: #2a2a2a;
@@ -59,7 +58,6 @@
             font-size: 14px;
             font-weight: 700;
             cursor: pointer;
-            white-space: nowrap;
         }
 
         .nav-pill.active {
@@ -67,14 +65,14 @@
             color: #000000;
         }
 
-        .search-container { padding: 0 20px; }
+        .search-container { padding: 0 20px; margin-bottom: 10px; }
 
         .search-bar {
             display: flex;
             align-items: center;
             background-color: #2a2a2a;
             border-radius: 8px;
-            padding: 10px 15px;
+            padding: 12px 16px;
         }
 
         .search-bar input {
@@ -82,28 +80,68 @@
             border: none;
             color: white;
             width: 100%;
-            margin-left: 10px;
+            margin-left: 12px;
             font-size: 16px;
             outline: none;
+            font-weight: 500;
         }
 
         /* =========================================
-           MUSIC CARDS
+           SPOTIFY HOME GRID (Top Section)
+           ========================================= */
+        .recent-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 0 20px;
+        }
+
+        .recent-item {
+            display: flex;
+            align-items: center;
+            background-color: #2a2a2a;
+            border-radius: 6px;
+            overflow: hidden;
+            height: 60px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .recent-item:hover { background-color: #3e3e3e; }
+
+        .recent-item img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+        }
+
+        .recent-item span {
+            font-size: 13px;
+            font-weight: 700;
+            padding: 0 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* =========================================
+           MUSIC CARDS (Horizontal Scroll)
            ========================================= */
         .horizontal-scroll {
             display: flex;
             overflow-x: auto;
             gap: 16px;
             padding: 0 20px 20px 20px;
-            flex-wrap: wrap; /* Search results ke liye wrap kiya */
         }
+        .horizontal-scroll::-webkit-scrollbar { display: none; }
 
         .music-card {
-            width: 140px;
+            min-width: 150px;
+            max-width: 150px;
             cursor: pointer;
-            padding: 10px;
+            padding: 12px;
             border-radius: 8px;
-            background-color: #181818;
+            background-color: transparent;
             transition: background-color 0.3s;
         }
 
@@ -114,25 +152,29 @@
             aspect-ratio: 1 / 1;
             object-fit: cover;
             border-radius: 6px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
         }
 
         .music-card .title {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 700;
-            margin-top: 10px;
+            margin-top: 12px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
         .music-card .subtitle {
-            font-size: 12px;
+            font-size: 14px;
             color: #a7a7a7;
             margin-top: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         /* =========================================
-           BOTTOM PLAYER
+           BOTTOM PLAYER (No Audio here, it's an Iframe controller)
            ========================================= */
         .bottom-player {
             position: fixed;
@@ -146,76 +188,33 @@
             flex-direction: column;
         }
 
-        .player-top {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 12px;
+        .track-details {
+            text-align: center;
+            margin-bottom: 10px;
         }
 
-        .track-details { width: 100px; }
-
         .track-details h3 {
-            font-size: 14px;
+            font-size: 16px;
+            font-weight: 700;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
         .track-details p {
-            font-size: 12px;
+            font-size: 13px;
             color: #a7a7a7;
+            margin-top: 3px;
         }
 
-        .progress-container {
-            flex-grow: 1;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        /* YouTube Iframe Container (Hidden for pure audio experience) */
+        #yt-player-container {
+            display: none;
         }
 
-        .progress-bar {
-            width: 100%;
-            height: 4px;
-            background-color: #4d4d4d;
-            border-radius: 2px;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .progress-fill {
-            width: 0%;
-            height: 100%;
-            background-color: #1ed760;
-            border-radius: 2px;
-        }
-
-        .player-controls {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-        }
-
-        .player-controls button {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 22px;
-            cursor: pointer;
-        }
-
-        .player-controls .play-btn {
-            background-color: white;
-            color: black;
-            border-radius: 50%;
-            width: 45px;
-            height: 45px;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding-left: 3px;
+        /* Hide scrollbar for clean look */
+        .section-title {
+            margin-top: 30px;
         }
     </style>
 </head>
@@ -224,193 +223,214 @@
     <!-- HEADER -->
     <div class="header-container">
         <div class="top-nav">
-            <button class="nav-pill active">Online Search</button>
+            <button class="nav-pill active">All</button>
+            <button class="nav-pill">Music</button>
+            <button class="nav-pill">Podcasts</button>
         </div>
         
         <div class="search-container">
             <div class="search-bar">
                 <span>🔍</span>
-                <!-- Jab user type karega, to online API call hoga -->
-                <input type="text" id="searchInput" placeholder="Search any song (e.g. Dilbar)..." onkeyup="searchOnlineSongs()">
+                <input type="text" id="searchInput" placeholder="Search songs..." onkeyup="searchOnlineSongs()">
             </div>
         </div>
     </div>
 
-    <!-- MUSIC CARDS CONTAINER -->
-    <h2 id="sectionTitle">Top Songs</h2>
-    <div class="horizontal-scroll" id="songList">
-        <!-- Loader text -->
-        <p style="color: #a7a7a7;">Type in search bar to find songs...</p>
+    <!-- SEARCH RESULTS (Initially Hidden) -->
+    <div id="searchResultsContainer" style="display: none;">
+        <h2>Search Results</h2>
+        <div class="horizontal-scroll" id="searchList"></div>
     </div>
 
-    <!-- BOTTOM PLAYER -->
+    <!-- MAIN HOME PAGE (Spotify Style) -->
+    <div id="homePage">
+        <!-- TOP GRID -->
+        <div class="recent-grid">
+            <div class="recent-item" onclick="searchAndPlay('Masoom Sharma Radio')">
+                <img src="https://images.unsplash.com/photo-1516280440502-864aef97d661?w=100&h=100&fit=crop" alt="Masoom">
+                <span>Masoom Sharma Radio</span>
+            </div>
+            <div class="recent-item" onclick="searchAndPlay('Ramaiya Vastavaiya')">
+                <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=100&h=100&fit=crop" alt="Ramaiya">
+                <span>Ramaiya Vastavaiya</span>
+            </div>
+            <div class="recent-item" onclick="searchAndPlay('Atif Aslam')">
+                <img src="https://images.unsplash.com/photo-1493225457124-a1a2a5f5646a?w=100&h=100&fit=crop" alt="Atif">
+                <span>Atif Aslam Radio</span>
+            </div>
+            <div class="recent-item" onclick="searchAndPlay('Karan Aujla')">
+                <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=100&h=100&fit=crop" alt="Karan">
+                <span>This Is Karan Aujla</span>
+            </div>
+        </div>
+
+        <!-- JUMP BACK IN -->
+        <h2 class="section-title">Jump back in</h2>
+        <div class="horizontal-scroll">
+            <div class="music-card" onclick="searchAndPlay('Once Upon A Time In Mumbai')">
+                <img src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=300&h=300&fit=crop" alt="Mumbai">
+                <p class="title">Once Upon A Time</p>
+                <p class="subtitle">Album • Pritam</p>
+            </div>
+            <div class="music-card" onclick="searchAndPlay('Karan Aujla')">
+                <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&h=300&fit=crop" alt="Karan">
+                <p class="title">Karan Aujla</p>
+                <p class="subtitle">Playlist • Dhanda</p>
+            </div>
+            <div class="music-card" onclick="searchAndPlay('Top 50 Bollywood')">
+                <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300&h=300&fit=crop" alt="Top50">
+                <p class="title">All Bollywood</p>
+                <p class="subtitle">Playlist • Top 50</p>
+            </div>
+        </div>
+
+        <!-- RECOMMENDED STATIONS -->
+        <h2 class="section-title">Recommended Stations</h2>
+        <div class="horizontal-scroll">
+            <div class="music-card" onclick="searchAndPlay('Jubin Nautiyal')">
+                <img src="https://images.unsplash.com/photo-1516280440502-864aef97d661?w=300&h=300&fit=crop" alt="Jubin">
+                <p class="title">Jubin Nautiyal</p>
+                <p class="subtitle">Radio</p>
+            </div>
+            <div class="music-card" onclick="searchAndPlay('Arijit Singh')">
+                <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop" alt="Arijit">
+                <p class="title">Arijit Singh</p>
+                <p class="subtitle">Radio</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM PLAYER (For UI only) -->
     <div class="bottom-player">
-        <div class="player-top">
-            <div class="track-details">
-                <h3 id="displayTitle">Select Song</h3>
-                <p id="displayArtist">Music App</p>
-            </div>
-            <div class="progress-container">
-                <span id="currTime" style="font-size: 10px; color: #a7a7a7;">0:00</span>
-                <div class="progress-bar" onclick="seekAudio(event)">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
-                <span id="totalTime" style="font-size: 10px; color: #a7a7a7;">0:00</span>
-            </div>
+        <div class="track-details">
+            <h3 id="displayTitle">Select a Song</h3>
+            <p id="displayArtist">Music App</p>
         </div>
-        
-        <div class="player-controls">
-            <button class="sec-btn" onclick="skipTime(-10)">-10</button>
-            <button onclick="prevSong()">⏮</button>
-            <button class="play-btn" id="playBtn" onclick="togglePlay()">▶</button>
-            <button onclick="nextSong()">⏭</button>
-            <button class="sec-btn" onclick="skipTime(10)">+10</button>
-        </div>
+        <!-- YouTube Player will be hidden here in background -->
+        <div id="yt-player-container"></div>
     </div>
-
-    <!-- AUDIO TAG -->
-    <audio id="audioPlayer" preload="auto"></audio>
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        let songs = [];
-        let currentSongIndex = 0;
-        let isPlaying = false;
-        let searchTimeout;
+        let ytPlayer;
+        let isPlayerReady = false;
 
-        const audio = document.getElementById('audioPlayer');
-        const playBtn = document.getElementById('playBtn');
-        const progressFill = document.getElementById('progressFill');
-        const displayTitle = document.getElementById('displayTitle');
-        const displayArtist = document.getElementById('displayArtist');
-        const currTime = document.getElementById('currTime');
-        const totalTime = document.getElementById('totalTime');
-        const songListDiv = document.getElementById('songList');
+        // 1. YOUTUBE IFRAME API SCRIPT LOAD KARO
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-        // ONLINE SEARCH FUNCTION (iTunes API use karke)
-        function searchOnlineSongs() {
-            const query = document.getElementById('searchInput').value;
-            clearTimeout(searchTimeout);
-
-            // Type karte waqt thoda wait karo (debounce)
-            searchTimeout = setTimeout(() => {
-                if (query.length < 2) return; 
-
-                songListDiv.innerHTML = '<p style="color: #1ed760;">Searching online...</p>';
-
-                // iTunes API call
-                fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=10`)
-                .then(response => response.json())
-                .then(data => {
-                    songs = data.results.map(item => ({
-                        title: item.trackName,
-                        artist: item.artistName,
-                        // iTunes 30-second preview link deta hai jo 100% kaam karta hai
-                        src: item.previewUrl, 
-                        cover: item.artworkUrl100.replace('100x100', '300x300')
-                    }));
-
-                    renderSongs();
-                })
-                .catch(err => {
-                    songListDiv.innerHTML = '<p style="color: red;">Internet error. Please check connection.</p>';
-                });
-            }, 800); // 800ms wait
+        // 2. YOUTUBE API READY HONE PAR PLAYER BANAO
+        function onYouTubeIframeAPIReady() {
+            ytPlayer = new YT.Player('yt-player-container', {
+                height: '0',
+                width: '0',
+                videoId: '', // Start empty
+                playerVars: {
+                    'playsinline': 1,
+                    'autoplay': 1,
+                    'controls': 0 // Hide youtube controls, play in background
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
         }
 
-        // Cards ko screen par dikhana
-        function renderSongs() {
-            songListDiv.innerHTML = '';
-            if (songs.length === 0) {
-                songListDiv.innerHTML = '<p style="color: #a7a7a7;">No songs found.</p>';
+        function onPlayerReady(event) {
+            isPlayerReady = true;
+        }
+
+        function onPlayerStateChange(event) {
+            // Agar gaana khatam ho jaye (0 = ended), toh kuch karo (optional)
+            if (event.data == 0) {
+                document.getElementById('displayArtist').innerText = "Song Ended";
+            }
+        }
+
+        // 3. YOUTUBE SEARCH & PLAY FUNCTION (Backend Bypass)
+        // Note: Browsers me direct YouTube search API block hoti hai bina API key ke, 
+        // isliye hum ek public Invidious API ya direct search logic use karte hain. 
+        // Simple banane ke liye hum direct YouTube search URL se pehla video ID fetch karenge.
+        
+        function searchAndPlay(query) {
+            document.getElementById('displayTitle').innerText = "Loading...";
+            document.getElementById('displayArtist').innerText = query;
+
+            // Ek public API jo YouTube ka first video ID nikal kar deti hai (Piped API)
+            fetch(`https://pipedapi.kavin.rocks/search?q=${encodeURIComponent(query)}&filter=videos`)
+            .then(res => res.json())
+            .then(data => {
+                if(data.items && data.items.length > 0) {
+                    const videoId = data.items[0].url.split('v=')[1]; // Extract Video ID
+                    const videoTitle = data.items[0].title;
+                    
+                    // Update Player UI
+                    document.getElementById('displayTitle').innerText = videoTitle;
+                    
+                    // Play Video in hidden iframe
+                    if (isPlayerReady) {
+                        ytPlayer.loadVideoById(videoId);
+                    }
+                } else {
+                    document.getElementById('displayTitle').innerText = "Not Found";
+                }
+            })
+            .catch(err => {
+                // Agar primary API fail ho jaye, fallback
+                document.getElementById('displayTitle').innerText = "Error Loading";
+                document.getElementById('displayArtist').innerText = "Check Internet";
+            });
+        }
+
+        // 4. SEARCH BAR LOGIC (Live typing)
+        let searchTimeout;
+        function searchOnlineSongs() {
+            const query = document.getElementById('searchInput').value;
+            const homePage = document.getElementById('homePage');
+            const searchResultsContainer = document.getElementById('searchResultsContainer');
+            const searchList = document.getElementById('searchList');
+
+            clearTimeout(searchTimeout);
+
+            if (query.trim() === "") {
+                homePage.style.display = "block";
+                searchResultsContainer.style.display = "none";
                 return;
             }
 
-            songs.forEach((song, index) => {
-                const card = document.createElement('div');
-                card.className = 'music-card';
-                card.onclick = () => playSong(index);
-                card.innerHTML = `
-                    <img src="${song.cover}" alt="${song.title}">
-                    <p class="title">${song.title}</p>
-                    <p class="subtitle">${song.artist}</p>
-                `;
-                songListDiv.appendChild(card);
-            });
-        }
-
-        // Gaana Play karne ka function
-        function playSong(index) {
-            currentSongIndex = index;
-            audio.src = songs[index].src;
-            displayTitle.innerText = songs[index].title;
-            displayArtist.innerText = songs[index].artist;
+            homePage.style.display = "none";
+            searchResultsContainer.style.display = "block";
             
-            audio.play().then(() => {
-                isPlaying = true;
-                playBtn.innerHTML = "⏸";
-            }).catch(error => {
-                alert("Server slow hai, thodi der baad try karein.");
-            });
-        }
-
-        function togglePlay() {
-            if (audio.src === "") return;
-            
-            if (isPlaying) {
-                audio.pause();
-                playBtn.innerHTML = "▶";
-            } else {
-                audio.play();
-                playBtn.innerHTML = "⏸";
-            }
-            isPlaying = !isPlaying;
-        }
-
-        function nextSong() {
-            currentSongIndex++;
-            if (currentSongIndex >= songs.length) currentSongIndex = 0;
-            playSong(currentSongIndex);
-        }
-
-        function prevSong() {
-            currentSongIndex--;
-            if (currentSongIndex < 0) currentSongIndex = songs.length - 1;
-            playSong(currentSongIndex);
-        }
-
-        function skipTime(seconds) {
-            if(audio.src !== "") {
-                audio.currentTime += seconds;
-            }
-        }
-
-        // Progress bar update
-        audio.addEventListener('timeupdate', () => {
-            if (audio.duration) {
-                const percent = (audio.currentTime / audio.duration) * 100;
-                progressFill.style.width = percent + "%";
-                currTime.innerText = formatTime(audio.currentTime);
-            }
-        });
-
-        audio.addEventListener('loadedmetadata', () => {
-            totalTime.innerText = formatTime(audio.duration);
-        });
-
-        audio.addEventListener('ended', nextSong);
-
-        function seekAudio(e) {
-            if(!audio.duration) return;
-            const width = e.currentTarget.clientWidth;
-            const clickX = e.offsetX;
-            audio.currentTime = (clickX / width) * audio.duration;
-        }
-
-        function formatTime(seconds) {
-            let m = Math.floor(seconds / 60);
-            let s = Math.floor(seconds % 60);
-            return `${m}:${s < 10 ? '0' : ''}${s}`;
+            searchTimeout = setTimeout(() => {
+                searchList.innerHTML = '<p style="color: #1ed760; padding: 20px;">Searching...</p>';
+                
+                // Piped API for search results list
+                fetch(`https://pipedapi.kavin.rocks/search?q=${encodeURIComponent(query)}&filter=videos`)
+                .then(res => res.json())
+                .then(data => {
+                    searchList.innerHTML = '';
+                    if(data.items) {
+                        data.items.slice(0, 10).forEach(item => { // Top 10 results
+                            const card = document.createElement('div');
+                            card.className = 'music-card';
+                            card.onclick = () => {
+                                document.getElementById('displayTitle').innerText = item.title;
+                                document.getElementById('displayArtist').innerText = item.uploaderName || "YouTube";
+                                ytPlayer.loadVideoById(item.url.split('v=')[1]);
+                            };
+                            card.innerHTML = `
+                                <img src="${item.thumbnail}" alt="cover">
+                                <p class="title">${item.title}</p>
+                                <p class="subtitle">${item.uploaderName}</p>
+                            `;
+                            searchList.appendChild(card);
+                        });
+                    }
+                });
+            }, 800);
         }
     </script>
 </body>
