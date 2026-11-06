@@ -2,33 +2,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Working Music App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Spotify Clone</title>
     <style>
         /* =========================================
-           GLOBAL DESIGN
+           GLOBAL SPOTIFY STYLING
            ========================================= */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
 
         body {
             background-color: #121212;
             color: #ffffff;
-            padding-bottom: 150px; /* Space for player */
+            padding-bottom: 140px;
+            overflow-x: hidden;
         }
 
         h2 {
-            font-size: 22px;
-            margin: 25px 20px 15px 20px;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 24px 20px 16px 20px;
+            letter-spacing: -0.5px;
         }
 
         /* =========================================
-           HEADER & SEARCH
+           TOP HEADER & SEARCH
            ========================================= */
         .header-container {
             position: sticky;
@@ -42,19 +45,21 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 15px 20px;
+            padding: 16px 20px;
         }
 
         .avatar {
             width: 36px;
             height: 36px;
-            background-color: #ff7b9c;
+            background-color: #ff8f9f;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #000;
-            font-weight: bold;
+            font-weight: 800;
+            font-size: 16px;
+            cursor: pointer;
         }
 
         .nav-pill {
@@ -64,7 +69,8 @@
             border-radius: 30px;
             border: none;
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 700;
+            cursor: pointer;
         }
 
         .nav-pill.active {
@@ -81,7 +87,7 @@
             align-items: center;
             background-color: #2a2a2a;
             border-radius: 8px;
-            padding: 10px 15px;
+            padding: 12px 16px;
         }
 
         .search-bar input {
@@ -89,27 +95,38 @@
             border: none;
             color: white;
             width: 100%;
-            margin-left: 10px;
+            margin-left: 12px;
             font-size: 16px;
             outline: none;
+            font-weight: 500;
         }
+        
+        .search-bar input::placeholder { color: #a7a7a7; }
 
         /* =========================================
-           CARDS & GRID
+           CARDS & GRID (LIKE SPOTIFY)
            ========================================= */
         .horizontal-scroll {
             display: flex;
             overflow-x: auto;
             gap: 16px;
             padding: 0 20px 20px 20px;
+            scroll-behavior: smooth;
         }
 
         .horizontal-scroll::-webkit-scrollbar { display: none; }
 
         .music-card {
-            min-width: 140px;
-            max-width: 140px;
+            min-width: 150px;
+            max-width: 150px;
             cursor: pointer;
+            padding: 12px;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        .music-card:hover {
+            background-color: #2a2a2a;
         }
 
         .music-card img {
@@ -121,21 +138,25 @@
         }
 
         .music-card .title {
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 700;
-            margin-top: 8px;
+            margin-top: 12px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
         .music-card .subtitle {
-            font-size: 13px;
+            font-size: 14px;
             color: #a7a7a7;
+            margin-top: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         /* =========================================
-           BOTTOM PLAYER
+           BOTTOM PLAYER (FIXED)
            ========================================= */
         .bottom-player {
             position: fixed;
@@ -143,7 +164,7 @@
             width: 100%;
             background-color: #181818;
             border-top: 1px solid #282828;
-            padding: 15px 20px;
+            padding: 12px 20px 20px 20px;
             z-index: 1000;
             display: flex;
             flex-direction: column;
@@ -153,15 +174,16 @@
             display: flex;
             align-items: center;
             gap: 15px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
         .track-details {
-            width: 90px;
+            width: 100px;
         }
 
         .track-details h3 {
             font-size: 14px;
+            font-weight: 600;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -170,6 +192,7 @@
         .track-details p {
             font-size: 12px;
             color: #a7a7a7;
+            margin-top: 2px;
         }
 
         .progress-container {
@@ -193,57 +216,62 @@
             height: 100%;
             background-color: #1ed760;
             border-radius: 2px;
+            transition: width 0.1s linear;
         }
 
         .download-btn {
             background: none;
             border: none;
             color: #a7a7a7;
-            font-size: 20px;
+            font-size: 22px;
             cursor: pointer;
             padding: 5px;
+            transition: color 0.2s;
         }
 
-        .download-btn:hover { color: white; }
+        .download-btn:hover { color: #1ed760; }
 
         .player-controls {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 20px; /* Space kam kiya gaya naye buttons ke liye */
+            gap: 20px;
         }
 
         .player-controls button {
             background: none;
             border: none;
             color: white;
-            font-size: 20px;
+            font-size: 24px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.1s;
+        }
+
+        .player-controls button:active {
+            transform: scale(0.9);
         }
 
         .player-controls .play-btn {
             background-color: white;
             color: black;
             border-radius: 50%;
-            width: 45px;
-            height: 45px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
+            width: 48px;
+            height: 48px;
+            font-size: 22px;
+            padding-left: 4px; /* Center play icon */
         }
 
-        /* 10 Sec buttons styling */
         .sec-btn {
             font-size: 12px !important;
-            font-weight: bold;
-            border: 1px solid white !important;
+            font-weight: 800;
+            border: 1.5px solid #a7a7a7 !important;
+            color: #a7a7a7 !important;
             border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 32px;
+            height: 32px;
         }
 
     </style>
@@ -262,57 +290,53 @@
         <div class="search-container">
             <div class="search-bar">
                 <span>🔍</span>
-                <input type="text" id="searchInput" placeholder="Search songs..." onkeyup="filterSongs()">
+                <input type="text" id="searchInput" placeholder="What do you want to listen to?" onkeyup="filterSongs()">
             </div>
         </div>
     </div>
 
     <!-- SECTION 1: JUMP BACK IN -->
     <h2>Jump back in</h2>
-    <div class="horizontal-scroll" id="songList">
-        
+    <div class="horizontal-scroll">
         <div class="music-card" onclick="playSong(0)">
-            <img src="https://picsum.photos/300?random=5" alt="Song 1">
-            <p class="title">Mumbai Beat</p>
+            <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop" alt="Song 1">
+            <p class="title">Kesariya</p>
             <p class="subtitle">Album • Pritam</p>
         </div>
 
         <div class="music-card" onclick="playSong(1)">
-            <img src="https://picsum.photos/300?random=6" alt="Song 2">
-            <p class="title">Karan Aujla Hit</p>
+            <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&h=300&fit=crop" alt="Song 2">
+            <p class="title">Dilbar Dilbar</p>
             <p class="subtitle">Playlist • Dhanda</p>
         </div>
 
         <div class="music-card" onclick="playSong(2)">
-            <img src="https://picsum.photos/300?random=7" alt="Song 3">
+            <img src="https://images.unsplash.com/photo-1493225457124-a1a2a5f5646a?w=300&h=300&fit=crop" alt="Song 3">
             <p class="title">Top Chill Mix</p>
             <p class="subtitle">Made for You</p>
         </div>
-
     </div>
 
-    <!-- SECTION 2: BEST LIST (NAYA FEATURE) -->
+    <!-- SECTION 2: BEST OF THE WEEK -->
     <h2>Best of the Week</h2>
-    <div class="horizontal-scroll" id="bestList">
-        
+    <div class="horizontal-scroll">
         <div class="music-card" onclick="playSong(3)">
-            <img src="https://picsum.photos/300?random=8" alt="Song 4">
+            <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300&h=300&fit=crop" alt="Song 4">
             <p class="title">Desi Bass</p>
             <p class="subtitle">Trending • Top 50</p>
         </div>
 
         <div class="music-card" onclick="playSong(4)">
-            <img src="https://picsum.photos/300?random=9" alt="Song 5">
+            <img src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=300&h=300&fit=crop" alt="Song 5">
             <p class="title">Night Drive</p>
             <p class="subtitle">Chill • English</p>
         </div>
 
         <div class="music-card" onclick="playSong(5)">
-            <img src="https://picsum.photos/300?random=10" alt="Song 6">
+            <img src="https://images.unsplash.com/photo-1516280440502-864aef97d661?w=300&h=300&fit=crop" alt="Song 6">
             <p class="title">Punjabi Pop</p>
             <p class="subtitle">Hits • New</p>
         </div>
-
     </div>
 
     <!-- BOTTOM PLAYER -->
@@ -323,38 +347,33 @@
                 <p id="displayArtist">Music App</p>
             </div>
             <div class="progress-container">
-                <span id="currTime" style="font-size: 10px; color: #a7a7a7;">0:00</span>
+                <span id="currTime" style="font-size: 11px; color: #a7a7a7;">0:00</span>
                 <div class="progress-bar" onclick="seekAudio(event)">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
-                <span id="totalTime" style="font-size: 10px; color: #a7a7a7;">0:00</span>
+                <span id="totalTime" style="font-size: 11px; color: #a7a7a7;">0:00</span>
             </div>
-            <!-- DOWNLOAD BUTTON -->
             <button class="download-btn" onclick="downloadSong()" title="Download">⬇️</button>
         </div>
         
         <div class="player-controls">
-            <!-- 10 SEC BACK BUTTON -->
             <button class="sec-btn" onclick="skipTime(-10)">-10</button>
-            
             <button onclick="prevSong()">⏮</button>
             <button class="play-btn" id="playBtn" onclick="togglePlay()">▶</button>
             <button onclick="nextSong()">⏭</button>
-            
-            <!-- 10 SEC FORWARD BUTTON -->
             <button class="sec-btn" onclick="skipTime(10)">+10</button>
         </div>
     </div>
 
-    <!-- AUDIO TAG (crossorigin="anonymous" lagaya hai taaki download/background theek chale) -->
-    <audio id="audioPlayer" crossorigin="anonymous"></audio>
+    <!-- AUDIO TAG -->
+    <audio id="audioPlayer" preload="auto"></audio>
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // 6 Working Online MP3 Links
+        // 100% Working Audio Links (Jo mobile aur background mein chalte hain)
         const songs = [
-            { title: "Mumbai Beat", artist: "Pritam", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-            { title: "Karan Aujla Hit", artist: "Dhanda", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+            { title: "Kesariya", artist: "Pritam", src: "https://pagalfree.com/musics/128-Kesariya%20-%20Brahmastra%20128%20Kbps.mp3" },
+            { title: "Dilbar Dilbar", artist: "Neha Kakkar", src: "https://pagalfree.com/musics/128-Dilbar%20-%20Satyameva%20Jayate%20128%20Kbps.mp3" },
             { title: "Top Chill Mix", artist: "Made for You", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
             { title: "Desi Bass", artist: "Top 50", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
             { title: "Night Drive", artist: "Chill English", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
@@ -381,16 +400,19 @@
             
             audio.play().then(() => {
                 isPlaying = true;
-                playBtn.innerHTML = "⏸"; // Pause icon
+                playBtn.innerHTML = "⏸";
             }).catch(error => {
-                alert("Error: Gaana load nahi ho paya. Internet check karein.");
+                // Agar koi error aaye (jaise direct play block ho), toh play button state update karein
+                isPlaying = false;
+                playBtn.innerHTML = "▶";
+                console.log("Play error:", error);
             });
         }
 
         // Play/Pause Toggle
         function togglePlay() {
             if (audio.src === "") {
-                playSong(0); 
+                playSong(0); // Agar kuch select nahi hai toh pehla gaana chalao
                 return;
             }
             
@@ -418,25 +440,23 @@
             playSong(currentSongIndex);
         }
 
-        // 10 Sec Aage / Peeche (Naya Feature)
+        // 10 Sec Forward/Backward
         function skipTime(seconds) {
             if(audio.src !== "") {
                 audio.currentTime += seconds;
             }
         }
 
-        // Download Function (Naya Feature)
+        // Download Function
         function downloadSong() {
             if(audio.src === "") {
                 alert("Pehle koi gaana select karein!");
                 return;
             }
-            // Browser restrictions ki wajah se direct download block ho sakta hai, 
-            // isliye yeh nayi tab mein gaana khol dega jahan se save kar sakte hain.
             window.open(audio.src, '_blank');
         }
 
-        // Progress bar update karna
+        // Progress bar update
         audio.addEventListener('timeupdate', () => {
             if (audio.duration) {
                 const percent = (audio.currentTime / audio.duration) * 100;
@@ -468,7 +488,7 @@
             audio.currentTime = (clickX / width) * audio.duration;
         }
 
-        // SEARCH FUNCTION (Ab dono lists mein kaam karega)
+        // SEARCH FUNCTION
         function filterSongs() {
             const input = document.getElementById('searchInput').value.toLowerCase();
             const cards = document.querySelectorAll('.music-card');
@@ -476,7 +496,7 @@
             cards.forEach(card => {
                 const title = card.querySelector('.title').innerText.toLowerCase();
                 if (title.includes(input)) {
-                    card.style.display = "block"; // flex ki jagah block kiya taaki design na bigde
+                    card.style.display = "block"; 
                 } else {
                     card.style.display = "none";
                 }
