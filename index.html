@@ -1,485 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>My Spotify Clone</title>
-    <style>
-        /* =========================================
-           GLOBAL STYLING (SPOTIFY DARK THEME)
-           ========================================= */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background-color: #121212;
-            color: #ffffff;
-            padding-bottom: 170px; /* Player ke liye space */
-            overflow-x: hidden;
-        }
-
-        h2 {
-            font-size: 24px;
-            font-weight: 800;
-            margin: 25px 20px 15px 20px;
-            letter-spacing: -0.5px;
-        }
-
-        /* =========================================
-           HEADER & TABS
-           ========================================= */
-        .header-container {
-            position: sticky;
-            top: 0;
-            background-color: #121212;
-            z-index: 100;
-            padding-top: 15px;
-            padding-bottom: 10px;
-        }
-
-        .top-nav {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 0 20px 15px 20px;
-        }
-
-        .nav-pill {
-            background-color: #2a2a2a;
-            color: #ffffff;
-            padding: 8px 16px;
-            border-radius: 30px;
-            border: none;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .nav-pill.active {
-            background-color: #1ed760;
-            color: #000000;
-        }
-
-        .search-container { padding: 0 20px; margin-bottom: 10px; }
-
-        .search-bar {
-            display: flex;
-            align-items: center;
-            background-color: #2a2a2a;
-            border-radius: 8px;
-            padding: 12px 16px;
-        }
-
-        .search-bar input {
-            background: none;
-            border: none;
-            color: white;
-            width: 100%;
-            margin-left: 12px;
-            font-size: 16px;
-            outline: none;
-            font-weight: 500;
-        }
-
-        /* =========================================
-           SPOTIFY HOME GRID (Top Section)
-           ========================================= */
-        .recent-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            padding: 0 20px;
-        }
-
-        .recent-item {
-            display: flex;
-            align-items: center;
-            background-color: #2a2a2a;
-            border-radius: 6px;
-            overflow: hidden;
-            height: 60px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .recent-item:hover { background-color: #3e3e3e; }
-
-        .recent-item img {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-        }
-
-        .recent-item span {
-            font-size: 13px;
-            font-weight: 700;
-            padding: 0 10px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* =========================================
-           MUSIC CARDS (Horizontal Scroll)
-           ========================================= */
-        .horizontal-scroll {
-            display: flex;
-            overflow-x: auto;
-            gap: 16px;
-            padding: 0 20px 20px 20px;
-        }
-        .horizontal-scroll::-webkit-scrollbar { display: none; }
-
-        .music-card {
-            min-width: 150px;
-            max-width: 150px;
-            cursor: pointer;
-            padding: 12px;
-            border-radius: 8px;
-            background-color: transparent;
-            transition: background-color 0.3s;
-        }
-
-        .music-card:hover { background-color: #2a2a2a; }
-
-        .music-card img {
-            width: 100%;
-            aspect-ratio: 1 / 1;
-            object-fit: cover;
-            border-radius: 6px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-        }
-
-        .music-card .title {
-            font-size: 16px;
-            font-weight: 700;
-            margin-top: 12px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .music-card .subtitle {
-            font-size: 14px;
-            color: #a7a7a7;
-            margin-top: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* =========================================
-           BOTTOM PLAYER (No Audio here, it's an Iframe controller)
-           ========================================= */
-        .bottom-player {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background-color: #181818;
-            border-top: 1px solid #282828;
-            padding: 15px 20px;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .track-details {
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        .track-details h3 {
-            font-size: 16px;
-            font-weight: 700;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .track-details p {
-            font-size: 13px;
-            color: #a7a7a7;
-            margin-top: 3px;
-        }
-
-        /* YouTube Iframe Container (Hidden for pure audio experience) */
-        #yt-player-container {
-            display: none;
-        }
-
-        /* Hide scrollbar for clean look */
-        .section-title {
-            margin-top: 30px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ARMA_PLAY_ — Music & Video</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <!-- HEADER -->
-    <div class="header-container">
-        <div class="top-nav">
-            <button class="nav-pill active">All</button>
-            <button class="nav-pill">Music</button>
-            <button class="nav-pill">Podcasts</button>
-        </div>
-        
-        <div class="search-container">
-            <div class="search-bar">
-                <span>🔍</span>
-                <input type="text" id="searchInput" placeholder="Search songs..." onkeyup="searchOnlineSongs()">
-            </div>
-        </div>
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-mark">
+        <span></span><span></span><span></span>
+      </div>
+      <span class="logo-text">ARMA_PLAY_</span>
     </div>
 
-    <!-- SEARCH RESULTS (Initially Hidden) -->
-    <div id="searchResultsContainer" style="display: none;">
-        <h2>Search Results</h2>
-        <div class="horizontal-scroll" id="searchList"></div>
+    <nav class="side-nav">
+      <a href="#" class="active">🏠 Home</a>
+      <a href="#">🔍 Search</a>
+      <a href="#">📚 Your Library</a>
+    </nav>
+
+    <div class="side-section">
+      <h4>Create</h4>
+      <button class="create-btn">＋ Playlist</button>
+      <button class="create-btn">❤ Liked Songs</button>
     </div>
 
-    <!-- MAIN HOME PAGE (Spotify Style) -->
-    <div id="homePage">
-        <!-- TOP GRID -->
-        <div class="recent-grid">
-            <div class="recent-item" onclick="searchAndPlay('Masoom Sharma Radio')">
-                <img src="https://images.unsplash.com/photo-1516280440502-864aef97d661?w=100&h=100&fit=crop" alt="Masoom">
-                <span>Masoom Sharma Radio</span>
-            </div>
-            <div class="recent-item" onclick="searchAndPlay('Ramaiya Vastavaiya')">
-                <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=100&h=100&fit=crop" alt="Ramaiya">
-                <span>Ramaiya Vastavaiya</span>
-            </div>
-            <div class="recent-item" onclick="searchAndPlay('Atif Aslam')">
-                <img src="https://images.unsplash.com/photo-1493225457124-a1a2a5f5646a?w=100&h=100&fit=crop" alt="Atif">
-                <span>Atif Aslam Radio</span>
-            </div>
-            <div class="recent-item" onclick="searchAndPlay('Karan Aujla')">
-                <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=100&h=100&fit=crop" alt="Karan">
-                <span>This Is Karan Aujla</span>
-            </div>
-        </div>
+    <div class="side-section playlists">
+      <h4>Your Playlists</h4>
+      <ul>
+        <li>🔥 Top Hits 2025</li>
+        <li>🌙 Late Night Vibes</li>
+        <li>💪 Workout Red</li>
+        <li>🎬 Music Videos</li>
+      </ul>
+    </div>
+  </aside>
 
-        <!-- JUMP BACK IN -->
-        <h2 class="section-title">Jump back in</h2>
-        <div class="horizontal-scroll">
-            <div class="music-card" onclick="searchAndPlay('Once Upon A Time In Mumbai')">
-                <img src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=300&h=300&fit=crop" alt="Mumbai">
-                <p class="title">Once Upon A Time</p>
-                <p class="subtitle">Album • Pritam</p>
-            </div>
-            <div class="music-card" onclick="searchAndPlay('Karan Aujla')">
-                <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&h=300&fit=crop" alt="Karan">
-                <p class="title">Karan Aujla</p>
-                <p class="subtitle">Playlist • Dhanda</p>
-            </div>
-            <div class="music-card" onclick="searchAndPlay('Top 50 Bollywood')">
-                <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300&h=300&fit=crop" alt="Top50">
-                <p class="title">All Bollywood</p>
-                <p class="subtitle">Playlist • Top 50</p>
-            </div>
-        </div>
+  <!-- ================= MAIN ================= -->
+  <main class="main">
 
-        <!-- RECOMMENDED STATIONS -->
-        <h2 class="section-title">Recommended Stations</h2>
-        <div class="horizontal-scroll">
-            <div class="music-card" onclick="searchAndPlay('Jubin Nautiyal')">
-                <img src="https://images.unsplash.com/photo-1516280440502-864aef97d661?w=300&h=300&fit=crop" alt="Jubin">
-                <p class="title">Jubin Nautiyal</p>
-                <p class="subtitle">Radio</p>
-            </div>
-            <div class="music-card" onclick="searchAndPlay('Arijit Singh')">
-                <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop" alt="Arijit">
-                <p class="title">Arijit Singh</p>
-                <p class="subtitle">Radio</p>
-            </div>
+    <!-- ===== TOP BAR ===== -->
+    <header class="topbar">
+      <div class="greeting">
+        <h1 id="greetingText">Good evening</h1>
+        <div class="chips">
+          <span class="chip active">All</span>
+          <span class="chip">Music</span>
+          <span class="chip">Podcasts</span>
+          <span class="chip">Video</span>
         </div>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn" title="Settings">⚙️</button>
+        <div class="avatar">A</div>
+      </div>
+    </header>
+
+    <!-- ===== QUICK ACCESS GRID ===== -->
+    <section class="quick-grid">
+      <div class="quick-card"><div class="qc-img" style="background:#E50914"></div>Liked Songs</div>
+      <div class="quick-card"><div class="qc-img" style="background:#7a0f0f"></div>Top Hits</div>
+      <div class="quick-card"><div class="qc-img" style="background:#b31212"></div>Workout Red</div>
+      <div class="quick-card"><div class="qc-img" style="background:#450a0a"></div>Chill Nights</div>
+      <div class="quick-card"><div class="qc-img" style="background:#ff2d2d"></div>Music Videos</div>
+      <div class="quick-card"><div class="qc-img" style="background:#8b0000"></div>Daily Mix 1</div>
+    </section>
+
+    <!-- ===== SECTIONS (auto-generated by JS) ===== -->
+    <div id="sectionsContainer"></div>
+
+  </main>
+
+  <!-- ================= PLAYER BAR ================= -->
+  <footer class="player">
+    <div class="now-playing">
+      <div class="np-art" id="npArt"></div>
+      <div class="np-info">
+        <div class="np-title" id="npTitle">Select a song</div>
+        <div class="np-artist" id="npArtist">ARMA_PLAY_</div>
+      </div>
+      <button class="like-btn" id="likeBtn">❤</button>
     </div>
 
-    <!-- BOTTOM PLAYER (For UI only) -->
-    <div class="bottom-player">
-        <div class="track-details">
-            <h3 id="displayTitle">Select a Song</h3>
-            <p id="displayArtist">Music App</p>
-        </div>
-        <!-- YouTube Player will be hidden here in background -->
-        <div id="yt-player-container"></div>
+    <div class="player-center">
+      <div class="controls">
+        <button id="shuffleBtn">🔀</button>
+        <button id="prevBtn">⏮</button>
+        <button class="play-btn" id="playBtn">▶</button>
+        <button id="nextBtn">⏭</button>
+        <button id="repeatBtn">🔁</button>
+      </div>
+      <div class="progress-row">
+        <span id="currentTime">0:00</span>
+        <input type="range" id="progressBar" min="0" max="100" value="0" />
+        <span id="duration">0:00</span>
+      </div>
     </div>
 
-    <!-- JAVASCRIPT LOGIC -->
-    <script>
-        let ytPlayer;
-        let isPlayerReady = false;
-
-        // 1. YOUTUBE IFRAME API SCRIPT LOAD KARO
-        const tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        const firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-        // 2. YOUTUBE API READY HONE PAR PLAYER BANAO
-        function onYouTubeIframeAPIReady() {
-            ytPlayer = new YT.Player('yt-player-container', {
-                height: '0',
-                width: '0',
-                videoId: '', // Start empty
-                playerVars: {
-                    'playsinline': 1,
-                    'autoplay': 1,
-                    'controls': 0 // Hide youtube controls, play in background
-                },
-                events: {
-                    'onReady': onPlayerReady,
-                    'onStateChange': onPlayerStateChange
-                }
-            });
-        }
-
-        function onPlayerReady(event) {
-            isPlayerReady = true;
-        }
-
-        function onPlayerStateChange(event) {
-            // Agar gaana khatam ho jaye (0 = ended), toh kuch karo (optional)
-            if (event.data == 0) {
-                document.getElementById('displayArtist').innerText = "Song Ended";
-            }
-        }
-
-        // 3. YOUTUBE SEARCH & PLAY FUNCTION (Backend Bypass)
-        // Note: Browsers me direct YouTube search API block hoti hai bina API key ke, 
-        // isliye hum ek public Invidious API ya direct search logic use karte hain. 
-        // Simple banane ke liye hum direct YouTube search URL se pehla video ID fetch karenge.
-        
-        function searchAndPlay(query) {
-            document.getElementById('displayTitle').innerText = "Loading...";
-            document.getElementById('displayArtist').innerText = query;
-
-            // Ek public API jo YouTube ka first video ID nikal kar deti hai (Piped API)
-            fetch(`https://pipedapi.kavin.rocks/search?q=${encodeURIComponent(query)}&filter=videos`)
-            .then(res => res.json())
-            .then(data => {
-                if(data.items && data.items.length > 0) {
-                    const videoId = data.items[0].url.split('v=')[1]; // Extract Video ID
-                    const videoTitle = data.items[0].title;
-                    
-                    // Update Player UI
-                    document.getElementById('displayTitle').innerText = videoTitle;
-                    
-                    // Play Video in hidden iframe
-                    if (isPlayerReady) {
-                        ytPlayer.loadVideoById(videoId);
-                    }
-                } else {
-                    document.getElementById('displayTitle').innerText = "Not Found";
-                }
-            })
-            .catch(err => {
-                // Agar primary API fail ho jaye, fallback
-                document.getElementById('displayTitle').innerText = "Error Loading";
-                document.getElementById('displayArtist').innerText = "Check Internet";
-            });
-        }
-
-        // 4. SEARCH BAR LOGIC (Live typing)
-        let searchTimeout;
-        function searchOnlineSongs() {
-            const query = document.getElementById('searchInput').value;
-            const homePage = document.getElementById('homePage');
-            const searchResultsContainer = document.getElementById('searchResultsContainer');
-            const searchList = document.getElementById('searchList');
-
-            clearTimeout(searchTimeout);
-
-            if (query.trim() === "") {
-                homePage.style.display = "block";
-                searchResultsContainer.style.display = "none";
-                return;
-            }
-
-            homePage.style.display = "none";
-            searchResultsContainer.style.display = "block";
-            
-            searchTimeout = setTimeout(() => {
-                searchList.innerHTML = '<p style="color: #1ed760; padding: 20px;">Searching...</p>';
-                
-                // Piped API for search results list
-                fetch(`https://pipedapi.kavin.rocks/search?q=${encodeURIComponent(query)}&filter=videos`)
-                .then(res => res.json())
-                .then(data => {
-                    searchList.innerHTML = '';
-                    if(data.items) {
-                        data.items.slice(0, 10).forEach(item => { // Top 10 results
-                            const card = document.createElement('div');
-                            card.className = 'music-card';
-                            card.onclick = () => {
-                                document.getElementById('displayTitle').innerText = item.title;
-                                document.getElementById('displayArtist').innerText = item.uploaderName || "YouTube";
-                                ytPlayer.loadVideoById(item.url.split('v=')[1]);
-                            };
-                            card.innerHTML = `
-                                <img src="${item.thumbnail}" alt="cover">
-                                <p class="title">${item.title}</p>
-                                <p class="subtitle">${item.uploaderName}</p>
-                            `;
-                            searchList.appendChild(card);
-                        });
-                    }
-                });
-            }, 800);
-        }
-    </script>
-</body>
-</html>
-DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify Clone</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Font Awesome Icons ke liye link -->
-    <link rel="stylesheet" href="https://cloudflare.com">
-</head>
-<body>
-
-    <div class="music-container">
-        <!-- Album Art aur Details -->
-        <div class="img-container">
-            <img src="https://unsplash.com" alt="album-art" id="cover">
-        </div>
-        
-        <div class="navigation">
-            <h2 id="title">Song Title</h2>
-            <h3 id="artist">Artist Name</h3>
-            
-            <!-- Progress Bar -->
-            <div class="progress-container" id="progress-container">
-                <div class="progress" id="progress"></div>
-            </div>
-        </div>
-
-        <!-- Hidden Audio Element -->
-        <audio src="" id="audio"></audio>
-
-        <!-- Player Controls -->
-        <div class="controls">
-            <button id="prev" class="action-btn">
-                <i class="fas fa-backward"></i>
-            </button>
-            <button id="play" class="action-btn action-btn-big">
-                <i class="fas fa-play" id="play-icon"></i>
-            </button>
-            <button id="next" class="action-btn">
-                <i class="fas fa-forward"></i>
-            </button>
-        </div>
+    <div class="player-right">
+      <button class="mode-toggle" id="modeToggle" title="Switch Audio / Video">🎵 Audio</button>
+      <input type="range" id="volumeBar" min="0" max="100" value="80" />
     </div>
+  </footer>
 
-    <script src="script.js"></script>
+  <!-- ================= VIDEO OVERLAY ================= -->
+  <div class="video-overlay" id="videoOverlay">
+    <button class="video-close" id="videoClose">✕</button>
+    <div class="video-wrapper">
+      <video id="videoPlayer" controls playsinline></video>
+      <audio id="audioPlayer"></audio>
+    </div>
+    <div class="video-info">
+      <h2 id="videoTitle">Music Video</h2>
+      <p id="videoArtist">ARMA_PLAY_</p>
+    </div>
+  </div>
+
+  <!-- ================= TOAST ================= -->
+  <div class="toast" id="toast"></div>
+
+  <script src="script.js"></script>
 </body>
 </html>
