@@ -1,224 +1,457 @@
-// ============ DATA ============
-const data = {
-    quickAccess: [
-        { title: "Liked Songs", img: "https://picsum.photos/seed/liked/100" },
-        { title: "Daily Mix 1", img: "https://picsum.photos/seed/mix1/100" },
-        { title: "Chill Vibes", img: "https://picsum.photos/seed/chill/100" },
-        { title: "Top Hits", img: "https://picsum.photos/seed/top/100" },
-        { title: "Workout", img: "https://picsum.photos/seed/workout/100" },
-        { title: "Focus Flow", img: "https://picsum.photos/seed/focus/100" }
-    ],
-    madeForYou: [
-        { title: "Daily Mix 1", desc: "Arijit Singh, Pritam, Atif Aslam", img: "https://picsum.photos/seed/dm1/300" },
-        { title: "Daily Mix 2", desc: "A.R. Rahman, Shreya Ghoshal", img: "https://picsum.photos/seed/dm2/300" },
-        { title: "Discover Weekly", desc: "Your weekly mixtape of fresh music", img: "https://picsum.photos/seed/dw/300" },
-        { title: "Release Radar", desc: "Catch all the latest music", img: "https://picsum.photos/seed/rr/300" },
-        { title: "Time Capsule", desc: "Songs from your past", img: "https://picsum.photos/seed/tc/300" }
-    ],
-    recentlyPlayed: [
-        { title: "Lofi Beats", desc: "Chill beats to relax", img: "https://picsum.photos/seed/lofi/300" },
-        { title: "Bollywood Hits", desc: "Latest Hindi songs", img: "https://picsum.photos/seed/bolly/300" },
-        { title: "Pop 2024", desc: "Top pop hits", img: "https://picsum.photos/seed/pop/300" },
-        { title: "Hip Hop", desc: "Best rap tracks", img: "https://picsum.photos/seed/hiphop/300" },
-        { title: "Workout Mix", desc: "High energy songs", img: "https://picsum.photos/seed/wm/300" }
-    ],
-    trending: [
-        { title: "Top 50 Global", desc: "The most played tracks worldwide", img: "https://picsum.photos/seed/t50/300" },
-        { title: "Top 50 India", desc: "Most played in India", img: "https://picsum.photos/seed/t50in/300" },
-        { title: "Viral Hits", desc: "Trending on social media", img: "https://picsum.photos/seed/viral/300" },
-        { title: "New Releases", desc: "Fresh drops this week", img: "https://picsum.photos/seed/new/300" },
-        { title: "Summer Vibes", desc: "Perfect for the season", img: "https://picsum.photos/seed/summer/300" }
-    ],
-    artists: [
-        { title: "Arijit Singh", desc: "Artist", img: "https://picsum.photos/seed/arijit/300" },
-        { title: "Diljit Dosanjh", desc: "Artist", img: "https://picsum.photos/seed/diljit/300" },
-        { title: "A.R. Rahman", desc: "Artist", img: "https://picsum.photos/seed/ar/300" },
-        { title: "Taylor Swift", desc: "Artist", img: "https://picsum.photos/seed/taylor/300" },
-        { title: "Ed Sheeran", desc: "Artist", img: "https://picsum.photos/seed/ed/300" }
-    ]
+/* =====================================================
+   ARMA PLAY — Advanced Music Player Engine
+   ===================================================== */
+
+const audio = document.getElementById("audio");
+const results = document.getElementById("results");
+const statusText = document.getElementById("status");
+const queryInput = document.getElementById("query");
+
+const coverEl = document.getElementById("cover");
+const titleEl = document.getElementById("title");
+const artistEl = document.getElementById("artist");
+const fullSongEl = document.getElementById("fullSong");
+const toggleBtn = document.getElementById("toggle");
+const progressBar = document.getElementById("progress");
+const currentTimeEl = document.getElementById("currentTime");
+const durationEl = document.getElementById("duration");
+const volumeBar = document.getElementById("volume");
+
+let songs = [];
+let currentIndex = -1;
+let isShuffle = false;
+let repeatMode = 0; // 0 = off, 1 = all, 2 = one
+let lastVolume = 1;
+
+/* ---------------- UTILS ---------------- */
+const fmt = (s) => {
+  if (!Number.isFinite(s) || s < 0) return "0:00";
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return `${m}:${String(sec).padStart(2, "0")}`;
 };
 
-// ============ RENDER FUNCTIONS ============
+const toast = (() => {
+  const el = document.getElementById("toast");
+  let t;
+  return (msg, ms = 2200) => {
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(t);
+    t = setTimeout(() => el.classList.remove("show"), ms);
+  };
+})();
 
-// Render Quick Access Grid
-function renderQuickAccess() {
-    const grid = document.getElementById('quickAccessGrid');
-    grid.innerHTML = data.quickAccess.map(item => `
-        <div class="quick-card" data-title="${item.title}">
-            <img src="${item.img}" alt="${item.title}">
-            <span>${item.title}</span>
-            <button class="quick-play" onclick="playTrack(event, '${item.title}', 'Playlist')">
-                <i class="fa-solid fa-play"></i>
-            </button>
-        </div>
-    `).join('');
+const $ = (id) => document.getElementById(id);
+
+/* ---------------- RECENTLY PLAYED ---------------- */
+function saveRecent(song) {
+  try {
+    let recent = JSON.parse(localStorage.getItem("arma_recent") || "[]");
+    recent = recent.filter((r) => r.trackId !== song.trackId);
+    recent.unshift({
+      trackId: song.trackId,
+      trackName: song.trackName,
+      artistName: song.artistName,
+      artworkUrl100: song.artworkUrl100,
+      previewUrl: song.previewUrl,
+      trackViewUrl: song.trackViewUrl,
+    });
+    localStorage.setItem("arma_recent", JSON.stringify(recent.slice(0, 15)));
+  } catch (e) {}
 }
 
-// Render Cards (reusable)
-function renderCards(containerId, items, isArtist = false) {
-    const container = document.getElementById(containerId);
-    container.innerHTML = items.map(item => `
-        <div class="card ${isArtist ? 'artist' : ''}" onclick="playTrack(event, '${item.title}', '${item.desc}')">
-            <div class="card-img-wrapper">
-                <img src="${item.img}" alt="${item.title}">
-                <button class="card-play" onclick="playTrack(event, '${item.title}', '${item.desc}')">
-                    <i class="fa-solid fa-play"></i>
-                </button>
-            </div>
-            <h3>${item.title}</h3>
-            <p>${item.desc}</p>
-        </div>
-    `).join('');
+function loadRecent() {
+  try {
+    return JSON.parse(localStorage.getItem("arma_recent") || "[]");
+  } catch (e) {
+    return [];
+  }
 }
 
-// ============ PLAYER LOGIC ============
-
-let isPlaying = false;
-let currentTrack = { title: "Select a song", artist: "Artist" };
-let progressInterval = null;
-let currentProgress = 0;
-const totalDuration = 210; // 3:30 dummy duration
-
-// Play a track
-function playTrack(event, title, artist) {
-    if (event) event.stopPropagation();
-    
-    currentTrack = { title, artist };
-    document.getElementById('nowPlayingTitle').textContent = title;
-    document.getElementById('nowPlayingArtist').textContent = artist;
-    
-    // Random album art
-    const artSeed = title.replace(/\s/g, '').toLowerCase();
-    document.getElementById('nowPlayingArt').style.backgroundImage = 
-        `url('https://picsum.photos/seed/${artSeed}/100')`;
-    
-    // Reset progress
-    currentProgress = 0;
-    updateProgressUI();
-    
-    // Play
-    isPlaying = true;
-    updatePlayButton();
-    startProgress();
-    
-    // Update total time display
-    document.getElementById('totalTime').textContent = formatTime(totalDuration);
+function saveLastSong(song) {
+  try {
+    localStorage.setItem("arma_last", JSON.stringify(song));
+  } catch (e) {}
 }
 
-// Toggle play/pause
+function loadLastSong() {
+  try {
+    return JSON.parse(localStorage.getItem("arma_last") || "null");
+  } catch (e) {
+    return null;
+  }
+}
+
+/* ---------------- SEARCH ---------------- */
+let searchTimeout = null;
+function debouncedSearch() {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(searchSongs, 400);
+}
+
+async function searchSongs(term) {
+  const query = (term ?? queryInput.value).trim();
+  if (!query) {
+    statusText.textContent = "Enter a song or artist name.";
+    return;
+  }
+
+  statusText.textContent = "🔎 Searching iTunes...";
+  statusText.style.opacity = "1";
+  results.innerHTML = skeleton(6);
+
+  try {
+    const url = `https://itunes.apple.com/search?term=${encodeURIComponent(
+      query
+    )}&entity=song&limit=30&country=IN`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+
+    const data = await res.json();
+    songs = (data.results || []).filter((s) => s.previewUrl);
+
+    if (!songs.length) {
+      results.innerHTML = "";
+      statusText.textContent = "No results. Try another keyword.";
+      return;
+    }
+
+    statusText.textContent = `✅ ${songs.length} songs found`;
+    statusText.style.opacity = ".7";
+    renderList(songs);
+  } catch (err) {
+    console.error(err);
+    results.innerHTML = "";
+    statusText.textContent = "❌ Connection error. Try again.";
+    toast("Search failed — check your connection");
+  }
+}
+
+function skeleton(n) {
+  return Array(n)
+    .fill(0)
+    .map(
+      () => `
+    <div class="song" style="pointer-events:none;opacity:.6">
+      <div style="width:57px;height:57px;border-radius:9px;background:#1e1e1e;flex-shrink:0"></div>
+      <div class="info">
+        <div style="height:12px;width:70%;background:#1e1e1e;border-radius:4px;margin-bottom:8px"></div>
+        <div style="height:10px;width:40%;background:#1e1e1e;border-radius:4px"></div>
+      </div>
+    </div>`
+    )
+    .join("");
+}
+
+/* ---------------- RENDER LIST ---------------- */
+function renderList(list) {
+  results.innerHTML = "";
+  const frag = document.createDocumentFragment();
+
+  list.forEach((song, index) => {
+    const item = document.createElement("div");
+    item.className = "song";
+    item.dataset.index = index;
+    if (index === currentIndex) item.classList.add("playing");
+
+    const img = document.createElement("img");
+    img.src = song.artworkUrl100 || "";
+    img.alt = "";
+    img.loading = "lazy";
+    img.onerror = () => {
+      img.src = "https://placehold.co/100x100/1a1a1a/d8ad55?text=♪";
+    };
+
+    const info = document.createElement("div");
+    info.className = "info";
+    const name = document.createElement("b");
+    name.textContent = song.trackName || "Unknown song";
+    const artist = document.createElement("small");
+    artist.textContent = song.artistName || "Unknown artist";
+    info.append(name, artist);
+
+    const btn = document.createElement("button");
+    btn.className = "play";
+    btn.textContent = index === currentIndex ? "❚❚" : "▶";
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      if (index === currentIndex) togglePlay();
+      else playSong(index);
+    };
+
+    item.onclick = () => {
+      if (index === currentIndex) togglePlay();
+      else playSong(index);
+    };
+
+    item.append(img, info, btn);
+    frag.appendChild(item);
+  });
+
+  results.appendChild(frag);
+}
+
+/* ---------------- PLAYBACK ---------------- */
+function playSong(index) {
+  const song = songs[index];
+  if (!song || !song.previewUrl) {
+    toast("Preview not available");
+    return;
+  }
+
+  currentIndex = index;
+  audio.src = song.previewUrl;
+  audio.volume = parseFloat(volumeBar.value);
+
+  audio
+    .play()
+    .then(() => {
+      updatePlayer(song);
+      markPlaying();
+      saveRecent(song);
+      saveLastSong(song);
+      updateMediaSession(song);
+    })
+    .catch(() => {
+      statusText.textContent = "Playback failed. Tap play again.";
+      toast("Playback failed");
+    });
+}
+
+function updatePlayer(song) {
+  coverEl.src = song.artworkUrl100?.replace("100x100", "300x300") || coverEl.src;
+  titleEl.textContent = song.trackName || "Unknown song";
+  artistEl.textContent = song.artistName || "Unknown artist";
+  fullSongEl.href = song.trackViewUrl || "#";
+  document.title = `${song.trackName || "Song"} • ARMA PLAY`;
+  extractAccentColor(song.artworkUrl100);
+}
+
+function markPlaying() {
+  document.querySelectorAll(".song").forEach((el) => {
+    const i = Number(el.dataset.index);
+    el.classList.toggle("playing", i === currentIndex);
+    const btn = el.querySelector(".play");
+    if (btn) btn.textContent = i === currentIndex && !audio.paused ? "❚❚" : "▶";
+  });
+}
+
 function togglePlay() {
-    if (!currentTrack.title || currentTrack.title === "Select a song") {
-        // Play first quick access item if nothing selected
-        playTrack(null, data.quickAccess[0].title, "Playlist");
-        return;
-    }
-    
-    isPlaying = !isPlaying;
-    updatePlayButton();
-    
-    if (isPlaying) {
-        startProgress();
-    } else {
-        stopProgress();
-    }
+  if (!audio.src) {
+    if (songs.length) playSong(0);
+    else toast("Search a song first 🎵");
+    return;
+  }
+  if (audio.paused) audio.play();
+  else audio.pause();
 }
 
-// Update play button icon
 function updatePlayButton() {
-    const btn = document.getElementById('playBtn');
-    btn.innerHTML = isPlaying 
-        ? '<i class="fa-solid fa-pause"></i>' 
-        : '<i class="fa-solid fa-play"></i>';
+  toggleBtn.textContent = audio.paused ? "▶" : "❚❚";
+  markPlaying();
 }
 
-// Progress bar animation
-function startProgress() {
-    stopProgress();
-    progressInterval = setInterval(() => {
-        currentProgress += 1;
-        if (currentProgress >= totalDuration) {
-            currentProgress = 0;
-            // Auto-play next (simple: reset)
-        }
-        updateProgressUI();
-    }, 1000);
+/* ---------------- NAV ---------------- */
+function nextSong(auto = false) {
+  if (!songs.length) return;
+
+  if (isShuffle) {
+    let n;
+    do {
+      n = Math.floor(Math.random() * songs.length);
+    } while (songs.length > 1 && n === currentIndex);
+    return playSong(n);
+  }
+
+  if (currentIndex < songs.length - 1) {
+    playSong(currentIndex + 1);
+  } else if (repeatMode === 1) {
+    playSong(0);
+  } else if (auto) {
+    statusText.textContent = "🎵 Queue finished";
+  }
 }
 
-function stopProgress() {
-    if (progressInterval) {
-        clearInterval(progressInterval);
-        progressInterval = null;
-    }
+function previousSong() {
+  if (!songs.length) return;
+  if (audio.currentTime > 3) {
+    audio.currentTime = 0;
+    return;
+  }
+  if (currentIndex > 0) playSong(currentIndex - 1);
+  else if (repeatMode === 1) playSong(songs.length - 1);
 }
 
-function updateProgressUI() {
-    const slider = document.getElementById('progressSlider');
-    const currentTimeEl = document.getElementById('currentTime');
-    const totalTimeEl = document.getElementById('totalTime');
-    
-    slider.value = (currentProgress / totalDuration) * 100;
-    currentTimeEl.textContent = formatTime(currentProgress);
-    totalTimeEl.textContent = formatTime(totalDuration);
-}
-
-function formatTime(seconds) {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-}
-
-// ============ EVENT LISTENERS ============
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Render all sections
-    renderQuickAccess();
-    renderCards('madeForYou', data.madeForYou);
-    renderCards('recentlyPlayed', data.recentlyPlayed);
-    renderCards('trending', data.trending);
-    renderCards('artists', data.artists, true);
-
-    // Play button
-    document.getElementById('playBtn').addEventListener('click', togglePlay);
-
-    // Progress slider
-    const progressSlider = document.getElementById('progressSlider');
-    progressSlider.addEventListener('input', (e) => {
-        currentProgress = (e.target.value / 100) * totalDuration;
-        updateProgressUI();
-    });
-
-    // Volume slider
-    document.getElementById('volumeSlider').addEventListener('input', (e) => {
-        console.log('Volume:', e.target.value + '%');
-    });
-
-    // Keyboard shortcuts
-    document.addEventListener('keydown', (e) => {
-        if (e.code === 'Space' && e.target.tagName !== 'INPUT') {
-            e.preventDefault();
-            togglePlay();
-        }
-    });
-
-    // Initial duration display
-    document.getElementById('totalTime').textContent = formatTime(totalDuration);
+/* ---------------- AUDIO EVENTS ---------------- */
+audio.addEventListener("timeupdate", () => {
+  progressBar.value = audio.duration
+    ? (audio.currentTime / audio.duration) * 100
+    : 0;
+  currentTimeEl.textContent = fmt(audio.currentTime);
+  durationEl.textContent = fmt(audio.duration);
 });
 
-// ============ SEARCH SIMULATION ============
-// (Optional: Hook into sidebar search)
-document.querySelector('nav a:nth-child(2)')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    alert('Search functionality: Type to find songs, artists, albums!');
+audio.addEventListener("loadedmetadata", () => {
+  durationEl.textContent = fmt(audio.duration);
 });
 
-// ============ SMOOTH SCROLL ============
-document.querySelector('.content-scroll')?.addEventListener('scroll', function() {
-    const topBar = document.querySelector('.top-bar');
-    if (this.scrollTop > 50) {
-        topBar.style.background = 'rgba(18, 18, 18, 0.95)';
-        topBar.style.backdropFilter = 'blur(10px)';
-    } else {
-        topBar.style.background = 'transparent';
-        topBar.style.backdropFilter = 'none';
-    }
+progressBar.addEventListener("input", (e) => {
+  if (audio.duration) {
+    audio.currentTime = (e.target.value / 100) * audio.duration;
+  }
 });
+
+audio.addEventListener("play", updatePlayButton);
+audio.addEventListener("pause", updatePlayButton);
+
+audio.addEventListener("ended", () => {
+  if (repeatMode === 2) {
+    audio.currentTime = 0;
+    audio.play();
+  } else {
+    nextSong(true);
+  }
+});
+
+audio.addEventListener("error", () => {
+  toast("⚠️ Playback error");
+});
+
+/* ---------------- VOLUME ---------------- */
+if (volumeBar) {
+  volumeBar.addEventListener("input", () => {
+    audio.volume = parseFloat(volumeBar.value);
+    if (audio.volume > 0) lastVolume = audio.volume;
+  });
+}
+
+/* ---------------- MEDIA SESSION ---------------- */
+function updateMediaSession(song) {
+  if (!("mediaSession" in navigator)) return;
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title: song.trackName || "",
+    artist: song.artistName || "",
+    album: song.collectionName || "",
+    artwork: [
+      { src: song.artworkUrl100 || "", sizes: "100x100", type: "image/jpeg" },
+    ],
+  });
+  navigator.mediaSession.setActionHandler("play", () => audio.play());
+  navigator.mediaSession.setActionHandler("pause", () => audio.pause());
+  navigator.mediaSession.setActionHandler("previoustrack", previousSong);
+  navigator.mediaSession.setActionHandler("nexttrack", nextSong);
+}
+
+/* ---------------- ACCENT COLOR EXTRACT ---------------- */
+function extractAccentColor(url) {
+  if (!url) return;
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  img.onload = () => {
+    try {
+      const c = document.createElement("canvas");
+      c.width = c.height = 1;
+      const ctx = c.getContext("2d");
+      ctx.drawImage(img, 0, 0, 1, 1);
+      const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+      const bright = (r + g + b) / 3;
+      if (bright > 30 && bright < 230) {
+        document.documentElement.style.setProperty(
+          "--accent",
+          `rgb(${r},${g},${b})`
+        );
+      }
+    } catch (e) {}
+  };
+  img.src = url;
+}
+
+/* ---------------- KEYBOARD SHORTCUTS ---------------- */
+document.addEventListener("keydown", (e) => {
+  const tag = document.activeElement?.tagName;
+  if (tag === "INPUT" || tag === "TEXTAREA") return;
+
+  switch (e.key.toLowerCase()) {
+    case " ":
+      e.preventDefault();
+      togglePlay();
+      break;
+    case "arrowright":
+      audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + 5);
+      break;
+    case "arrowleft":
+      audio.currentTime = Math.max(0, audio.currentTime - 5);
+      break;
+    case "arrowup":
+      e.preventDefault();
+      if (volumeBar) {
+        volumeBar.value = Math.min(1, parseFloat(volumeBar.value) + 0.1);
+        audio.volume = parseFloat(volumeBar.value);
+      }
+      break;
+    case "arrowdown":
+      e.preventDefault();
+      if (volumeBar) {
+        volumeBar.value = Math.max(0, parseFloat(volumeBar.value) - 0.1);
+        audio.volume = parseFloat(volumeBar.value);
+      }
+      break;
+    case "m":
+      audio.muted = !audio.muted;
+      toast(audio.muted ? "🔇 Muted" : "🔊 Unmuted");
+      break;
+    case "n":
+      nextSong();
+      break;
+    case "p":
+      previousSong();
+      break;
+  }
+});
+
+/* ---------------- SEARCH EVENTS ---------------- */
+queryInput.addEventListener("input", () => {
+  const v = queryInput.value.trim();
+  if (v.length >= 2) debouncedSearch();
+});
+
+queryInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    clearTimeout(searchTimeout);
+    searchSongs();
+  }
+});
+
+/* ---------------- INIT ---------------- */
+(function init() {
+  // Restore last song
+  const last = loadLastSong();
+  if (last) {
+    titleEl.textContent = last.trackName || "Select a song";
+    artistEl.textContent = last.artistName || "ARMA PLAY";
+    if (last.artworkUrl100) coverEl.src = last.artworkUrl100;
+    if (last.trackViewUrl) fullSongEl.href = last.trackViewUrl;
+    songs = [last];
+    currentIndex = 0;
+    audio.src = last.previewUrl;
+    statusText.textContent = "▶ Last played — tap play to resume";
+  }
+
+  // Recent history
+  const recent = loadRecent();
+  if (recent.length && !last) {
+    statusText.textContent = `🎧 ${recent.length} recently played — search or tap a chip`;
+  }
+
+  // Volume
+  if (volumeBar) audio.volume = parseFloat(volumeBar.value);
+})();
+
+/* ---------------- GLOBAL EXPORTS (for HTML buttons) ---------------- */
+window.searchSongs = searchSongs;
+window.playSong = playSong;
+window.togglePlay = togglePlay;
+window.nextSong = nextSong;
+window.previousSong = previousSong;
