@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Spotify Clone</title>
+    <title>My Music App</title>
     <style>
         /* =========================================
-           GLOBAL SPOTIFY STYLING
+           GLOBAL STYLING
            ========================================= */
         * {
             margin: 0;
@@ -19,19 +19,19 @@
         body {
             background-color: #121212;
             color: #ffffff;
-            padding-bottom: 140px;
+            padding-bottom: 150px;
             overflow-x: hidden;
         }
 
         h2 {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 700;
-            margin: 24px 20px 16px 20px;
+            margin: 20px 20px 15px 20px;
             letter-spacing: -0.5px;
         }
 
         /* =========================================
-           TOP HEADER & SEARCH
+           HEADER & TABS
            ========================================= */
         .header-container {
             position: sticky;
@@ -44,23 +44,12 @@
         .top-nav {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 16px 20px;
+            gap: 10px;
+            padding: 15px 20px;
+            overflow-x: auto;
+            scrollbar-width: none;
         }
-
-        .avatar {
-            width: 36px;
-            height: 36px;
-            background-color: #ff8f9f;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #000;
-            font-weight: 800;
-            font-size: 16px;
-            cursor: pointer;
-        }
+        .top-nav::-webkit-scrollbar { display: none; }
 
         .nav-pill {
             background-color: #2a2a2a;
@@ -71,6 +60,7 @@
             font-size: 14px;
             font-weight: 700;
             cursor: pointer;
+            white-space: nowrap;
         }
 
         .nav-pill.active {
@@ -78,16 +68,30 @@
             color: #000000;
         }
 
-        .search-container {
-            padding: 0 20px;
+        /* Local Upload Button */
+        .upload-label {
+            background-color: #1ed760;
+            color: black;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
+        #local-file-input { display: none; }
+
+        .search-container { padding: 0 20px; }
 
         .search-bar {
             display: flex;
             align-items: center;
             background-color: #2a2a2a;
             border-radius: 8px;
-            padding: 12px 16px;
+            padding: 10px 15px;
         }
 
         .search-bar input {
@@ -95,39 +99,33 @@
             border: none;
             color: white;
             width: 100%;
-            margin-left: 12px;
+            margin-left: 10px;
             font-size: 16px;
             outline: none;
-            font-weight: 500;
         }
-        
-        .search-bar input::placeholder { color: #a7a7a7; }
 
         /* =========================================
-           CARDS & GRID (LIKE SPOTIFY)
+           MUSIC CARDS
            ========================================= */
         .horizontal-scroll {
             display: flex;
             overflow-x: auto;
             gap: 16px;
             padding: 0 20px 20px 20px;
-            scroll-behavior: smooth;
         }
-
         .horizontal-scroll::-webkit-scrollbar { display: none; }
 
         .music-card {
-            min-width: 150px;
-            max-width: 150px;
+            min-width: 140px;
+            max-width: 140px;
             cursor: pointer;
-            padding: 12px;
+            padding: 10px;
             border-radius: 8px;
-            transition: background-color 0.3s ease;
+            background-color: #181818;
+            transition: background-color 0.3s;
         }
 
-        .music-card:hover {
-            background-color: #2a2a2a;
-        }
+        .music-card:hover { background-color: #2a2a2a; }
 
         .music-card img {
             width: 100%;
@@ -138,25 +136,22 @@
         }
 
         .music-card .title {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 700;
-            margin-top: 12px;
+            margin-top: 10px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
         .music-card .subtitle {
-            font-size: 14px;
+            font-size: 12px;
             color: #a7a7a7;
             margin-top: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         /* =========================================
-           BOTTOM PLAYER (FIXED)
+           BOTTOM PLAYER
            ========================================= */
         .bottom-player {
             position: fixed;
@@ -164,7 +159,7 @@
             width: 100%;
             background-color: #181818;
             border-top: 1px solid #282828;
-            padding: 12px 20px 20px 20px;
+            padding: 15px 20px;
             z-index: 1000;
             display: flex;
             flex-direction: column;
@@ -177,13 +172,10 @@
             margin-bottom: 12px;
         }
 
-        .track-details {
-            width: 100px;
-        }
+        .track-details { width: 90px; }
 
         .track-details h3 {
             font-size: 14px;
-            font-weight: 600;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -192,7 +184,6 @@
         .track-details p {
             font-size: 12px;
             color: #a7a7a7;
-            margin-top: 2px;
         }
 
         .progress-container {
@@ -216,20 +207,15 @@
             height: 100%;
             background-color: #1ed760;
             border-radius: 2px;
-            transition: width 0.1s linear;
         }
 
         .download-btn {
             background: none;
             border: none;
             color: #a7a7a7;
-            font-size: 22px;
+            font-size: 20px;
             cursor: pointer;
-            padding: 5px;
-            transition: color 0.2s;
         }
-
-        .download-btn:hover { color: #1ed760; }
 
         .player-controls {
             display: flex;
@@ -242,100 +228,119 @@
             background: none;
             border: none;
             color: white;
-            font-size: 24px;
+            font-size: 22px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.1s;
-        }
-
-        .player-controls button:active {
-            transform: scale(0.9);
         }
 
         .player-controls .play-btn {
             background-color: white;
             color: black;
             border-radius: 50%;
-            width: 48px;
-            height: 48px;
-            font-size: 22px;
-            padding-left: 4px; /* Center play icon */
+            width: 45px;
+            height: 45px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-left: 3px;
         }
 
         .sec-btn {
             font-size: 12px !important;
-            font-weight: 800;
-            border: 1.5px solid #a7a7a7 !important;
+            font-weight: bold;
+            border: 1px solid #a7a7a7 !important;
             color: #a7a7a7 !important;
             border-radius: 50%;
-            width: 32px;
-            height: 32px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-
+        
+        /* Hide sections initially */
+        .section-container { display: none; }
+        .section-container.active { display: block; }
     </style>
 </head>
 <body>
 
-    <!-- HEADER -->
+    <!-- HEADER & TABS -->
     <div class="header-container">
         <div class="top-nav">
-            <div class="avatar">J</div>
-            <button class="nav-pill active">All</button>
-            <button class="nav-pill">Music</button>
-            <button class="nav-pill">Podcasts</button>
+            <!-- Nav Pills -->
+            <button class="nav-pill active" onclick="switchTab('all', this)">All</button>
+            <button class="nav-pill" onclick="switchTab('bollywood', this)">Bollywood</button>
+            <button class="nav-pill" onclick="switchTab('hollywood', this)">Hollywood</button>
+            
+            <!-- Local File Upload (Mobile Storage) -->
+            <label for="local-file-input" class="upload-label">
+                <span>+</span> Local
+            </label>
+            <input type="file" id="local-file-input" accept="audio/*" onchange="loadLocalSong(event)">
         </div>
         
         <div class="search-container">
             <div class="search-bar">
                 <span>🔍</span>
-                <input type="text" id="searchInput" placeholder="What do you want to listen to?" onkeyup="filterSongs()">
+                <input type="text" id="searchInput" placeholder="Search songs..." onkeyup="filterSongs()">
             </div>
         </div>
     </div>
 
-    <!-- SECTION 1: JUMP BACK IN -->
-    <h2>Jump back in</h2>
-    <div class="horizontal-scroll">
-        <div class="music-card" onclick="playSong(0)">
-            <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop" alt="Song 1">
-            <p class="title">Kesariya</p>
-            <p class="subtitle">Album • Pritam</p>
-        </div>
-
-        <div class="music-card" onclick="playSong(1)">
-            <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&h=300&fit=crop" alt="Song 2">
-            <p class="title">Dilbar Dilbar</p>
-            <p class="subtitle">Playlist • Dhanda</p>
-        </div>
-
-        <div class="music-card" onclick="playSong(2)">
-            <img src="https://images.unsplash.com/photo-1493225457124-a1a2a5f5646a?w=300&h=300&fit=crop" alt="Song 3">
-            <p class="title">Top Chill Mix</p>
-            <p class="subtitle">Made for You</p>
+    <!-- ALL SONGS (Shows when 'All' is selected) -->
+    <div id="all" class="section-container active">
+        <h2>Jump back in</h2>
+        <div class="horizontal-scroll">
+            <div class="music-card" onclick="playSong(0)">
+                <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop" alt="Song 1">
+                <p class="title">Kesariya</p>
+                <p class="subtitle">Bollywood • Pritam</p>
+            </div>
+            <div class="music-card" onclick="playSong(1)">
+                <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&h=300&fit=crop" alt="Song 2">
+                <p class="title">Dilbar Dilbar</p>
+                <p class="subtitle">Bollywood • Neha</p>
+            </div>
+            <div class="music-card" onclick="playSong(2)">
+                <img src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=300&h=300&fit=crop" alt="Song 3">
+                <p class="title">Night Drive</p>
+                <p class="subtitle">Hollywood • English</p>
+            </div>
         </div>
     </div>
 
-    <!-- SECTION 2: BEST OF THE WEEK -->
-    <h2>Best of the Week</h2>
-    <div class="horizontal-scroll">
-        <div class="music-card" onclick="playSong(3)">
-            <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300&h=300&fit=crop" alt="Song 4">
-            <p class="title">Desi Bass</p>
-            <p class="subtitle">Trending • Top 50</p>
+    <!-- BOLLYWOOD SECTION -->
+    <div id="bollywood" class="section-container">
+        <h2>Bollywood Hits</h2>
+        <div class="horizontal-scroll">
+            <div class="music-card" onclick="playSong(0)">
+                <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop" alt="Song 1">
+                <p class="title">Kesariya</p>
+                <p class="subtitle">Bollywood • Pritam</p>
+            </div>
+            <div class="music-card" onclick="playSong(1)">
+                <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&h=300&fit=crop" alt="Song 2">
+                <p class="title">Dilbar Dilbar</p>
+                <p class="subtitle">Bollywood • Neha</p>
+            </div>
         </div>
+    </div>
 
-        <div class="music-card" onclick="playSong(4)">
-            <img src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=300&h=300&fit=crop" alt="Song 5">
-            <p class="title">Night Drive</p>
-            <p class="subtitle">Chill • English</p>
-        </div>
-
-        <div class="music-card" onclick="playSong(5)">
-            <img src="https://images.unsplash.com/photo-1516280440502-864aef97d661?w=300&h=300&fit=crop" alt="Song 6">
-            <p class="title">Punjabi Pop</p>
-            <p class="subtitle">Hits • New</p>
+    <!-- HOLLYWOOD SECTION -->
+    <div id="hollywood" class="section-container">
+        <h2>Hollywood Top 50</h2>
+        <div class="horizontal-scroll">
+            <div class="music-card" onclick="playSong(2)">
+                <img src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=300&h=300&fit=crop" alt="Song 3">
+                <p class="title">Night Drive</p>
+                <p class="subtitle">English • Chill</p>
+            </div>
+            <div class="music-card" onclick="playSong(3)">
+                <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300&h=300&fit=crop" alt="Song 4">
+                <p class="title">Summer Vibes</p>
+                <p class="subtitle">English • Pop</p>
+            </div>
         </div>
     </div>
 
@@ -347,11 +352,11 @@
                 <p id="displayArtist">Music App</p>
             </div>
             <div class="progress-container">
-                <span id="currTime" style="font-size: 11px; color: #a7a7a7;">0:00</span>
+                <span id="currTime" style="font-size: 10px; color: #a7a7a7;">0:00</span>
                 <div class="progress-bar" onclick="seekAudio(event)">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
-                <span id="totalTime" style="font-size: 11px; color: #a7a7a7;">0:00</span>
+                <span id="totalTime" style="font-size: 10px; color: #a7a7a7;">0:00</span>
             </div>
             <button class="download-btn" onclick="downloadSong()" title="Download">⬇️</button>
         </div>
@@ -370,18 +375,34 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // 100% Working Audio Links (Jo mobile aur background mein chalte hain)
-        const songs = [
-            { title: "Kesariya", artist: "Pritam", src: "https://pagalfree.com/musics/128-Kesariya%20-%20Brahmastra%20128%20Kbps.mp3" },
-            { title: "Dilbar Dilbar", artist: "Neha Kakkar", src: "https://pagalfree.com/musics/128-Dilbar%20-%20Satyameva%20Jayate%20128%20Kbps.mp3" },
-            { title: "Top Chill Mix", artist: "Made for You", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
-            { title: "Desi Bass", artist: "Top 50", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
-            { title: "Night Drive", artist: "Chill English", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
-            { title: "Punjabi Pop", artist: "New Hits", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3" }
+        // Global Variables
+        let songs = [
+            { 
+                title: "Kesariya", 
+                artist: "Pritam", 
+                // Yahan maine free background music ka link daala hai kyunki Bollywood direct link block hote hain
+                src: "https://ia800905.us.archive.org/19/items/FREE_background_music_dhalius/akeyngard.mp3" 
+            },
+            { 
+                title: "Dilbar Dilbar", 
+                artist: "Neha Kakkar", 
+                src: "https://ia800905.us.archive.org/19/items/FREE_background_music_dhalius/flyaway.mp3" 
+            },
+            { 
+                title: "Night Drive", 
+                artist: "Chill English", 
+                src: "https://ia800905.us.archive.org/19/items/FREE_background_music_dhalius/feelgood.mp3" 
+            },
+            { 
+                title: "Summer Vibes", 
+                artist: "Pop English", 
+                src: "https://ia800905.us.archive.org/19/items/FREE_background_music_dhalius/awesomeness.mp3" 
+            }
         ];
 
         let currentSongIndex = 0;
         let isPlaying = false;
+        let isLocalFile = false; // Track karega ki local file chal rahi hai ya nahi
 
         const audio = document.getElementById('audioPlayer');
         const playBtn = document.getElementById('playBtn');
@@ -391,8 +412,25 @@
         const currTime = document.getElementById('currTime');
         const totalTime = document.getElementById('totalTime');
 
-        // Gaana Play karne ka function
+        // TAB SWITCHING FUNCTION
+        function switchTab(tabId, btnElement) {
+            // Saare sections hide karo
+            document.querySelectorAll('.section-container').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            // Saare buttons se active class hatao
+            document.querySelectorAll('.nav-pill').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Naya section dikhao aur button active karo
+            document.getElementById(tabId).classList.add('active');
+            btnElement.classList.add('active');
+        }
+
+        // ONLINE GAANA PLAY KARNE KA FUNCTION
         function playSong(index) {
+            isLocalFile = false; // Local mode off
             currentSongIndex = index;
             audio.src = songs[index].src;
             displayTitle.innerText = songs[index].title;
@@ -402,17 +440,33 @@
                 isPlaying = true;
                 playBtn.innerHTML = "⏸";
             }).catch(error => {
-                // Agar koi error aaye (jaise direct play block ho), toh play button state update karein
-                isPlaying = false;
-                playBtn.innerHTML = "▶";
-                console.log("Play error:", error);
+                alert("Gaana load nahi ho paya. Internet check karein.");
             });
+        }
+
+        // LOCAL FILE (MOBILE SE) PLAY KARNE KA FUNCTION
+        function loadLocalSong(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const fileURL = URL.createObjectURL(file);
+                audio.src = fileURL;
+                
+                // Track details update karo
+                displayTitle.innerText = file.name.replace(/\.[^/.]+$/, ""); // Extension hatao
+                displayArtist.innerText = "Local Device";
+                
+                audio.play().then(() => {
+                    isPlaying = true;
+                    playBtn.innerHTML = "⏸";
+                    isLocalFile = true; // Local mode on
+                });
+            }
         }
 
         // Play/Pause Toggle
         function togglePlay() {
             if (audio.src === "") {
-                playSong(0); // Agar kuch select nahi hai toh pehla gaana chalao
+                playSong(0); 
                 return;
             }
             
@@ -426,8 +480,12 @@
             isPlaying = !isPlaying;
         }
 
-        // Next Song
+        // Next Song (Local file chal rahi ho toh next online gaana chalega)
         function nextSong() {
+            if (isLocalFile) {
+                playSong(0); // Local se wapas online mode mein
+                return;
+            }
             currentSongIndex++;
             if (currentSongIndex >= songs.length) currentSongIndex = 0;
             playSong(currentSongIndex);
@@ -435,6 +493,10 @@
 
         // Previous Song
         function prevSong() {
+            if (isLocalFile) {
+                playSong(0);
+                return;
+            }
             currentSongIndex--;
             if (currentSongIndex < 0) currentSongIndex = songs.length - 1;
             playSong(currentSongIndex);
