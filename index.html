@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Music App</title>
+    <title>My Working Music App</title>
     <style>
         /* =========================================
-           1. GLOBAL SETTINGS
+           GLOBAL DESIGN
            ========================================= */
         * {
             margin: 0;
@@ -19,18 +19,16 @@
         body {
             background-color: #121212;
             color: #ffffff;
-            padding-bottom: 120px; /* Player ke liye jagah */
-            overflow-x: hidden;
+            padding-bottom: 120px; /* Space for player */
         }
 
         h2 {
             font-size: 22px;
             margin: 25px 20px 15px 20px;
-            letter-spacing: -0.5px;
         }
 
         /* =========================================
-           2. TOP NAVIGATION & SEARCH
+           HEADER & SEARCH
            ========================================= */
         .header-container {
             position: sticky;
@@ -57,8 +55,6 @@
             justify-content: center;
             color: #000;
             font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
         }
 
         .nav-pill {
@@ -69,7 +65,6 @@
             border: none;
             font-size: 14px;
             font-weight: 600;
-            cursor: pointer;
         }
 
         .nav-pill.active {
@@ -77,7 +72,6 @@
             color: #000000;
         }
 
-        /* NAYA: Search Bar */
         .search-container {
             padding: 0 20px;
         }
@@ -100,19 +94,14 @@
             outline: none;
         }
 
-        .search-bar input::placeholder {
-            color: #a7a7a7;
-        }
-
         /* =========================================
-           3. GRIDS & CARDS
+           CARDS & GRID
            ========================================= */
         .recent-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
             padding: 0 20px;
-            margin-top: 15px;
         }
 
         .recent-item {
@@ -120,9 +109,9 @@
             align-items: center;
             background-color: #2a2a2a;
             border-radius: 6px;
-            overflow: hidden;
             height: 60px;
             cursor: pointer;
+            overflow: hidden;
         }
 
         .recent-item img {
@@ -147,16 +136,11 @@
             padding: 0 20px 20px 20px;
         }
 
-        .horizontal-scroll::-webkit-scrollbar {
-            display: none;
-        }
+        .horizontal-scroll::-webkit-scrollbar { display: none; }
 
         .music-card {
             min-width: 140px;
             max-width: 140px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
             cursor: pointer;
         }
 
@@ -171,6 +155,7 @@
         .music-card .title {
             font-size: 15px;
             font-weight: 700;
+            margin-top: 8px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -182,39 +167,39 @@
         }
 
         /* =========================================
-           4. BOTTOM PLAYER (Fixed)
+           BOTTOM PLAYER
            ========================================= */
         .bottom-player {
             position: fixed;
             bottom: 0;
-            left: 0;
             width: 100%;
             background-color: #181818;
             border-top: 1px solid #282828;
             padding: 15px 20px;
+            z-index: 1000;
             display: flex;
             flex-direction: column;
-            z-index: 1000;
         }
 
-        .player-info {
+        .player-top {
             display: flex;
             align-items: center;
             gap: 15px;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         .track-details {
-            width: 60px; /* Text fix karne ke liye */
+            width: 80px;
         }
 
-        .player-info h3 {
-            font-size: 15px;
-            margin-bottom: 4px;
+        .track-details h3 {
+            font-size: 14px;
             white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .player-info p {
+        .track-details p {
             font-size: 12px;
             color: #a7a7a7;
         }
@@ -223,6 +208,7 @@
             flex-grow: 1;
             display: flex;
             align-items: center;
+            gap: 10px;
         }
 
         .progress-bar {
@@ -230,14 +216,14 @@
             height: 4px;
             background-color: #4d4d4d;
             border-radius: 2px;
-            position: relative;
             cursor: pointer;
+            position: relative;
         }
 
-        .progress-bar .fill {
-            width: 30%;
+        .progress-fill {
+            width: 0%;
             height: 100%;
-            background-color: #ffffff;
+            background-color: #1ed760;
             border-radius: 2px;
         }
 
@@ -248,21 +234,12 @@
             gap: 30px;
         }
 
-        /* NAYA: Buttons ko clean banaya gaya hai */
         .player-controls button {
             background: none;
             border: none;
             color: white;
             font-size: 24px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.1s;
-        }
-
-        .player-controls button:active {
-            transform: scale(0.9);
         }
 
         .player-controls .play-btn {
@@ -271,14 +248,16 @@
             border-radius: 50%;
             width: 45px;
             height: 45px;
-            font-size: 20px;
-            padding-left: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+
     </style>
 </head>
 <body>
 
-    <!-- HEADER (Nav + Search) -->
+    <!-- HEADER -->
     <div class="header-container">
         <div class="top-nav">
             <div class="avatar">J</div>
@@ -287,101 +266,171 @@
             <button class="nav-pill">Podcasts</button>
         </div>
         
-        <!-- SEARCH BAR YAHAN HAI -->
+        <!-- SEARCH BAR (Ab yeh kaam karega) -->
         <div class="search-container">
             <div class="search-bar">
                 <span>🔍</span>
-                <input type="text" placeholder="What do you want to listen to?">
+                <input type="text" id="searchInput" placeholder="Search songs..." onkeyup="filterSongs()">
             </div>
         </div>
     </div>
 
-    <!-- RECENT GRID -->
-    <div class="recent-grid">
-        <div class="recent-item">
-            <img src="https://picsum.photos/100?random=1" alt="Masoom">
-            <span>Masoom Sharma</span>
-        </div>
-        <div class="recent-item">
-            <img src="https://picsum.photos/100?random=2" alt="Ramaiya">
-            <span>Ramaiya Vastavaiya</span>
-        </div>
-        <div class="recent-item">
-            <img src="https://picsum.photos/100?random=3" alt="Atif">
-            <span>Atif Aslam Radio</span>
-        </div>
-        <div class="recent-item">
-            <img src="https://picsum.photos/100?random=4" alt="Filmy">
-            <span>Filmy Hangover</span>
-        </div>
-    </div>
-
-    <!-- JUMP BACK IN -->
+    <!-- CARDS SECTION -->
     <h2>Jump back in</h2>
-    <div class="horizontal-scroll">
-        <div class="music-card">
-            <img src="https://picsum.photos/300?random=5" alt="Mumbai">
-            <p class="title">Once Upon A Time</p>
+    <div class="horizontal-scroll" id="songList">
+        
+        <!-- Card 1 -->
+        <div class="music-card" onclick="playSong(0)">
+            <img src="https://picsum.photos/300?random=5" alt="Song 1">
+            <p class="title">Mumbai Beat</p>
             <p class="subtitle">Album • Pritam</p>
         </div>
-        <div class="music-card">
-            <img src="https://picsum.photos/300?random=6" alt="Karan">
-            <p class="title">Karan Aujla</p>
+
+        <!-- Card 2 -->
+        <div class="music-card" onclick="playSong(1)">
+            <img src="https://picsum.photos/300?random=6" alt="Song 2">
+            <p class="title">Karan Aujla Hit</p>
             <p class="subtitle">Playlist • Dhanda</p>
         </div>
-        <div class="music-card">
-            <img src="https://picsum.photos/300?random=7" alt="Mix">
-            <p class="title">Your Top Mix</p>
+
+        <!-- Card 3 -->
+        <div class="music-card" onclick="playSong(2)">
+            <img src="https://picsum.photos/300?random=7" alt="Song 3">
+            <p class="title">Top Chill Mix</p>
             <p class="subtitle">Made for You</p>
         </div>
+
     </div>
 
     <!-- BOTTOM PLAYER -->
     <div class="bottom-player">
-        <div class="player-info">
+        <div class="player-top">
             <div class="track-details">
-                <h3>Track Name</h3>
-                <p>ARMA PLAY</p>
+                <h3 id="displayTitle">No Song</h3>
+                <p id="displayArtist">Select a track</p>
             </div>
             <div class="progress-container">
-                <div class="progress-bar">
-                    <div class="fill"></div>
+                <span id="currTime" style="font-size: 10px; color: #a7a7a7;">0:00</span>
+                <div class="progress-bar" onclick="seekAudio(event)">
+                    <div class="progress-fill" id="progressFill"></div>
                 </div>
+                <span id="totalTime" style="font-size: 10px; color: #a7a7a7;">0:00</span>
             </div>
         </div>
+        
         <div class="player-controls">
-            <!-- Naye buttons with JavaScript actions -->
             <button onclick="prevSong()">⏮</button>
             <button class="play-btn" id="playBtn" onclick="togglePlay()">▶</button>
             <button onclick="nextSong()">⏭</button>
         </div>
     </div>
 
-    <!-- JAVASCRIPT (Buttons ko kaam karwane ke liye) -->
+    <!-- AUDIO TAG (Yahan gaana bajega) -->
+    <audio id="audioPlayer"></audio>
+
+    <!-- JAVASCRIPT LOGIC -->
     <script>
+        // 3 Free Online MP3 Songs (Testing ke liye)
+        const songs = [
+            { title: "Mumbai Beat", artist: "Pritam", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+            { title: "Karan Aujla Hit", artist: "Dhanda", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+            { title: "Top Chill Mix", artist: "Made for You", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" }
+        ];
+
+        let currentSongIndex = 0;
         let isPlaying = false;
 
+        const audio = document.getElementById('audioPlayer');
+        const playBtn = document.getElementById('playBtn');
+        const progressFill = document.getElementById('progressFill');
+        const displayTitle = document.getElementById('displayTitle');
+        const displayArtist = document.getElementById('displayArtist');
+        const currTime = document.getElementById('currTime');
+        const totalTime = document.getElementById('totalTime');
+
+        // Gaana Play karne ka function
+        function playSong(index) {
+            currentSongIndex = index;
+            audio.src = songs[index].src;
+            displayTitle.innerText = songs[index].title;
+            displayArtist.innerText = songs[index].artist;
+            
+            audio.play();
+            isPlaying = true;
+            playBtn.innerHTML = "⏸"; // Pause icon
+        }
+
+        // Play/Pause Toggle
         function togglePlay() {
-            const playBtn = document.getElementById('playBtn');
-            isPlaying = !isPlaying; // True ko False, False ko True karega
+            if (audio.src === "") {
+                playSong(0); // Agar kuch select nahi hai toh pehla gaana chalao
+                return;
+            }
             
             if (isPlaying) {
-                playBtn.innerHTML = "⏸"; // Pause icon
-                // Yahan aap apna asli audio play karne ka code likh sakte hain
+                audio.pause();
+                playBtn.innerHTML = "▶";
             } else {
-                playBtn.innerHTML = "▶"; // Play icon
-                // Yahan aap apna asli audio pause karne ka code likh sakte hain
+                audio.play();
+                playBtn.innerHTML = "⏸";
             }
+            isPlaying = !isPlaying;
         }
 
+        // Next Song
         function nextSong() {
-            alert("Next song playing..."); // Abhi ke liye alert dikhega
-            // Yahan next song ka logic aayega
+            currentSongIndex++;
+            if (currentSongIndex >= songs.length) currentSongIndex = 0; // Wapas pehle par
+            playSong(currentSongIndex);
         }
 
+        // Previous Song
         function prevSong() {
-            alert("Previous song playing...");
-            // Yahan previous song ka logic aayega
+            currentSongIndex--;
+            if (currentSongIndex < 0) currentSongIndex = songs.length - 1; // Aakhri gaane par
+            playSong(currentSongIndex);
+        }
+
+        // Progress bar update karna
+        audio.addEventListener('timeupdate', () => {
+            if (audio.duration) {
+                const percent = (audio.currentTime / audio.duration) * 100;
+                progressFill.style.width = percent + "%";
+
+                // Time format (0:00)
+                let currMins = Math.floor(audio.currentTime / 60);
+                let currSecs = Math.floor(audio.currentTime % 60);
+                currTime.innerText = `${currMins}:${currSecs < 10 ? '0' : ''}${currSecs}`;
+            }
+        });
+
+        // Total duration aane par show karna
+        audio.addEventListener('loadedmetadata', () => {
+            let totalMins = Math.floor(audio.duration / 60);
+            let totalSecs = Math.floor(audio.duration % 60);
+            totalTime.innerText = `${totalMins}:${totalSecs < 10 ? '0' : ''}${totalSecs}`;
+        });
+
+        // Progress bar par click karke aage/peeche karna
+        function seekAudio(e) {
+            const width = e.currentTarget.clientWidth;
+            const clickX = e.offsetX;
+            audio.currentTime = (clickX / width) * audio.duration;
+        }
+
+        // SEARCH FUNCTION
+        function filterSongs() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.music-card');
+
+            cards.forEach(card => {
+                const title = card.querySelector('.title').innerText.toLowerCase();
+                if (title.includes(input)) {
+                    card.style.display = "flex";
+                } else {
+                    card.style.display = "none";
+                }
+            });
         }
     </script>
 </body>
