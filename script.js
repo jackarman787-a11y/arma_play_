@@ -455,3 +455,20 @@ window.playSong = playSong;
 window.togglePlay = togglePlay;
 window.nextSong = nextSong;
 window.previousSong = previousSong;
+function toggleShuffle(){
+  isShuffle = !isShuffle;
+  const b = document.getElementById("shuffleBtn");
+  if(b) b.style.color = isShuffle ? "#d8ad55" : "";
+  toast(isShuffle ? "🔀 Shuffle ON" : "Shuffle OFF");
+}
+function toggleRepeat(){
+  repeatMode = (repeatMode + 1) % 3;
+  const b = document.getElementById("repeatBtn");
+  if(b){
+    b.style.color = repeatMode > 0 ? "#d8ad55" : "";
+    b.textContent = repeatMode === 2 ? "🔂" : "🔁";
+  }
+  toast(["Repeat OFF","🔁 Repeat All","🔂 Repeat One"][repeatMode]);
+}
+window.toggleShuffle = toggleShuffle;
+window.toggleRepeat = toggleRepeat;
