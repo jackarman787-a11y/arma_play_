@@ -819,3 +819,125 @@ h2 {
     justify-content: center;
     font-size: 16px;
 }
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #121212; /* Spotify Dark Background */
+    font-family: 'Montserrat', sans-serif;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #ffffff;
+}
+
+.music-container {
+    background-color: #181818;
+    border-radius: 15px;
+    box-shadow: 0 20px 30px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px;
+    position: relative;
+    width: 350px;
+}
+
+.img-container {
+    position: relative;
+    width: 250px;
+    height: 250px;
+}
+
+.img-container img {
+    border-radius: 10px;
+    object-fit: cover;
+    height: 100%;
+    width: 100%;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+
+.navigation {
+    width: 100%;
+    text-align: center;
+    margin: 20px 0;
+}
+
+#title {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+}
+
+#artist {
+    font-size: 0.9rem;
+    color: #b3b3b3;
+}
+
+/* Progress Bar Styling */
+.progress-container {
+    background: #404040;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 15px 0;
+    height: 4px;
+    width: 100%;
+    transition: height 0.1s ease;
+}
+
+.progress-container:hover {
+    height: 6px;
+}
+
+.progress {
+    background-color: #1db954; /* Spotify Green */
+    border-radius: 5px;
+    height: 100%;
+    width: 0%;
+    transition: width 0.1s linear;
+}
+
+/* Controls Styling */
+.controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-btn {
+    background-color: transparent;
+    border: 0;
+    color: #b3b3b3;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 10px;
+    margin: 0 20px;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.action-btn:hover {
+    color: #ffffff;
+    transform: scale(1.1);
+}
+
+.action-btn-big {
+    background-color: #ffffff;
+    color: #000000;
+    border-radius: 50%;
+    font-size: 24px;
+    padding: 18px;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-btn-big:hover {
+    background-color: #1db954; /* Green on hover */
+    color: #ffffff;
+    transform: scale(1.05);
+}
