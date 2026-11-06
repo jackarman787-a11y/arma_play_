@@ -7,13 +7,12 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="ARMA PLAY">
 <title>ARMA PLAY</title>
-<link rel="manifest" href='data:application/json,{"name":"ARMA PLAY","short_name":"ARMA PLAY","display":"standalone","background_color":"#0a0a0a","theme_color":"#ff2d95","start_url":".","icons":[{"src":"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20512%20512%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23ff2d95%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%237a5cff%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22512%22%20height%3D%22512%22%20rx%3D%22100%22%20fill%3D%22url(%23g)%22%2F%3E%3Ctext%20x%3D%22256%22%20y%3D%22350%22%20font-size%3D%22280%22%20text-anchor%3D%22middle%22%20fill%3D%22white%22%20font-family%3D%22Arial%22%20font-weight%3D%22bold%22%3EA%3C%2Ftext%3E%3C%2Fsvg%3E","sizes":"512x512","type":"image/svg+xml","purpose":"any maskable"}]}'>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="app">
-  <!-- SIDEBAR -->
+  <!-- SIDEBAR (Desktop View) -->
   <aside class="sidebar">
     <div class="logo">ARMA<span>PLAY</span></div>
     <nav class="nav">
@@ -27,45 +26,54 @@
     <button class="new-playlist" id="newPlaylistBtn">+ New Playlist</button>
   </aside>
 
-  <!-- MAIN -->
+  <!-- MAIN CONTENT -->
   <main class="main">
     <header class="topbar">
       <div class="topbar-left">
         <button class="icon-btn" id="backBtn" title="Back">‹</button>
       </div>
       <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Songs, artists, albums...">
+        <input type="text" id="searchInput" placeholder="Songs, artists...">
       </div>
       <button class="btn-primary" id="addMusicBtn">+ Add Music</button>
       <input type="file" id="file" multiple accept="audio/*" style="display:none">
     </header>
 
+    <!-- VIEW: HOME -->
     <section class="view active" id="view-home">
       <h2 class="greeting">Good evening 🎧</h2>
+      
       <div class="section-header">
         <h3>Recently added</h3>
         <span class="see-all" data-view="library">See all</span>
       </div>
       <div class="grid" id="recentGrid"></div>
-      <div class="section-header"><h3>All songs</h3></div>
+      
+      <div class="section-header">
+        <h3>All songs</h3>
+      </div>
       <div class="track-list" id="homeTrackList"></div>
     </section>
 
+    <!-- VIEW: SEARCH -->
     <section class="view" id="view-search">
       <h2>Search</h2>
       <div class="grid" id="searchResults"></div>
     </section>
 
+    <!-- VIEW: LIBRARY -->
     <section class="view" id="view-library">
       <h2>Your Library</h2>
       <div class="track-list" id="libraryTrackList"></div>
     </section>
 
+    <!-- VIEW: QUEUE -->
     <section class="view" id="view-queue">
       <h2>Queue</h2>
       <div class="track-list" id="queueTrackList"></div>
     </section>
 
+    <!-- VIEW: PLAYLIST -->
     <section class="view" id="view-playlist">
       <div class="playlist-header">
         <div class="playlist-cover">🎵</div>
@@ -79,7 +87,7 @@
     </section>
   </main>
 
-  <!-- NOW PLAYING BAR -->
+  <!-- BOTTOM PLAYER BAR -->
   <footer class="nowbar">
     <div class="nowbar-left">
       <div class="np-cover" id="npCover">🎵</div>
@@ -89,6 +97,7 @@
       </div>
       <button class="icon-btn like-btn" id="likeBtn" title="Like">♡</button>
     </div>
+    
     <div class="nowbar-center">
       <div class="controls">
         <button class="icon-btn" id="shuffleBtn">🔀</button>
@@ -103,6 +112,7 @@
         <span id="durTime">0:00</span>
       </div>
     </div>
+    
     <div class="nowbar-right">
       <button class="icon-btn" id="queueBtn" title="Queue">☰</button>
       <button class="icon-btn" id="expandBtn" title="Full screen">⛶</button>
@@ -111,7 +121,7 @@
   </footer>
 </div>
 
-<!-- FULLSCREEN -->
+<!-- FULLSCREEN PLAYER -->
 <div class="fullscreen" id="fullscreen">
   <button class="fs-close" id="fsClose">✕</button>
   <div class="fs-cover">🎵</div>
