@@ -6,7 +6,7 @@
     <title>My Music App</title>
     <style>
         /* =========================================
-           1. GLOBAL SETTINGS (Background & Fonts)
+           1. GLOBAL SETTINGS
            ========================================= */
         * {
             margin: 0;
@@ -17,9 +17,9 @@
         }
 
         body {
-            background-color: #121212; /* Spotify Dark Background */
+            background-color: #121212;
             color: #ffffff;
-            padding-bottom: 100px; /* Space for bottom player */
+            padding-bottom: 120px; /* Player ke liye jagah */
             overflow-x: hidden;
         }
 
@@ -30,23 +30,27 @@
         }
 
         /* =========================================
-           2. TOP NAVIGATION (Pills & Avatar)
+           2. TOP NAVIGATION & SEARCH
            ========================================= */
+        .header-container {
+            position: sticky;
+            top: 0;
+            background-color: #121212;
+            z-index: 100;
+            padding-bottom: 10px;
+        }
+
         .top-nav {
             display: flex;
             align-items: center;
             gap: 12px;
             padding: 15px 20px;
-            background-color: #121212;
-            position: sticky;
-            top: 0;
-            z-index: 100;
         }
 
         .avatar {
             width: 36px;
             height: 36px;
-            background-color: #ff7b9c; /* Pink avatar */
+            background-color: #ff7b9c;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -66,22 +70,49 @@
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s ease;
         }
 
         .nav-pill.active {
-            background-color: #1ed760; /* Spotify Green */
+            background-color: #1ed760;
             color: #000000;
         }
 
+        /* NAYA: Search Bar */
+        .search-container {
+            padding: 0 20px;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: #2a2a2a;
+            border-radius: 8px;
+            padding: 10px 15px;
+        }
+
+        .search-bar input {
+            background: none;
+            border: none;
+            color: white;
+            width: 100%;
+            margin-left: 10px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .search-bar input::placeholder {
+            color: #a7a7a7;
+        }
+
         /* =========================================
-           3. RECENTLY PLAYED GRID (Top Section)
+           3. GRIDS & CARDS
            ========================================= */
         .recent-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* 2 Columns */
+            grid-template-columns: 1fr 1fr;
             gap: 12px;
             padding: 0 20px;
+            margin-top: 15px;
         }
 
         .recent-item {
@@ -103,25 +134,19 @@
         .recent-item span {
             font-size: 13px;
             font-weight: 700;
-            padding-left: 10px;
+            padding: 0 10px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            padding-right: 10px;
         }
 
-        /* =========================================
-           4. JUMP BACK IN (Horizontal Cards)
-           ========================================= */
         .horizontal-scroll {
             display: flex;
             overflow-x: auto;
             gap: 16px;
             padding: 0 20px 20px 20px;
-            scroll-behavior: smooth;
         }
 
-        /* Hide scrollbar for a cleaner look */
         .horizontal-scroll::-webkit-scrollbar {
             display: none;
         }
@@ -133,8 +158,6 @@
             flex-direction: column;
             gap: 8px;
             cursor: pointer;
-            padding: 10px;
-            border-radius: 8px;
         }
 
         .music-card img {
@@ -148,7 +171,6 @@
         .music-card .title {
             font-size: 15px;
             font-weight: 700;
-            margin-top: 5px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -157,13 +179,10 @@
         .music-card .subtitle {
             font-size: 13px;
             color: #a7a7a7;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         /* =========================================
-           5. BOTTOM PLAYER (Fixed at bottom)
+           4. BOTTOM PLAYER (Fixed)
            ========================================= */
         .bottom-player {
             position: fixed;
@@ -172,7 +191,7 @@
             width: 100%;
             background-color: #181818;
             border-top: 1px solid #282828;
-            padding: 15px 20px 25px 20px;
+            padding: 15px 20px;
             display: flex;
             flex-direction: column;
             z-index: 1000;
@@ -181,13 +200,18 @@
         .player-info {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            gap: 15px;
             margin-bottom: 15px;
+        }
+
+        .track-details {
+            width: 60px; /* Text fix karne ke liye */
         }
 
         .player-info h3 {
             font-size: 15px;
             margin-bottom: 4px;
+            white-space: nowrap;
         }
 
         .player-info p {
@@ -195,13 +219,19 @@
             color: #a7a7a7;
         }
 
+        .progress-container {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+        }
+
         .progress-bar {
             width: 100%;
             height: 4px;
             background-color: #4d4d4d;
             border-radius: 2px;
-            margin: 8px 0;
             position: relative;
+            cursor: pointer;
         }
 
         .progress-bar .fill {
@@ -215,15 +245,24 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 25px;
+            gap: 30px;
         }
 
+        /* NAYA: Buttons ko clean banaya gaya hai */
         .player-controls button {
             background: none;
             border: none;
             color: white;
             font-size: 24px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.1s;
+        }
+
+        .player-controls button:active {
+            transform: scale(0.9);
         }
 
         .player-controls .play-btn {
@@ -232,55 +271,61 @@
             border-radius: 50%;
             width: 45px;
             height: 45px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             font-size: 20px;
-            padding-left: 4px; /* Center the play icon */
+            padding-left: 3px;
         }
     </style>
 </head>
 <body>
 
-    <!-- 1. TOP NAVIGATION -->
-    <div class="top-nav">
-        <div class="avatar">J</div>
-        <button class="nav-pill active">All</button>
-        <button class="nav-pill">Music</button>
-        <button class="nav-pill">Podcasts</button>
+    <!-- HEADER (Nav + Search) -->
+    <div class="header-container">
+        <div class="top-nav">
+            <div class="avatar">J</div>
+            <button class="nav-pill active">All</button>
+            <button class="nav-pill">Music</button>
+            <button class="nav-pill">Podcasts</button>
+        </div>
+        
+        <!-- SEARCH BAR YAHAN HAI -->
+        <div class="search-container">
+            <div class="search-bar">
+                <span>🔍</span>
+                <input type="text" placeholder="What do you want to listen to?">
+            </div>
+        </div>
     </div>
 
-    <!-- 2. RECENTLY PLAYED GRID -->
+    <!-- RECENT GRID -->
     <div class="recent-grid">
         <div class="recent-item">
-            <!-- Yahan apni image ka link daalein -->
-            <img src="https://picsum.photos/100?random=1" alt="Masoom Sharma">
-            <span>Masoom Sharma Radio</span>
+            <img src="https://picsum.photos/100?random=1" alt="Masoom">
+            <span>Masoom Sharma</span>
         </div>
         <div class="recent-item">
             <img src="https://picsum.photos/100?random=2" alt="Ramaiya">
             <span>Ramaiya Vastavaiya</span>
         </div>
         <div class="recent-item">
-            <img src="https://picsum.photos/100?random=3" alt="Atif Aslam">
+            <img src="https://picsum.photos/100?random=3" alt="Atif">
             <span>Atif Aslam Radio</span>
         </div>
         <div class="recent-item">
-            <img src="https://picsum.photos/100?random=4" alt="Filmy Hangover">
+            <img src="https://picsum.photos/100?random=4" alt="Filmy">
             <span>Filmy Hangover</span>
         </div>
     </div>
 
-    <!-- 3. JUMP BACK IN -->
+    <!-- JUMP BACK IN -->
     <h2>Jump back in</h2>
     <div class="horizontal-scroll">
         <div class="music-card">
-            <img src="https://picsum.photos/300?random=5" alt="Once Upon A Time">
-            <p class="title">Once Upon A Time In Mumbai</p>
+            <img src="https://picsum.photos/300?random=5" alt="Mumbai">
+            <p class="title">Once Upon A Time</p>
             <p class="subtitle">Album • Pritam</p>
         </div>
         <div class="music-card">
-            <img src="https://picsum.photos/300?random=6" alt="Karan Aujla">
+            <img src="https://picsum.photos/300?random=6" alt="Karan">
             <p class="title">Karan Aujla</p>
             <p class="subtitle">Playlist • Dhanda</p>
         </div>
@@ -291,23 +336,53 @@
         </div>
     </div>
 
-    <!-- 4. BOTTOM PLAYER -->
+    <!-- BOTTOM PLAYER -->
     <div class="bottom-player">
         <div class="player-info">
-            <div>
+            <div class="track-details">
                 <h3>Track Name</h3>
                 <p>ARMA PLAY</p>
             </div>
-            <div class="progress-bar">
-                <div class="fill"></div>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="fill"></div>
+                </div>
             </div>
         </div>
         <div class="player-controls">
-            <button>⏮️</button>
-            <button class="play-btn">▶️</button>
-            <button>⏭️</button>
+            <!-- Naye buttons with JavaScript actions -->
+            <button onclick="prevSong()">⏮</button>
+            <button class="play-btn" id="playBtn" onclick="togglePlay()">▶</button>
+            <button onclick="nextSong()">⏭</button>
         </div>
     </div>
 
+    <!-- JAVASCRIPT (Buttons ko kaam karwane ke liye) -->
+    <script>
+        let isPlaying = false;
+
+        function togglePlay() {
+            const playBtn = document.getElementById('playBtn');
+            isPlaying = !isPlaying; // True ko False, False ko True karega
+            
+            if (isPlaying) {
+                playBtn.innerHTML = "⏸"; // Pause icon
+                // Yahan aap apna asli audio play karne ka code likh sakte hain
+            } else {
+                playBtn.innerHTML = "▶"; // Play icon
+                // Yahan aap apna asli audio pause karne ka code likh sakte hain
+            }
+        }
+
+        function nextSong() {
+            alert("Next song playing..."); // Abhi ke liye alert dikhega
+            // Yahan next song ka logic aayega
+        }
+
+        function prevSong() {
+            alert("Previous song playing...");
+            // Yahan previous song ka logic aayega
+        }
+    </script>
 </body>
 </html>
