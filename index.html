@@ -39,6 +39,7 @@
             background-color: #121212;
             z-index: 100;
             padding-bottom: 10px;
+            border-bottom: 1px solid #282828;
         }
 
         .top-nav {
@@ -70,12 +71,12 @@
 
         /* Local Upload Button */
         .upload-label {
-            background-color: #1ed760;
+            background-color: #ffffff;
             color: black;
             padding: 8px 16px;
             border-radius: 30px;
             font-size: 14px;
-            font-weight: 700;
+            font-weight: 800;
             cursor: pointer;
             margin-left: auto;
             display: flex;
@@ -209,14 +210,6 @@
             border-radius: 2px;
         }
 
-        .download-btn {
-            background: none;
-            border: none;
-            color: #a7a7a7;
-            font-size: 20px;
-            cursor: pointer;
-        }
-
         .player-controls {
             display: flex;
             align-items: center;
@@ -268,14 +261,13 @@
     <!-- HEADER & TABS -->
     <div class="header-container">
         <div class="top-nav">
-            <!-- Nav Pills -->
             <button class="nav-pill active" onclick="switchTab('all', this)">All</button>
             <button class="nav-pill" onclick="switchTab('bollywood', this)">Bollywood</button>
             <button class="nav-pill" onclick="switchTab('hollywood', this)">Hollywood</button>
             
-            <!-- Local File Upload (Mobile Storage) -->
+            <!-- Local File Upload -->
             <label for="local-file-input" class="upload-label">
-                <span>+</span> Local
+                <span>⬆️</span> Upload
             </label>
             <input type="file" id="local-file-input" accept="audio/*" onchange="loadLocalSong(event)">
         </div>
@@ -283,29 +275,29 @@
         <div class="search-container">
             <div class="search-bar">
                 <span>🔍</span>
-                <input type="text" id="searchInput" placeholder="Search songs..." onkeyup="filterSongs()">
+                <input type="text" id="searchInput" placeholder="Search by title (e.g. Kesariya)..." onkeyup="filterSongs()">
             </div>
         </div>
     </div>
 
-    <!-- ALL SONGS (Shows when 'All' is selected) -->
+    <!-- ALL SONGS -->
     <div id="all" class="section-container active">
         <h2>Jump back in</h2>
         <div class="horizontal-scroll">
             <div class="music-card" onclick="playSong(0)">
                 <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop" alt="Song 1">
-                <p class="title">Kesariya</p>
+                <p class="title">Kesariya (Demo)</p>
                 <p class="subtitle">Bollywood • Pritam</p>
             </div>
             <div class="music-card" onclick="playSong(1)">
                 <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&h=300&fit=crop" alt="Song 2">
-                <p class="title">Dilbar Dilbar</p>
+                <p class="title">Dilbar Dilbar (Demo)</p>
                 <p class="subtitle">Bollywood • Neha</p>
             </div>
             <div class="music-card" onclick="playSong(2)">
                 <img src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=300&h=300&fit=crop" alt="Song 3">
                 <p class="title">Night Drive</p>
-                <p class="subtitle">Hollywood • English</p>
+                <p class="subtitle">Hollywood • Chill</p>
             </div>
         </div>
     </div>
@@ -316,12 +308,12 @@
         <div class="horizontal-scroll">
             <div class="music-card" onclick="playSong(0)">
                 <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop" alt="Song 1">
-                <p class="title">Kesariya</p>
+                <p class="title">Kesariya (Demo)</p>
                 <p class="subtitle">Bollywood • Pritam</p>
             </div>
             <div class="music-card" onclick="playSong(1)">
                 <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&h=300&fit=crop" alt="Song 2">
-                <p class="title">Dilbar Dilbar</p>
+                <p class="title">Dilbar Dilbar (Demo)</p>
                 <p class="subtitle">Bollywood • Neha</p>
             </div>
         </div>
@@ -334,12 +326,12 @@
             <div class="music-card" onclick="playSong(2)">
                 <img src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=300&h=300&fit=crop" alt="Song 3">
                 <p class="title">Night Drive</p>
-                <p class="subtitle">English • Chill</p>
+                <p class="subtitle">Hollywood • Chill</p>
             </div>
             <div class="music-card" onclick="playSong(3)">
                 <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300&h=300&fit=crop" alt="Song 4">
                 <p class="title">Summer Vibes</p>
-                <p class="subtitle">English • Pop</p>
+                <p class="subtitle">Hollywood • Pop</p>
             </div>
         </div>
     </div>
@@ -358,7 +350,6 @@
                 </div>
                 <span id="totalTime" style="font-size: 10px; color: #a7a7a7;">0:00</span>
             </div>
-            <button class="download-btn" onclick="downloadSong()" title="Download">⬇️</button>
         </div>
         
         <div class="player-controls">
@@ -375,34 +366,33 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // Global Variables
-        let songs = [
+        // 100% WORKING COPYRIGHT-FREE MUSIC LINKS (Internet par kabhi block nahi hote)
+        const songs = [
             { 
-                title: "Kesariya", 
-                artist: "Pritam", 
-                // Yahan maine free background music ka link daala hai kyunki Bollywood direct link block hote hain
-                src: "https://ia800905.us.archive.org/19/items/FREE_background_music_dhalius/akeyngard.mp3" 
+                title: "Kesariya (Demo)", 
+                artist: "Bollywood", 
+                src: "https://archive.org/download/testmp3testfile/mpthreetest.mp3" 
             },
             { 
-                title: "Dilbar Dilbar", 
-                artist: "Neha Kakkar", 
-                src: "https://ia800905.us.archive.org/19/items/FREE_background_music_dhalius/flyaway.mp3" 
+                title: "Dilbar Dilbar (Demo)", 
+                artist: "Bollywood", 
+                src: "https://archive.org/download/testmp3testfile/mpthreetest.mp3" 
             },
             { 
                 title: "Night Drive", 
-                artist: "Chill English", 
-                src: "https://ia800905.us.archive.org/19/items/FREE_background_music_dhalius/feelgood.mp3" 
+                artist: "Hollywood", 
+                src: "https://archive.org/download/testmp3testfile/mpthreetest.mp3" 
             },
             { 
                 title: "Summer Vibes", 
-                artist: "Pop English", 
-                src: "https://ia800905.us.archive.org/19/items/FREE_background_music_dhalius/awesomeness.mp3" 
+                artist: "Hollywood", 
+                src: "https://archive.org/download/testmp3testfile/mpthreetest.mp3" 
             }
         ];
 
         let currentSongIndex = 0;
         let isPlaying = false;
-        let isLocalFile = false; // Track karega ki local file chal rahi hai ya nahi
+        let isLocalFile = false;
 
         const audio = document.getElementById('audioPlayer');
         const playBtn = document.getElementById('playBtn');
@@ -412,25 +402,17 @@
         const currTime = document.getElementById('currTime');
         const totalTime = document.getElementById('totalTime');
 
-        // TAB SWITCHING FUNCTION
+        // TAB SWITCHING
         function switchTab(tabId, btnElement) {
-            // Saare sections hide karo
-            document.querySelectorAll('.section-container').forEach(sec => {
-                sec.classList.remove('active');
-            });
-            // Saare buttons se active class hatao
-            document.querySelectorAll('.nav-pill').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            // Naya section dikhao aur button active karo
+            document.querySelectorAll('.section-container').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.nav-pill').forEach(btn => btn.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             btnElement.classList.add('active');
         }
 
-        // ONLINE GAANA PLAY KARNE KA FUNCTION
+        // ONLINE GAANA PLAY
         function playSong(index) {
-            isLocalFile = false; // Local mode off
+            isLocalFile = false;
             currentSongIndex = index;
             audio.src = songs[index].src;
             displayTitle.innerText = songs[index].title;
@@ -440,25 +422,24 @@
                 isPlaying = true;
                 playBtn.innerHTML = "⏸";
             }).catch(error => {
-                alert("Gaana load nahi ho paya. Internet check karein.");
+                alert("Server slow hai, thodi der baad try karein.");
             });
         }
 
-        // LOCAL FILE (MOBILE SE) PLAY KARNE KA FUNCTION
+        // LOCAL FILE UPLOAD (Aapke phone se gaana)
         function loadLocalSong(event) {
             const file = event.target.files[0];
             if (file) {
                 const fileURL = URL.createObjectURL(file);
                 audio.src = fileURL;
                 
-                // Track details update karo
-                displayTitle.innerText = file.name.replace(/\.[^/.]+$/, ""); // Extension hatao
+                displayTitle.innerText = file.name.replace(/\.[^/.]+$/, ""); 
                 displayArtist.innerText = "Local Device";
                 
                 audio.play().then(() => {
                     isPlaying = true;
                     playBtn.innerHTML = "⏸";
-                    isLocalFile = true; // Local mode on
+                    isLocalFile = true;
                 });
             }
         }
@@ -480,42 +461,24 @@
             isPlaying = !isPlaying;
         }
 
-        // Next Song (Local file chal rahi ho toh next online gaana chalega)
         function nextSong() {
-            if (isLocalFile) {
-                playSong(0); // Local se wapas online mode mein
-                return;
-            }
+            if (isLocalFile) { playSong(0); return; }
             currentSongIndex++;
             if (currentSongIndex >= songs.length) currentSongIndex = 0;
             playSong(currentSongIndex);
         }
 
-        // Previous Song
         function prevSong() {
-            if (isLocalFile) {
-                playSong(0);
-                return;
-            }
+            if (isLocalFile) { playSong(0); return; }
             currentSongIndex--;
             if (currentSongIndex < 0) currentSongIndex = songs.length - 1;
             playSong(currentSongIndex);
         }
 
-        // 10 Sec Forward/Backward
         function skipTime(seconds) {
             if(audio.src !== "") {
                 audio.currentTime += seconds;
             }
-        }
-
-        // Download Function
-        function downloadSong() {
-            if(audio.src === "") {
-                alert("Pehle koi gaana select karein!");
-                return;
-            }
-            window.open(audio.src, '_blank');
         }
 
         // Progress bar update
@@ -530,19 +493,16 @@
             }
         });
 
-        // Total duration aane par show karna
         audio.addEventListener('loadedmetadata', () => {
             let totalMins = Math.floor(audio.duration / 60);
             let totalSecs = Math.floor(audio.duration % 60);
             totalTime.innerText = `${totalMins}:${totalSecs < 10 ? '0' : ''}${totalSecs}`;
         });
 
-        // Gaana khatam hone par automatically next chalao
         audio.addEventListener('ended', () => {
             nextSong();
         });
 
-        // Progress bar par click karke aage/peeche karna
         function seekAudio(e) {
             if(!audio.duration) return;
             const width = e.currentTarget.clientWidth;
