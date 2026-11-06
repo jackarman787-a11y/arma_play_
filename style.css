@@ -577,3 +577,245 @@ input[type="range"]:hover::-webkit-slider-thumb {
         display: none;
     }
 }
+/* =========================================
+   1. GLOBAL SETTINGS (Background & Fonts)
+   ========================================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #121212; /* Spotify Dark Background */
+    color: #ffffff;
+    padding-bottom: 100px; /* Space for bottom player */
+    overflow-x: hidden;
+}
+
+h2 {
+    font-size: 24px;
+    margin: 25px 20px 15px 20px;
+    letter-spacing: -0.5px;
+}
+
+/* =========================================
+   2. TOP NAVIGATION (Pills & Avatar)
+   ========================================= */
+.top-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 20px;
+    background-color: #121212;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.avatar {
+    width: 32px;
+    height: 32px;
+    background-color: #ff7b9c; /* Pinkish avatar like screenshot */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.nav-pill {
+    background-color: #2a2a2a;
+    color: #ffffff;
+    padding: 8px 16px;
+    border-radius: 30px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.nav-pill:hover {
+    background-color: #3e3e3e;
+}
+
+.nav-pill.active {
+    background-color: #1ed760; /* Spotify Green */
+    color: #000000;
+}
+
+/* =========================================
+   3. RECENTLY PLAYED GRID (Top Section)
+   ========================================= */
+.recent-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 Columns */
+    gap: 12px;
+    padding: 0 20px;
+}
+
+.recent-item {
+    display: flex;
+    align-items: center;
+    background-color: #2a2a2a;
+    border-radius: 6px;
+    overflow: hidden;
+    height: 64px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.recent-item:hover {
+    background-color: #3e3e3e;
+}
+
+.recent-item img {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+}
+
+.recent-item span {
+    font-size: 14px;
+    font-weight: 700;
+    padding-left: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* =========================================
+   4. JUMP BACK IN (Horizontal Cards)
+   ========================================= */
+.horizontal-scroll {
+    display: flex;
+    overflow-x: auto;
+    gap: 16px;
+    padding: 0 20px 20px 20px;
+    scroll-behavior: smooth;
+}
+
+/* Hide scrollbar for a cleaner look */
+.horizontal-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.music-card {
+    min-width: 150px;
+    max-width: 150px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    cursor: pointer;
+    padding: 12px;
+    border-radius: 8px;
+    transition: background 0.3s ease;
+}
+
+.music-card:hover {
+    background-color: #2a2a2a;
+}
+
+.music-card img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+
+.music-card .title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-top: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.music-card .subtitle {
+    font-size: 13px;
+    color: #a7a7a7;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* =========================================
+   5. BOTTOM PLAYER (Fixed at bottom)
+   ========================================= */
+.bottom-player {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #181818;
+    border-top: 1px solid #282828;
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+}
+
+.player-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.player-info h3 {
+    font-size: 14px;
+}
+
+.player-info p {
+    font-size: 12px;
+    color: #a7a7a7;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background-color: #4d4d4d;
+    border-radius: 2px;
+    margin: 8px 0;
+}
+
+.progress-bar .fill {
+    width: 30%;
+    height: 100%;
+    background-color: #ffffff;
+    border-radius: 2px;
+}
+
+.player-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.player-controls button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.player-controls .play-btn {
+    background-color: white;
+    color: black;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
