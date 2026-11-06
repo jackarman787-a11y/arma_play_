@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>My Music App</title>
+    <title>My Online Music App</title>
     <style>
         /* =========================================
            GLOBAL STYLING
@@ -27,7 +27,6 @@
             font-size: 22px;
             font-weight: 700;
             margin: 20px 20px 15px 20px;
-            letter-spacing: -0.5px;
         }
 
         /* =========================================
@@ -48,7 +47,6 @@
             gap: 10px;
             padding: 15px 20px;
             overflow-x: auto;
-            scrollbar-width: none;
         }
         .top-nav::-webkit-scrollbar { display: none; }
 
@@ -68,22 +66,6 @@
             background-color: #1ed760;
             color: #000000;
         }
-
-        /* Local Upload Button */
-        .upload-label {
-            background-color: #ffffff;
-            color: black;
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-size: 14px;
-            font-weight: 800;
-            cursor: pointer;
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        #local-file-input { display: none; }
 
         .search-container { padding: 0 20px; }
 
@@ -113,12 +95,11 @@
             overflow-x: auto;
             gap: 16px;
             padding: 0 20px 20px 20px;
+            flex-wrap: wrap; /* Search results ke liye wrap kiya */
         }
-        .horizontal-scroll::-webkit-scrollbar { display: none; }
 
         .music-card {
-            min-width: 140px;
-            max-width: 140px;
+            width: 140px;
             cursor: pointer;
             padding: 10px;
             border-radius: 8px;
@@ -133,7 +114,6 @@
             aspect-ratio: 1 / 1;
             object-fit: cover;
             border-radius: 6px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
         }
 
         .music-card .title {
@@ -173,7 +153,7 @@
             margin-bottom: 12px;
         }
 
-        .track-details { width: 90px; }
+        .track-details { width: 100px; }
 
         .track-details h3 {
             font-size: 14px;
@@ -237,103 +217,30 @@
             justify-content: center;
             padding-left: 3px;
         }
-
-        .sec-btn {
-            font-size: 12px !important;
-            font-weight: bold;
-            border: 1px solid #a7a7a7 !important;
-            color: #a7a7a7 !important;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        /* Hide sections initially */
-        .section-container { display: none; }
-        .section-container.active { display: block; }
     </style>
 </head>
 <body>
 
-    <!-- HEADER & TABS -->
+    <!-- HEADER -->
     <div class="header-container">
         <div class="top-nav">
-            <button class="nav-pill active" onclick="switchTab('all', this)">All</button>
-            <button class="nav-pill" onclick="switchTab('bollywood', this)">Bollywood</button>
-            <button class="nav-pill" onclick="switchTab('hollywood', this)">Hollywood</button>
-            
-            <!-- Local File Upload -->
-            <label for="local-file-input" class="upload-label">
-                <span>⬆️</span> Upload
-            </label>
-            <input type="file" id="local-file-input" accept="audio/*" onchange="loadLocalSong(event)">
+            <button class="nav-pill active">Online Search</button>
         </div>
         
         <div class="search-container">
             <div class="search-bar">
                 <span>🔍</span>
-                <input type="text" id="searchInput" placeholder="Search by title (e.g. Kesariya)..." onkeyup="filterSongs()">
+                <!-- Jab user type karega, to online API call hoga -->
+                <input type="text" id="searchInput" placeholder="Search any song (e.g. Dilbar)..." onkeyup="searchOnlineSongs()">
             </div>
         </div>
     </div>
 
-    <!-- ALL SONGS -->
-    <div id="all" class="section-container active">
-        <h2>Jump back in</h2>
-        <div class="horizontal-scroll">
-            <div class="music-card" onclick="playSong(0)">
-                <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop" alt="Song 1">
-                <p class="title">Kesariya (Demo)</p>
-                <p class="subtitle">Bollywood • Pritam</p>
-            </div>
-            <div class="music-card" onclick="playSong(1)">
-                <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&h=300&fit=crop" alt="Song 2">
-                <p class="title">Dilbar Dilbar (Demo)</p>
-                <p class="subtitle">Bollywood • Neha</p>
-            </div>
-            <div class="music-card" onclick="playSong(2)">
-                <img src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=300&h=300&fit=crop" alt="Song 3">
-                <p class="title">Night Drive</p>
-                <p class="subtitle">Hollywood • Chill</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- BOLLYWOOD SECTION -->
-    <div id="bollywood" class="section-container">
-        <h2>Bollywood Hits</h2>
-        <div class="horizontal-scroll">
-            <div class="music-card" onclick="playSong(0)">
-                <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop" alt="Song 1">
-                <p class="title">Kesariya (Demo)</p>
-                <p class="subtitle">Bollywood • Pritam</p>
-            </div>
-            <div class="music-card" onclick="playSong(1)">
-                <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&h=300&fit=crop" alt="Song 2">
-                <p class="title">Dilbar Dilbar (Demo)</p>
-                <p class="subtitle">Bollywood • Neha</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- HOLLYWOOD SECTION -->
-    <div id="hollywood" class="section-container">
-        <h2>Hollywood Top 50</h2>
-        <div class="horizontal-scroll">
-            <div class="music-card" onclick="playSong(2)">
-                <img src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=300&h=300&fit=crop" alt="Song 3">
-                <p class="title">Night Drive</p>
-                <p class="subtitle">Hollywood • Chill</p>
-            </div>
-            <div class="music-card" onclick="playSong(3)">
-                <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300&h=300&fit=crop" alt="Song 4">
-                <p class="title">Summer Vibes</p>
-                <p class="subtitle">Hollywood • Pop</p>
-            </div>
-        </div>
+    <!-- MUSIC CARDS CONTAINER -->
+    <h2 id="sectionTitle">Top Songs</h2>
+    <div class="horizontal-scroll" id="songList">
+        <!-- Loader text -->
+        <p style="color: #a7a7a7;">Type in search bar to find songs...</p>
     </div>
 
     <!-- BOTTOM PLAYER -->
@@ -366,33 +273,10 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // 100% WORKING COPYRIGHT-FREE MUSIC LINKS (Internet par kabhi block nahi hote)
-        const songs = [
-            { 
-                title: "Kesariya (Demo)", 
-                artist: "Bollywood", 
-                src: "https://archive.org/download/testmp3testfile/mpthreetest.mp3" 
-            },
-            { 
-                title: "Dilbar Dilbar (Demo)", 
-                artist: "Bollywood", 
-                src: "https://archive.org/download/testmp3testfile/mpthreetest.mp3" 
-            },
-            { 
-                title: "Night Drive", 
-                artist: "Hollywood", 
-                src: "https://archive.org/download/testmp3testfile/mpthreetest.mp3" 
-            },
-            { 
-                title: "Summer Vibes", 
-                artist: "Hollywood", 
-                src: "https://archive.org/download/testmp3testfile/mpthreetest.mp3" 
-            }
-        ];
-
+        let songs = [];
         let currentSongIndex = 0;
         let isPlaying = false;
-        let isLocalFile = false;
+        let searchTimeout;
 
         const audio = document.getElementById('audioPlayer');
         const playBtn = document.getElementById('playBtn');
@@ -401,18 +285,62 @@
         const displayArtist = document.getElementById('displayArtist');
         const currTime = document.getElementById('currTime');
         const totalTime = document.getElementById('totalTime');
+        const songListDiv = document.getElementById('songList');
 
-        // TAB SWITCHING
-        function switchTab(tabId, btnElement) {
-            document.querySelectorAll('.section-container').forEach(sec => sec.classList.remove('active'));
-            document.querySelectorAll('.nav-pill').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            btnElement.classList.add('active');
+        // ONLINE SEARCH FUNCTION (iTunes API use karke)
+        function searchOnlineSongs() {
+            const query = document.getElementById('searchInput').value;
+            clearTimeout(searchTimeout);
+
+            // Type karte waqt thoda wait karo (debounce)
+            searchTimeout = setTimeout(() => {
+                if (query.length < 2) return; 
+
+                songListDiv.innerHTML = '<p style="color: #1ed760;">Searching online...</p>';
+
+                // iTunes API call
+                fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=10`)
+                .then(response => response.json())
+                .then(data => {
+                    songs = data.results.map(item => ({
+                        title: item.trackName,
+                        artist: item.artistName,
+                        // iTunes 30-second preview link deta hai jo 100% kaam karta hai
+                        src: item.previewUrl, 
+                        cover: item.artworkUrl100.replace('100x100', '300x300')
+                    }));
+
+                    renderSongs();
+                })
+                .catch(err => {
+                    songListDiv.innerHTML = '<p style="color: red;">Internet error. Please check connection.</p>';
+                });
+            }, 800); // 800ms wait
         }
 
-        // ONLINE GAANA PLAY
+        // Cards ko screen par dikhana
+        function renderSongs() {
+            songListDiv.innerHTML = '';
+            if (songs.length === 0) {
+                songListDiv.innerHTML = '<p style="color: #a7a7a7;">No songs found.</p>';
+                return;
+            }
+
+            songs.forEach((song, index) => {
+                const card = document.createElement('div');
+                card.className = 'music-card';
+                card.onclick = () => playSong(index);
+                card.innerHTML = `
+                    <img src="${song.cover}" alt="${song.title}">
+                    <p class="title">${song.title}</p>
+                    <p class="subtitle">${song.artist}</p>
+                `;
+                songListDiv.appendChild(card);
+            });
+        }
+
+        // Gaana Play karne ka function
         function playSong(index) {
-            isLocalFile = false;
             currentSongIndex = index;
             audio.src = songs[index].src;
             displayTitle.innerText = songs[index].title;
@@ -426,30 +354,8 @@
             });
         }
 
-        // LOCAL FILE UPLOAD (Aapke phone se gaana)
-        function loadLocalSong(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const fileURL = URL.createObjectURL(file);
-                audio.src = fileURL;
-                
-                displayTitle.innerText = file.name.replace(/\.[^/.]+$/, ""); 
-                displayArtist.innerText = "Local Device";
-                
-                audio.play().then(() => {
-                    isPlaying = true;
-                    playBtn.innerHTML = "⏸";
-                    isLocalFile = true;
-                });
-            }
-        }
-
-        // Play/Pause Toggle
         function togglePlay() {
-            if (audio.src === "") {
-                playSong(0); 
-                return;
-            }
+            if (audio.src === "") return;
             
             if (isPlaying) {
                 audio.pause();
@@ -462,14 +368,12 @@
         }
 
         function nextSong() {
-            if (isLocalFile) { playSong(0); return; }
             currentSongIndex++;
             if (currentSongIndex >= songs.length) currentSongIndex = 0;
             playSong(currentSongIndex);
         }
 
         function prevSong() {
-            if (isLocalFile) { playSong(0); return; }
             currentSongIndex--;
             if (currentSongIndex < 0) currentSongIndex = songs.length - 1;
             playSong(currentSongIndex);
@@ -486,22 +390,15 @@
             if (audio.duration) {
                 const percent = (audio.currentTime / audio.duration) * 100;
                 progressFill.style.width = percent + "%";
-
-                let currMins = Math.floor(audio.currentTime / 60);
-                let currSecs = Math.floor(audio.currentTime % 60);
-                currTime.innerText = `${currMins}:${currSecs < 10 ? '0' : ''}${currSecs}`;
+                currTime.innerText = formatTime(audio.currentTime);
             }
         });
 
         audio.addEventListener('loadedmetadata', () => {
-            let totalMins = Math.floor(audio.duration / 60);
-            let totalSecs = Math.floor(audio.duration % 60);
-            totalTime.innerText = `${totalMins}:${totalSecs < 10 ? '0' : ''}${totalSecs}`;
+            totalTime.innerText = formatTime(audio.duration);
         });
 
-        audio.addEventListener('ended', () => {
-            nextSong();
-        });
+        audio.addEventListener('ended', nextSong);
 
         function seekAudio(e) {
             if(!audio.duration) return;
@@ -510,19 +407,10 @@
             audio.currentTime = (clickX / width) * audio.duration;
         }
 
-        // SEARCH FUNCTION
-        function filterSongs() {
-            const input = document.getElementById('searchInput').value.toLowerCase();
-            const cards = document.querySelectorAll('.music-card');
-
-            cards.forEach(card => {
-                const title = card.querySelector('.title').innerText.toLowerCase();
-                if (title.includes(input)) {
-                    card.style.display = "block"; 
-                } else {
-                    card.style.display = "none";
-                }
-            });
+        function formatTime(seconds) {
+            let m = Math.floor(seconds / 60);
+            let s = Math.floor(seconds % 60);
+            return `${m}:${s < 10 ? '0' : ''}${s}`;
         }
     </script>
 </body>
