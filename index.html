@@ -1,510 +1,313 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#0a0a0a">
-<title>ARMA PLAY — Music Experience</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{
-  --accent:#d8ad55;
-  --accent-2:#ff6b6b;
-  --bg:#0a0a0a;
-  --bg-2:#121212;
-  --bg-3:#1a1a1a;
-  --text:#fff;
-  --muted:#a0a0a0;
-  --border:#2a2a2a;
-}
-html,body{height:100%}
-body{
-  background:var(--bg);
-  color:var(--text);
-  font-family:'Inter',system-ui,-apple-system,sans-serif;
-  padding-bottom:140px;
-  overflow-x:hidden;
-  -webkit-font-smoothing:antialiased;
-}
-body::before{
-  content:'';
-  position:fixed;
-  inset:0;
-  background:
-    radial-gradient(ellipse at top left,rgba(216,173,85,.12),transparent 50%),
-    radial-gradient(ellipse at bottom right,rgba(255,107,107,.08),transparent 50%);
-  pointer-events:none;
-  z-index:0;
-}
-::-webkit-scrollbar{width:6px;height:6px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:#333;border-radius:10px}
-::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Music App</title>
+    <style>
+        /* =========================================
+           1. GLOBAL SETTINGS (Background & Fonts)
+           ========================================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-/* HEADER */
-header{
-  position:sticky;top:0;z-index:50;
-  padding:20px 18px 14px;
-  display:flex;justify-content:space-between;align-items:center;
-  background:linear-gradient(180deg,rgba(10,10,10,.95),rgba(10,10,10,.7),transparent);
-  backdrop-filter:blur(20px);
-  -webkit-backdrop-filter:blur(20px);
-}
-.logo{
-  font-size:24px;font-weight:900;letter-spacing:3px;
-  background:linear-gradient(135deg,var(--accent) 0%,#f0d78c 50%,var(--accent) 100%);
-  -webkit-background-clip:text;background-clip:text;
-  -webkit-text-fill-color:transparent;
-  animation:shine 3s ease-in-out infinite;
-}
-@keyframes shine{0%,100%{filter:brightness(1)}50%{filter:brightness(1.3)}}
-.logo span{
-  -webkit-text-fill-color:#fff;color:#fff;
-  font-weight:400;
-}
-.tag{
-  color:var(--muted);font-size:10px;letter-spacing:2px;
-  font-weight:600;text-transform:uppercase;
-  display:flex;align-items:center;gap:6px;
-}
-.tag::before{
-  content:'';width:6px;height:6px;border-radius:50%;
-  background:#4ade80;box-shadow:0 0 8px #4ade80;
-  animation:pulse 2s infinite;
-}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+        body {
+            background-color: #121212; /* Spotify Dark Background */
+            color: #ffffff;
+            padding-bottom: 100px; /* Space for bottom player */
+            overflow-x: hidden;
+        }
 
-/* SEARCH */
-.search-wrap{
-  margin:8px 16px 20px;
-  position:relative;z-index:10;
-}
-.search{
-  display:flex;
-  background:rgba(32,32,32,.9);
-  border:1px solid var(--border);
-  border-radius:16px;
-  padding:5px;
-  transition:all .3s;
-  backdrop-filter:blur(10px);
-}
-.search:focus-within{
-  border-color:var(--accent);
-  box-shadow:0 0 0 3px rgba(216,173,85,.15);
-  background:rgba(40,40,40,.95);
-}
-.search .icon{
-  display:flex;align-items:center;justify-content:center;
-  padding:0 12px;color:var(--muted);font-size:16px;
-}
-.search input{
-  background:none;border:0;outline:none;color:var(--text);
-  padding:14px 4px;width:100%;font-size:15px;font-family:inherit;
-  font-weight:500;
-}
-.search input::placeholder{color:#666}
-.search button{
-  background:linear-gradient(135deg,var(--accent),#e8c876);
-  border:0;border-radius:12px;padding:0 20px;
-  font-weight:700;font-size:12px;letter-spacing:1px;
-  color:#000;cursor:pointer;font-family:inherit;
-  transition:all .2s;min-width:90px;
-}
-.search button:hover{transform:scale(1.03);box-shadow:0 4px 16px rgba(216,173,85,.4)}
-.search button:active{transform:scale(.97)}
+        h2 {
+            font-size: 22px;
+            margin: 25px 20px 15px 20px;
+            letter-spacing: -0.5px;
+        }
 
-/* SECTIONS */
-.section-title{
-  display:flex;justify-content:space-between;align-items:center;
-  margin:22px 18px 14px;
-}
-.section-title h2{
-  font-size:19px;font-weight:800;letter-spacing:-.3px;
-}
-.section-title .clear{
-  background:none;border:0;color:var(--accent);
-  font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;
-}
+        /* =========================================
+           2. TOP NAVIGATION (Pills & Avatar)
+           ========================================= */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 20px;
+            background-color: #121212;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
 
-/* CHIPS */
-.chips{
-  display:flex;gap:8px;overflow-x:auto;
-  padding:0 16px 12px;
-  scrollbar-width:none;
-  -webkit-overflow-scrolling:touch;
-}
-.chips::-webkit-scrollbar{display:none}
-.chip{
-  flex-shrink:0;
-  background:var(--bg-3);
-  border:1px solid var(--border);
-  border-radius:100px;
-  padding:9px 16px;
-  font-size:13px;font-weight:600;
-  color:var(--text);cursor:pointer;
-  transition:all .2s;font-family:inherit;
-}
-.chip:hover,.chip.active{
-  background:var(--accent);color:#000;
-  border-color:var(--accent);
-}
+        .avatar {
+            width: 36px;
+            height: 36px;
+            background-color: #ff7b9c; /* Pink avatar */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+        }
 
-/* STATUS */
-#status{
-  margin:15px 18px;color:var(--muted);font-size:13px;
-  text-align:center;padding:16px 0;
-  transition:opacity .3s;
-}
+        .nav-pill {
+            background-color: #2a2a2a;
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
 
-/* RESULTS */
-#results{padding:0 12px;position:relative;z-index:1}
-.song{
-  display:flex;align-items:center;gap:13px;
-  padding:10px 8px;border-radius:14px;
-  transition:all .2s;cursor:pointer;
-  position:relative;
-}
-.song:hover{background:rgba(255,255,255,.04);transform:translateX(2px)}
-.song:active{background:rgba(255,255,255,.08);transform:scale(.99)}
-.song.playing{background:rgba(216,173,85,.08)}
-.song.playing::before{
-  content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
-  width:3px;height:60%;background:var(--accent);border-radius:0 3px 3px 0;
-}
-.song .img-wrap{
-  position:relative;flex-shrink:0;
-  width:57px;height:57px;border-radius:10px;overflow:hidden;
-  background:var(--bg-3);
-  box-shadow:0 4px 12px rgba(0,0,0,.4);
-}
-.song img{
-  width:100%;height:100%;object-fit:cover;
-  transition:transform .3s;
-}
-.song:hover img{transform:scale(1.08)}
-.song .img-wrap::after{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,transparent 60%,rgba(0,0,0,.3));
-  pointer-events:none;
-}
-.info{flex:1;min-width:0}
-.info b{
-  display:block;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  font-size:14px;font-weight:600;margin-bottom:4px;
-}
-.info small{
-  display:block;color:var(--muted);
-  font-size:12px;white-space:nowrap;
-  overflow:hidden;text-overflow:ellipsis;
-}
-.play-btn{
-  background:rgba(216,173,85,.15);
-  border:0;color:var(--accent);
-  width:40px;height:40px;border-radius:50%;
-  font-size:16px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  transition:all .2s;flex-shrink:0;
-}
-.play-btn:hover{
-  background:var(--accent);color:#000;
-  transform:scale(1.1);
-}
-.song.playing .play-btn{
-  background:var(--accent);color:#000;
-  animation:glow 1.5s infinite;
-}
-@keyframes glow{
-  0%,100%{box-shadow:0 0 0 0 rgba(216,173,85,.5)}
-  50%{box-shadow:0 0 0 8px rgba(216,173,85,0)}
-}
+        .nav-pill.active {
+            background-color: #1ed760; /* Spotify Green */
+            color: #000000;
+        }
 
-/* SKELETON */
-.skeleton{
-  display:flex;gap:13px;padding:10px 8px;align-items:center;
-}
-.sk-img{
-  width:57px;height:57px;border-radius:10px;flex-shrink:0;
-  background:linear-gradient(90deg,#1a1a1a,#2a2a2a,#1a1a1a);
-  background-size:200% 100%;animation:shimmer 1.5s infinite;
-}
-.sk-lines{flex:1;display:flex;flex-direction:column;gap:8px}
-.sk-line{
-  height:12px;border-radius:6px;
-  background:linear-gradient(90deg,#1a1a1a,#2a2a2a,#1a1a1a);
-  background-size:200% 100%;animation:shimmer 1.5s infinite;
-}
-.sk-line.short{width:40%}
-@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+        /* =========================================
+           3. RECENTLY PLAYED GRID (Top Section)
+           ========================================= */
+        .recent-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 2 Columns */
+            gap: 12px;
+            padding: 0 20px;
+        }
 
-/* PLAYER */
-.player{
-  position:fixed;bottom:0;left:0;width:100%;z-index:100;
-  background:rgba(15,15,15,.92);
-  backdrop-filter:blur(30px) saturate(180%);
-  -webkit-backdrop-filter:blur(30px) saturate(180%);
-  border-top:1px solid rgba(255,255,255,.08);
-  padding:10px 16px 14px;
-  padding-bottom:calc(14px + env(safe-area-inset-bottom));
-  transition:transform .4s cubic-bezier(.4,0,.2,1);
-}
-.player::before{
-  content:'';position:absolute;top:-1px;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,var(--accent),transparent);
-  opacity:.6;
-}
-.now{
-  display:flex;align-items:center;gap:12px;margin-bottom:10px;
-}
-.now .cover-wrap{
-  position:relative;flex-shrink:0;
-  width:48px;height:48px;border-radius:10px;overflow:hidden;
-  background:var(--bg-3);
-  box-shadow:0 6px 20px rgba(0,0,0,.5);
-}
-.now .cover-wrap.spinning img{
-  animation:spin 8s linear infinite;
-}
-@keyframes spin{to{transform:rotate(360deg)}}
-.now img{width:100%;height:100%;object-fit:cover}
-.nowinfo{flex:1;min-width:0}
-.nowinfo b{
-  display:block;font-size:14px;font-weight:700;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  margin-bottom:3px;
-}
-.nowinfo small{
-  display:block;color:var(--muted);font-size:12px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.open{
-  color:var(--accent);text-decoration:none;
-  font-size:11px;font-weight:700;white-space:nowrap;
-  padding:6px 10px;border-radius:8px;
-  background:rgba(216,173,85,.1);
-  transition:all .2s;
-}
-.open:hover{background:rgba(216,173,85,.2);transform:translateY(-1px)}
+        .recent-item {
+            display: flex;
+            align-items: center;
+            background-color: #2a2a2a;
+            border-radius: 6px;
+            overflow: hidden;
+            height: 60px;
+            cursor: pointer;
+        }
 
-/* PROGRESS */
-.progress-wrap{
-  position:relative;height:18px;
-  display:flex;align-items:center;margin-bottom:2px;
-  cursor:pointer;touch-action:none;
-}
-.progress-bg{
-  position:absolute;left:0;right:0;height:4px;
-  background:rgba(255,255,255,.15);border-radius:10px;
-  overflow:hidden;
-}
-.progress-fill{
-  position:absolute;left:0;top:0;bottom:0;width:0%;
-  background:linear-gradient(90deg,var(--accent),#f0d78c);
-  border-radius:10px;transition:width .1s linear;
-}
-.progress-thumb{
-  position:absolute;top:50%;left:0;
-  width:12px;height:12px;border-radius:50%;
-  background:#fff;
-  transform:translate(-50%,-50%);
-  box-shadow:0 2px 8px rgba(0,0,0,.6);
-  opacity:0;transition:opacity .2s;
-  pointer-events:none;
-}
-.progress-wrap:hover .progress-thumb{opacity:1}
-.time{
-  display:flex;justify-content:space-between;
-  color:var(--muted);font-size:10px;font-weight:500;
-  margin-bottom:10px;
-  font-variant-numeric:tabular-nums;
-}
+        .recent-item img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+        }
 
-/* CONTROLS */
-.controls{
-  display:flex;align-items:center;justify-content:center;gap:24px;
-}
-.controls button{
-  background:none;border:0;color:#fff;
-  font-size:20px;cursor:pointer;
-  width:40px;height:40px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  transition:all .2s;font-family:inherit;
-  position:relative;
-}
-.controls button:hover{background:rgba(255,255,255,.08);transform:scale(1.1)}
-.controls button:active{transform:scale(.9)}
-.controls button.active{color:var(--accent)}
-.controls .main{
-  width:54px;height:54px;
-  background:linear-gradient(135deg,var(--accent),#e8c876);
-  color:#000;
-  font-size:22px;
-  box-shadow:0 6px 20px rgba(216,173,85,.4);
-}
-.controls .main:hover{
-  transform:scale(1.08);
-  box-shadow:0 8px 28px rgba(216,173,85,.6);
-}
-.controls .main:active{transform:scale(.95)}
-.controls .main.loading{pointer-events:none}
-.controls .main.loading::after{
-  content:'';position:absolute;inset:-2px;
-  border:2px solid transparent;border-top-color:#000;
-  border-radius:50%;animation:spin .8s linear infinite;
-}
+        .recent-item span {
+            font-size: 13px;
+            font-weight: 700;
+            padding-left: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding-right: 10px;
+        }
 
-/* VOLUME */
-.volume{
-  display:none;align-items:center;gap:8px;
-  margin-top:10px;padding:0 20px;
-}
-.volume input{
-  flex:1;accent-color:var(--accent);
-  height:3px;
-}
+        /* =========================================
+           4. JUMP BACK IN (Horizontal Cards)
+           ========================================= */
+        .horizontal-scroll {
+            display: flex;
+            overflow-x: auto;
+            gap: 16px;
+            padding: 0 20px 20px 20px;
+            scroll-behavior: smooth;
+        }
 
-/* BOTTOM SHEET (FULL PLAYER) */
-.sheet{
-  position:fixed;inset:0;z-index:200;
-  background:linear-gradient(180deg,var(--bg-2),var(--bg));
-  transform:translateY(100%);
-  transition:transform .5s cubic-bezier(.4,0,.2,1);
-  display:flex;flex-direction:column;
-  padding:16px;overflow-y:auto;
-}
-.sheet.open{transform:translateY(0)}
-.sheet-close{
-  background:none;border:0;color:#fff;
-  font-size:26px;cursor:pointer;
-  align-self:center;padding:10px;
-  font-family:inherit;
-}
-.sheet-art{
-  width:min(80vw,320px);height:min(80vw,320px);
-  margin:20px auto;border-radius:24px;
-  object-fit:cover;
-  box-shadow:0 20px 60px rgba(0,0,0,.6);
-  background:var(--bg-3);
-}
-.sheet-info{text-align:center;margin:16px 20px}
-.sheet-info h3{font-size:22px;font-weight:800;margin-bottom:6px}
-.sheet-info p{color:var(--muted);font-size:14px}
+        /* Hide scrollbar for a cleaner look */
+        .horizontal-scroll::-webkit-scrollbar {
+            display: none;
+        }
 
-/* TOAST */
-.toast{
-  position:fixed;bottom:160px;left:50%;transform:translateX(-50%) translateY(20px);
-  background:rgba(30,30,30,.95);backdrop-filter:blur(20px);
-  border:1px solid var(--border);
-  color:#fff;padding:12px 20px;border-radius:12px;
-  font-size:13px;font-weight:600;
-  opacity:0;pointer-events:none;
-  transition:all .3s;z-index:500;
-  max-width:90%;text-align:center;
-}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+        .music-card {
+            min-width: 140px;
+            max-width: 140px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 8px;
+        }
 
-/* EMPTY */
-.empty{
-  text-align:center;padding:50px 20px;color:var(--muted);
-}
-.empty .emoji{font-size:48px;margin-bottom:16px;display:block;opacity:.5}
-.empty p{font-size:14px;margin-bottom:6px}
-.empty small{font-size:12px;opacity:.7}
+        .music-card img {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            border-radius: 6px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
 
-@media(min-width:720px){
-  .player{max-width:500px;left:50%;transform:translateX(-50%);border-radius:20px 20px 0 0;border:1px solid var(--border);border-bottom:0}
-  #results{max-width:700px;margin:0 auto}
-  .search-wrap{max-width:700px;margin-left:auto;margin-right:auto}
-  .chips{max-width:700px;margin:0 auto}
-  .section-title{max-width:700px;margin-left:auto;margin-right:auto}
-  .volume{display:flex}
-  .now .cover-wrap{cursor:pointer}
-}
-</style>
+        .music-card .title {
+            font-size: 15px;
+            font-weight: 700;
+            margin-top: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .music-card .subtitle {
+            font-size: 13px;
+            color: #a7a7a7;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* =========================================
+           5. BOTTOM PLAYER (Fixed at bottom)
+           ========================================= */
+        .bottom-player {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #181818;
+            border-top: 1px solid #282828;
+            padding: 15px 20px 25px 20px;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .player-info h3 {
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+
+        .player-info p {
+            font-size: 12px;
+            color: #a7a7a7;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background-color: #4d4d4d;
+            border-radius: 2px;
+            margin: 8px 0;
+            position: relative;
+        }
+
+        .progress-bar .fill {
+            width: 30%;
+            height: 100%;
+            background-color: #ffffff;
+            border-radius: 2px;
+        }
+
+        .player-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 25px;
+        }
+
+        .player-controls button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .player-controls .play-btn {
+            background-color: white;
+            color: black;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            padding-left: 4px; /* Center the play icon */
+        }
+    </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">ARMA <span>PLAY</span></div>
-  <div class="tag">LIVE</div>
-</header>
-
-<div class="search-wrap">
-  <div class="search">
-    <div class="icon">🔍</div>
-    <input id="query" placeholder="Songs, artists, albums..." autocomplete="off">
-    <button onclick="searchSongs()">SEARCH</button>
-  </div>
-</div>
-
-<div class="chips" id="chips"></div>
-
-<div class="section-title">
-  <h2 id="sectionTitle">🔥 Trending Now</h2>
-  <button class="clear" id="clearBtn" style="display:none" onclick="clearResults()">Clear</button>
-</div>
-
-<div id="status">Search your favourite songs to get started.</div>
-<div id="results"></div>
-
-<!-- MAIN PLAYER -->
-<div class="player" id="player">
-  <div class="now">
-    <div class="cover-wrap" onclick="openSheet()">
-      <img id="cover" src="https://placehold.co/100x100/1a1a1a/d8ad55?text=♪">
+    <!-- 1. TOP NAVIGATION -->
+    <div class="top-nav">
+        <div class="avatar">J</div>
+        <button class="nav-pill active">All</button>
+        <button class="nav-pill">Music</button>
+        <button class="nav-pill">Podcasts</button>
     </div>
-    <div class="nowinfo">
-      <b id="title">Select a song</b>
-      <small id="artist">ARMA PLAY</small>
+
+    <!-- 2. RECENTLY PLAYED GRID -->
+    <div class="recent-grid">
+        <div class="recent-item">
+            <!-- Yahan apni image ka link daalein -->
+            <img src="https://picsum.photos/100?random=1" alt="Masoom Sharma">
+            <span>Masoom Sharma Radio</span>
+        </div>
+        <div class="recent-item">
+            <img src="https://picsum.photos/100?random=2" alt="Ramaiya">
+            <span>Ramaiya Vastavaiya</span>
+        </div>
+        <div class="recent-item">
+            <img src="https://picsum.photos/100?random=3" alt="Atif Aslam">
+            <span>Atif Aslam Radio</span>
+        </div>
+        <div class="recent-item">
+            <img src="https://picsum.photos/100?random=4" alt="Filmy Hangover">
+            <span>Filmy Hangover</span>
+        </div>
     </div>
-    <a id="fullSong" class="open" href="#" target="_blank" style="display:none">FULL ↗</a>
-  </div>
 
-  <div class="progress-wrap" id="progressWrap">
-    <div class="progress-bg"><div class="progress-fill" id="progressFill"></div></div>
-    <div class="progress-thumb" id="progressThumb"></div>
-  </div>
-  <div class="time">
-    <span id="currentTime">0:00</span>
-    <span id="duration">0:00</span>
-  </div>
+    <!-- 3. JUMP BACK IN -->
+    <h2>Jump back in</h2>
+    <div class="horizontal-scroll">
+        <div class="music-card">
+            <img src="https://picsum.photos/300?random=5" alt="Once Upon A Time">
+            <p class="title">Once Upon A Time In Mumbai</p>
+            <p class="subtitle">Album • Pritam</p>
+        </div>
+        <div class="music-card">
+            <img src="https://picsum.photos/300?random=6" alt="Karan Aujla">
+            <p class="title">Karan Aujla</p>
+            <p class="subtitle">Playlist • Dhanda</p>
+        </div>
+        <div class="music-card">
+            <img src="https://picsum.photos/300?random=7" alt="Mix">
+            <p class="title">Your Top Mix</p>
+            <p class="subtitle">Made for You</p>
+        </div>
+    </div>
 
-  <div class="controls">
-    <button id="shuffleBtn" onclick="toggleShuffle()" title="Shuffle">🔀</button>
-    <button onclick="previousSong()" title="Previous">⏮</button>
-    <button class="main" id="toggle" onclick="togglePlay()">▶</button>
-    <button onclick="nextSong()" title="Next">⏭</button>
-    <button id="repeatBtn" onclick="toggleRepeat()" title="Repeat">🔁</button>
-  </div>
+    <!-- 4. BOTTOM PLAYER -->
+    <div class="bottom-player">
+        <div class="player-info">
+            <div>
+                <h3>Track Name</h3>
+                <p>ARMA PLAY</p>
+            </div>
+            <div class="progress-bar">
+                <div class="fill"></div>
+            </div>
+        </div>
+        <div class="player-controls">
+            <button>⏮️</button>
+            <button class="play-btn">▶️</button>
+            <button>⏭️</button>
+        </div>
+    </div>
 
-  <div class="volume">
-    <span>🔊</span>
-    <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
-  </div>
-</div>
-
-<!-- FULL SHEET -->
-<div class="sheet" id="sheet">
-  <button class="sheet-close" onclick="closeSheet()">⌄</button>
-  <img class="sheet-art" id="sheetArt" src="https://placehold.co/400x400/1a1a1a/d8ad55?text=♪">
-  <div class="sheet-info">
-    <h3 id="sheetTitle">Select a song</h3>
-    <p id="sheetArtist">ARMA PLAY</p>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<audio id="audio" preload="metadata"></audio>
-<script src="script.js"></script>
 </body>
 </html>
-<!-- Shuffle / Repeat buttons in controls -->
-<button onclick="toggleShuffle()" id="shuffleBtn" title="Shuffle">🔀</button>
-<button onclick="toggleRepeat()" id="repeatBtn" title="Repeat">🔁</button>
-
-<!-- Volume slider (add inside .player) -->
-<input type="range" id="volume" min="0" max="1" step="0.01" value="1" 
-       style="width:100%;accent-color:#d8ad55;margin-top:6px">
