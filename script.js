@@ -1,372 +1,305 @@
-/* =========================================
-   ARMA PLAY - FULL SONG MUSIC PLAYER
-   ========================================= */
+/* ============================================================
+   ARMA PLAY — Spotify-style player
+   FIX: full song plays even after refresh (IndexedDB storage)
+   ============================================================ */
 
-const API_BASE = "https://YOUR-AUTHORIZED-API.com";
+const audio = document.getElementById('audio');
+const $ = id => document.getElementById(id);
+const playBtn = $('playBtn');
+const fsPlayBtn = $('fsPlayBtn');
 
-const searchInput = document.getElementById("searchInput");
-const songList = document.getElementById("songList");
-const statusMsg = document.getElementById("statusMsg");
-const audioPlayer = document.getElementById("audioPlayer");
-const playPauseBtn = document.getElementById("playPauseBtn");
-const nextBtn = document.getElementById("nextBtn");
-const songTitle = document.getElementById("songTitle");
-const artistName = document.getElementById("artistName");
-const coverArt = document.getElementById("coverArt");
-const downloadBtn = document.getElementById("downloadBtn");
-const progressBar = document.getElementById("progressBar");
+/* ---------------- INDEXEDDB (the real fix for 30s bug) ---------------- */
+const DB_NAME = 'arma-play-db';
+const STORE = 'songs';
+let db = null;
 
-let songs = [];
-let homeSongsList = [];
-let currentIndex = -1;
-let currentSource = "search";
-let searchTimer;
-let requestId = 0;
-
-audioPlayer.preload = "metadata";
-
-// Format duration
-function formatTime(time) {
-    if (!Number.isFinite(time)) return "0:00";
-    const m = Math.floor(time / 60);
-    const s = Math.floor(time % 60);
-    return `${m}:${String(s).padStart(2, "0")}`;
-}
-
-// Normalize API song
-function normalizeSong(s) {
-    return {
-        title: s.title || s.name || "Unknown Song",
-        artist: s.artist || s.uploaderName || "Unknown Artist",
-        thumbnail: s.thumbnail || s.cover || "",
-        audioUrl: s.audioUrl || s.audio_url ||
-                  s.streamUrl || s.stream_url || "",
-        duration: s.duration || 0
+function openDB(){
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = e => {
+      const d = e.target.result;
+      if (!d.objectStoreNames.contains(STORE)) d.createObjectStore(STORE, { keyPath: 'id' });
     };
+    req.onsuccess = e => { db = e.target.result; resolve(db); };
+    req.onerror = () => reject(req.error);
+  });
 }
 
-// Get playlist
-function getPlaylist() {
-    return currentSource === "home"
-        ? homeSongsList : songs;
+function dbSave(id, blob){
+  return new Promise((res, rej) => {
+    const tx = db.transaction(STORE, 'readwrite');
+    tx.objectStore(STORE).put({ id, blob });
+    tx.oncomplete = res;
+    tx.onerror = () => rej(tx.error);
+  });
 }
 
-// Load full audio
-function loadSong(index, source = currentSource) {
-    const list = source === "home" ? homeSongsList : songs;
-    const song = list[index];
-
-    if (!song) return false;
-
-    if (!song.audioUrl) {
-        statusMsg.textContent =
-            "Full-length audio unavailable for this track.";
-        return false;
-    }
-
-    currentIndex = index;
-    currentSource = source;
-
-    requestId++;
-
-    audioPlayer.pause();
-    audioPlayer.src = song.audioUrl;
-    audioPlayer.load();
-
-    songTitle.textContent = song.title;
-    artistName.textContent = song.artist;
-    coverArt.src = song.thumbnail;
-
-    downloadBtn.href = song.audioUrl;
-    downloadBtn.removeAttribute("download");
-
-    progressBar.style.width = "0%";
-    statusMsg.textContent = "Loading full song...";
-
-    updateMediaSession(song);
-
-    return true;
+function dbGet(id){
+  return new Promise((res, rej) => {
+    const tx = db.transaction(STORE, 'readonly');
+    const req = tx.objectStore(STORE).get(id);
+    req.onsuccess = () => res(req.result ? req.result.blob : null);
+    req.onerror = () => rej(req.error);
+  });
 }
 
-// Play song
-async function playSong(index, source = currentSource) {
-    if (!loadSong(index, source)) return;
-
-    const id = requestId;
-
-    try {
-        await audioPlayer.play();
-
-        if (id === requestId) {
-            statusMsg.textContent = "";
-        }
-    } catch (error) {
-        if (id === requestId) {
-            statusMsg.textContent = "Playback failed. Check audio API.";
-        }
-        console.error(error);
-    }
+function dbDelete(id){
+  return new Promise((res) => {
+    const tx = db.transaction(STORE, 'readwrite');
+    tx.objectStore(STORE).delete(id);
+    tx.oncomplete = res;
+  });
 }
 
-// Play / Pause
-async function togglePlay() {
-    if (!audioPlayer.src) return;
+/* ---------------- STATE ---------------- */
+let tracks = JSON.parse(localStorage.getItem('arma_tracks') || '[]'); // {id, name, duration, addedAt}
+let playlists = JSON.parse(localStorage.getItem('arma_playlists') || '[]');
+let current = Number(localStorage.getItem('arma_current') || 0);
+let liked = JSON.parse(localStorage.getItem('arma_liked') || '[]');
+let shuffle = false;
+let repeat = false;   // false | 'all' | 'one'
+let activePlaylistId = null;
 
-    try {
-        if (audioPlayer.paused) {
-            await audioPlayer.play();
-        } else {
-            audioPlayer.pause();
-        }
-    } catch (error) {
-        console.error(error);
-    }
+function saveMeta(){
+  localStorage.setItem('arma_tracks', JSON.stringify(tracks));
+  localStorage.setItem('arma_playlists', JSON.stringify(playlists));
+  localStorage.setItem('arma_current', current);
+  localStorage.setItem('arma_liked', JSON.stringify(liked));
 }
 
-// Next
-function nextSong() {
-    const list = getPlaylist();
-    if (!list.length || currentIndex < 0) return;
-
-    playSong((currentIndex + 1) % list.length);
+function fmt(s){
+  if(!s || isNaN(s)) return '0:00';
+  const m = Math.floor(s/60), sec = Math.floor(s%60);
+  return `${m}:${sec.toString().padStart(2,'0')}`;
 }
+function uid(){ return Math.random().toString(36).slice(2,10); }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-// Previous
-function previousSong() {
-    const list = getPlaylist();
-    if (!list.length || currentIndex < 0) return;
+/* ---------------- NAVIGATION ---------------- */
+function switchView(view){
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  const target = $('view-' + view);
+  if (target) target.classList.add('active');
+  const navLink = document.querySelector(`.nav-link[data-view="${view}"]`);
+  if (navLink) navLink.classList.add('active');
 
-    if (audioPlayer.currentTime > 3) {
-        audioPlayer.currentTime = 0;
-        return;
-    }
-
-    playSong((currentIndex - 1 + list.length) % list.length);
+  if (view === 'home') renderHome();
+  if (view === 'search') renderSearch($('searchInput').value);
+  if (view === 'library') renderLibrary();
+  if (view === 'queue') renderQueue();
+  if (view === 'playlist') renderPlaylist(activePlaylistId);
 }
+document.querySelectorAll('.nav-link, .see-all').forEach(el => {
+  el.addEventListener('click', e => {
+    e.preventDefault();
+    const v = el.dataset.view;
+    if (v) switchView(v);
+  });
+});
+$('backBtn').onclick = () => switchView('home');
 
-// Media session
-function updateMediaSession(song) {
-    if (!("mediaSession" in navigator)) return;
+/* ---------------- ADD MUSIC ---------------- */
+$('addMusicBtn').onclick = () => $('file').click();
 
-    navigator.mediaSession.metadata = new MediaMetadata({
-        title: song.title,
-        artist: song.artist,
-        album: "ARMA PLAY",
-        artwork: song.thumbnail ? [{
-            src: song.thumbnail,
-            sizes: "512x512",
-            type: "image/jpeg"
-        }] : []
+$('file').addEventListener('change', async e => {
+  const files = [...e.target.files];
+  for (const f of files){
+    const id = uid();
+    // Save blob to IndexedDB so it survives refresh
+    await dbSave(id, f);
+    tracks.push({
+      id,
+      name: f.name.replace(/\.[^.]+$/, ''),
+      duration: 0,
+      addedAt: Date.now()
     });
+  }
+  saveMeta();
+  renderAll();
+  if (tracks.length && !audio.src) { current = 0; await loadTrack(current); }
+});
 
-    navigator.mediaSession.setActionHandler("play", () => audioPlayer.play());
-    navigator.mediaSession.setActionHandler("pause", () => audioPlayer.pause());
-    navigator.mediaSession.setActionHandler("nexttrack", nextSong);
-    navigator.mediaSession.setActionHandler("previoustrack", previousSong);
+/* ---------------- PLAYBACK ---------------- */
+async function loadTrack(i){
+  if (!tracks.length) return;
+  current = i;
+  const t = tracks[i];
+  const blob = await dbGet(t.id);
+  if (!blob){ console.warn('Blob missing for', t.name); return; }
+
+  if (audio.src) URL.revokeObjectURL(audio.src);
+  audio.src = URL.createObjectURL(blob);
+
+  $('npTitle').textContent = t.name;
+  $('npArtist').textContent = 'ARMA PLAY';
+  $('fsTitle').textContent = t.name;
+  $('fsArtist').textContent = 'ARMA PLAY';
+  $('likeBtn').classList.toggle('liked', liked.includes(t.id));
+  saveMeta();
+  renderAll();
 }
 
-// Search songs
-async function searchSongs() {
-    const query = searchInput.value.trim();
-
-    if (!query) {
-        songs = [];
-        songList.innerHTML = "";
-        statusMsg.textContent = "";
-        return;
-    }
-
-    const id = ++requestId;
-    statusMsg.textContent = "Searching...";
-
-    try {
-        const response = await fetch(
-            `${API_BASE}/search?q=${encodeURIComponent(query)}`
-        );
-
-        if (!response.ok) throw new Error("API error");
-
-        const data = await response.json();
-
-        if (id !== requestId) return;
-
-        const results = Array.isArray(data)
-            ? data
-            : data.songs || data.items || [];
-
-        songs = results.map(normalizeSong);
-
-        if (!songs.length) {
-            statusMsg.textContent = "No songs found.";
-            songList.innerHTML = "";
-            return;
-        }
-
-        statusMsg.textContent = "";
-
-        songList.innerHTML = songs.map((s, i) => `
-            <li class="song-item" data-index="${i}">
-                <img src="${escapeHTML(s.thumbnail)}" alt="">
-                <div class="song-info">
-                    <p class="t">${escapeHTML(s.title)}</p>
-                    <p class="a">${escapeHTML(s.artist)}</p>
-                </div>
-                <i class="fa-solid fa-play"></i>
-            </li>
-        `).join("");
-
-    } catch (error) {
-        statusMsg.textContent = "Search API unavailable.";
-        console.error(error);
-    }
+async function play(i){
+  await loadTrack(i);
+  audio.play().catch(err => console.warn('play error:', err));
 }
 
-// Escape text
-function escapeHTML(value) {
-    return String(value).replace(/[&<>"']/g, c => ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;"
-    })[c]);
+function togglePlay(){
+  if (!tracks.length) { $('file').click(); return; }
+  if (audio.paused) audio.play(); else audio.pause();
 }
 
-// Search delay
-searchInput.addEventListener("input", () => {
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(searchSongs, 500);
-});
-
-// Select search song
-songList.addEventListener("click", event => {
-    const item = event.target.closest("[data-index]");
-    if (item) playSong(Number(item.dataset.index), "search");
-});
-
-// Progress bar
-audioPlayer.addEventListener("timeupdate", () => {
-    if (!Number.isFinite(audioPlayer.duration)) return;
-
-    const percent =
-        audioPlayer.currentTime / audioPlayer.duration * 100;
-
-    progressBar.style.width = percent + "%";
-
-    const current = document.getElementById("currentTime");
-    const total = document.getElementById("totalTime");
-
-    if (current) current.textContent = formatTime(audioPlayer.currentTime);
-    if (total) total.textContent = formatTime(audioPlayer.duration);
-});
-
-// Seek
-progressBar.parentElement.addEventListener("click", event => {
-    if (!Number.isFinite(audioPlayer.duration)) return;
-
-    const rect = event.currentTarget.getBoundingClientRect();
-    const percent = Math.max(0, Math.min(1,
-        (event.clientX - rect.left) / rect.width
-    ));
-
-    audioPlayer.currentTime = percent * audioPlayer.duration;
-});
-
-// Player controls
-playPauseBtn.addEventListener("click", togglePlay);
-nextBtn.addEventListener("click", nextSong);
-
-document.getElementById("previousBtn")
-    ?.addEventListener("click", previousSong);
-
-// Player icons
-audioPlayer.addEventListener("play", () => {
-    playPauseBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
-});
-
-audioPlayer.addEventListener("pause", () => {
-    playPauseBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
-});
-
-// Automatic next song
-audioPlayer.addEventListener("ended", nextSong);
-
-// Loading and error
-audioPlayer.addEventListener("waiting", () => {
-    statusMsg.textContent = "Buffering...";
-});
-
-audioPlayer.addEventListener("playing", () => {
-    statusMsg.textContent = "";
-});
-
-audioPlayer.addEventListener("error", () => {
-    statusMsg.textContent = "Audio stream unavailable.";
-});
-
-// Home screen
-async function loadHomeScreen() {
-    try {
-        const response = await fetch(
-            `${API_BASE}/search?q=popular`
-        );
-
-        if (!response.ok) throw new Error("API error");
-
-        const data = await response.json();
-
-        const results = Array.isArray(data)
-            ? data : data.songs || data.items || [];
-
-        homeSongsList = results.map(normalizeSong);
-
-        const quickGrid = document.getElementById("quickGrid");
-        const jumpBackIn = document.getElementById("jumpBackIn");
-
-        quickGrid.innerHTML = homeSongsList.slice(0, 8)
-            .map((s, i) => `
-                <div class="quick-item" data-home="${i}">
-                    <img src="${escapeHTML(s.thumbnail)}">
-                    <span>${escapeHTML(s.title)}</span>
-                </div>
-            `).join("");
-
-        jumpBackIn.innerHTML = homeSongsList.slice(8, 18)
-            .map((s, i) => `
-                <div class="card" data-home="${i + 8}">
-                    <img src="${escapeHTML(s.thumbnail)}">
-                    <div class="card-title">${escapeHTML(s.title)}</div>
-                    <div class="card-subtitle">${escapeHTML(s.artist)}</div>
-                </div>
-            `).join("");
-
-    } catch (error) {
-        console.error("Home API error:", error);
-    }
+function next(){
+  if (!tracks.length) return;
+  if (repeat === 'one') { audio.currentTime = 0; audio.play(); return; }
+  if (shuffle) current = Math.floor(Math.random() * tracks.length);
+  else current = (current + 1) % tracks.length;
+  play(current);
+}
+function prev(){
+  if (!tracks.length) return;
+  if (audio.currentTime > 3) { audio.currentTime = 0; return; }
+  current = (current - 1 + tracks.length) % tracks.length;
+  play(current);
 }
 
-// Home click
-document.addEventListener("click", event => {
-    const item = event.target.closest("[data-home]");
-    if (item) playSong(Number(item.dataset.home), "home");
+/* Audio events */
+audio.addEventListener('play', () => { playBtn.textContent='⏸'; fsPlayBtn.textContent='⏸'; });
+audio.addEventListener('pause', () => { playBtn.textContent='▶'; fsPlayBtn.textContent='▶'; });
+audio.addEventListener('ended', () => {
+  if (repeat === 'all') next();
+  else if (current < tracks.length - 1) next();
+  else audio.pause();
+});
+audio.addEventListener('loadedmetadata', () => {
+  $('durTime').textContent = fmt(audio.duration);
+  $('fsDur').textContent = fmt(audio.duration);
+  if (tracks[current] && !tracks[current].duration){
+    tracks[current].duration = audio.duration;
+    saveMeta();
+    renderAll();
+  }
+});
+audio.addEventListener('timeupdate', () => {
+  if (!audio.duration) return;
+  const pct = (audio.currentTime / audio.duration) * 100;
+  $('seek').value = pct;
+  $('fsSeek').value = pct;
+  $('curTime').textContent = fmt(audio.currentTime);
+  $('fsCur').textContent = fmt(audio.currentTime);
+});
+audio.addEventListener('error', () => {
+  console.warn('Audio error, skipping...');
+  setTimeout(next, 300);
 });
 
-// Tabs
-function switchTab(tab) {
-    document.querySelectorAll(".nav-item")
-        .forEach(n => n.classList.remove("active"));
+/* Sliders */
+$('seek').addEventListener('input', e => {
+  if (audio.duration) audio.currentTime = (e.target.value/100) * audio.duration;
+});
+$('fsSeek').addEventListener('input', e => {
+  if (audio.duration) audio.currentTime = (e.target.value/100) * audio.duration;
+});
+$('volume').addEventListener('input', e => { audio.volume = e.target.value/100; });
 
-    document.getElementById("homeScreen")
-        .classList.toggle("hidden", tab !== "home");
+/* shuffle / repeat */
+$('shuffleBtn').onclick = () => { shuffle = !shuffle; $('shuffleBtn').classList.toggle('on', shuffle); };
+$('repeatBtn').onclick = () => {
+  if (!repeat) repeat = 'all';
+  else if (repeat === 'all') repeat = 'one';
+  else repeat = false;
+  $('repeatBtn').classList.toggle('on', repeat !== false);
+  $('repeatBtn').textContent = repeat === 'one' ? '🔂' : '🔁';
+};
 
-    document.getElementById("searchScreen")
-        .classList.toggle("hidden", tab !== "search");
+/* like */
+$('likeBtn').onclick = () => {
+  const t = tracks[current]; if (!t) return;
+  if (liked.includes(t.id)) liked = liked.filter(x => x !== t.id);
+  else liked.push(t.id);
+  $('likeBtn').classList.toggle('liked', liked.includes(t.id));
+  saveMeta();
+};
 
-    document.querySelector(
-        `.nav-item:nth-child(${tab === "home" ? 1 : 2})`
-    )?.classList.add("active");
+/* fullscreen */
+$('expandBtn').onclick = () => $('fullscreen').classList.add('show');
+$('fsClose').onclick   = () => $('fullscreen').classList.remove('show');
+$('queueBtn').onclick  = () => switchView('queue');
+
+/* ---------------- RENDERERS ---------------- */
+function renderAll(){
+  renderHome();
+  renderLibrary();
+  renderQueue();
+  renderPlaylists();
+  if (activePlaylistId) renderPlaylist(activePlaylistId);
 }
 
-// Start
-loadHomeScreen();
-                        
+function renderHome(){
+  const recent = $('recentGrid');
+  const recentTracks = [...tracks].sort((a,b) => (b.addedAt||0)-(a.addedAt||0)).slice(0,6);
+  if (!recentTracks.length){
+    recent.innerHTML = '<div class="card"><div class="card-cover">🎵</div><div class="card-title">No tracks yet</div><div class="card-sub">Tap + Add Music</div></div>';
+  } else {
+    recent.innerHTML = recentTracks.map(t =>
+      `<div class="card" onclick="playById('${t.id}')">
+         <div class="card-cover">🎵</div>
+         <div class="card-title">${escapeHtml(t.name)}</div>
+         <div class="card-sub">ARMA PLAY</div>
+       </div>`).join('');
+  }
+  $('homeTrackList').innerHTML = trackListHTML(tracks);
+}
+
+$('searchInput').addEventListener('input', e => renderSearch(e.target.value));
+function renderSearch(q){
+  const out = $('searchResults');
+  if (!q.trim()){ out.innerHTML = '<p style="color:#888">Type to search your music</p>'; return; }
+  const results = tracks.filter(t => t.name.toLowerCase().includes(q.toLowerCase()));
+  if (!results.length){ out.innerHTML = '<p style="color:#888">No results</p>'; return; }
+  out.innerHTML = results.map(t =>
+    `<div class="card" onclick="playById('${t.id}')">
+       <div class="card-cover">🎵</div>
+       <div class="card-title">${escapeHtml(t.name)}</div>
+       <div class="card-sub">ARMA PLAY</div>
+     </div>`).join('');
+}
+
+function renderLibrary(){ $('libraryTrackList').innerHTML = trackListHTML(tracks); }
+function renderQueue(){ $('queueTrackList').innerHTML = trackListHTML(tracks); }
+
+function renderPlaylist(id){
+  const pl = playlists.find(p => p.id === id);
+  if (!pl){ switchView('library'); return; }
+  $('playlistName').textContent = pl.name;
+  $('playlistMeta').textContent = `${pl.trackIds.length} songs`;
+  const plTracks = pl.trackIds.map(tid => tracks.find(t => t.id === tid)).filter(Boolean);
+  $('playlistTracks').innerHTML = trackListHTML(plTracks, id);
+}
+
+function trackListHTML(list, playlistId=null){
+  if (!list.length) return '<div class="empty">No tracks</div>';
+  return list.map((t, i) => {
+    const isActive = tracks[current] && tracks[current].id === t.id;
+    return `<div class="track-row ${isActive?'active':''}">
+      <div class="track-num">${isActive ? '▶' : i+1}</div>
+      <div class="track-art">🎵</div>
+      <div class="track-info" onclick="playById('${t.id}')">
+        <div class="track-name">${escapeHtml(t.name)}</div>
+        <div class="track-artist">ARMA PLAY</div>
+      </div>
+      <div class="track-actions">
+        ${playlistId
+          ? `<button title="Remove from playlist" onclick="event.stopPropagation(); removeFromPlaylist('${playlistId}','${t.id}')">✕</button>`
+          : `<button title="Add to playlist" onclick="event.stopPropagation(); addToPlaylistPrompt('${t.id}')">＋</button>
+             <button title="Delete" onclick="event.stopPropagation(); removeTrack('${t.id}')">✕</button>`}
+      </div>
+      <div class="track-duration">${fmt(t.duration)}</div>
+    </div>`;
+  }).join('');
+}
+
+function playById(id){
+  const i = tracks.findIndex(t => t.id === id);
+  if (i >= 0
