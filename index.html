@@ -1,90 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#080808">
-  <title>ARMA PLAY — Music</title>
-
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ARMA PLAY">
+<title>ARMA PLAY</title>
+<link rel="manifest" href='data:application/json,{"name":"ARMA PLAY","short_name":"ARMA PLAY","display":"standalone","background_color":"#0a0a0a","theme_color":"#ff2d95","start_url":".","icons":[{"src":"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20512%20512%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23ff2d95%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%237a5cff%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22512%22%20height%3D%22512%22%20rx%3D%22100%22%20fill%3D%22url(%23g)%22%2F%3E%3Ctext%20x%3D%22256%22%20y%3D%22350%22%20font-size%3D%22280%22%20text-anchor%3D%22middle%22%20fill%3D%22white%22%20font-family%3D%22Arial%22%20font-weight%3D%22bold%22%3EA%3C%2Ftext%3E%3C%2Fsvg%3E","sizes":"512x512","type":"image/svg+xml","purpose":"any maskable"}]}'>
+<link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-  <header class="topbar">
-    <div class="logo">ARMA <span>PLAY</span></div>
-    <button id="menuBtn" aria-label="Menu">☰</button>
-  </header>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">ARMA<span>PLAY</span></div>
+    <nav class="nav">
+      <a href="#" data-view="home" class="nav-link active"><span>🏠</span> Home</a>
+      <a href="#" data-view="search" class="nav-link"><span>🔍</span> Search</a>
+      <a href="#" data-view="library" class="nav-link"><span>📚</span> Library</a>
+      <a href="#" data-view="queue" class="nav-link"><span>🎵</span> Queue</a>
+    </nav>
+    <div class="playlists-title">Your Playlists</div>
+    <div class="playlists" id="playlists"></div>
+    <button class="new-playlist" id="newPlaylistBtn">+ New Playlist</button>
+  </aside>
 
-  <main class="container">
-
-    <section class="welcome">
-      <p class="gold-text">YOUR MUSIC. YOUR WORLD.</p>
-      <h1>Feel Every <span>Beat.</span></h1>
-      <p>Discover music and enjoy every moment.</p>
-    </section>
-
-    <section class="search-section">
-      <input
-        type="search"
-        id="searchInput"
-        placeholder="Search songs or artists..."
-        autocomplete="off"
-      >
-      <button id="searchBtn">SEARCH</button>
-    </section>
-
-    <p id="statusMsg" role="status">Welcome to ARMA PLAY</p>
-
-    <section class="music-section">
-      <h2>Discover Music</h2>
-      <div id="songList" class="song-list"></div>
-    </section>
-
-    <section class="player">
-      <img
-        id="coverArt"
-        src="https://placehold.co/400x400/151515/d4af37?text=ARMA+PLAY"
-        alt="Album cover"
-      >
-
-      <div class="track-info">
-        <h2 id="songTitle">Select a Song</h2>
-        <p id="artistName">ARMA PLAY</p>
+  <!-- MAIN -->
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="icon-btn" id="backBtn" title="Back">‹</button>
       </div>
-
-      <audio id="audioPlayer" preload="metadata"></audio>
-
-      <div class="progress-container">
-        <span id="currentTime">0:00</span>
-        <input
-          type="range"
-          id="progressBar"
-          min="0"
-          max="100"
-          value="0"
-        >
-        <span id="totalTime">0:00</span>
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Songs, artists, albums...">
       </div>
+      <button class="btn-primary" id="addMusicBtn">+ Add Music</button>
+      <input type="file" id="file" multiple accept="audio/*" style="display:none">
+    </header>
 
-      <div class="controls">
-        <button id="previousBtn" aria-label="Previous">⏮</button>
-        <button id="playPauseBtn" aria-label="Play">▶</button>
-        <button id="nextBtn" aria-label="Next">⏭</button>
+    <section class="view active" id="view-home">
+      <h2 class="greeting">Good evening 🎧</h2>
+      <div class="section-header">
+        <h3>Recently added</h3>
+        <span class="see-all" data-view="library">See all</span>
       </div>
-
-      <button id="downloadBtn" class="download-btn">
-        Download
-      </button>
+      <div class="grid" id="recentGrid"></div>
+      <div class="section-header"><h3>All songs</h3></div>
+      <div class="track-list" id="homeTrackList"></div>
     </section>
 
+    <section class="view" id="view-search">
+      <h2>Search</h2>
+      <div class="grid" id="searchResults"></div>
+    </section>
+
+    <section class="view" id="view-library">
+      <h2>Your Library</h2>
+      <div class="track-list" id="libraryTrackList"></div>
+    </section>
+
+    <section class="view" id="view-queue">
+      <h2>Queue</h2>
+      <div class="track-list" id="queueTrackList"></div>
+    </section>
+
+    <section class="view" id="view-playlist">
+      <div class="playlist-header">
+        <div class="playlist-cover">🎵</div>
+        <div>
+          <div class="playlist-type">PLAYLIST</div>
+          <h1 class="playlist-name" id="playlistName">My Playlist</h1>
+          <div class="playlist-meta" id="playlistMeta">0 songs</div>
+        </div>
+      </div>
+      <div class="track-list" id="playlistTracks"></div>
+    </section>
   </main>
 
-  <footer>
-    <p>© 2026 ARMA PLAY · All Rights Reserved</p>
+  <!-- NOW PLAYING BAR -->
+  <footer class="nowbar">
+    <div class="nowbar-left">
+      <div class="np-cover" id="npCover">🎵</div>
+      <div class="np-info">
+        <div class="np-title" id="npTitle">No track</div>
+        <div class="np-artist" id="npArtist">ARMA PLAY</div>
+      </div>
+      <button class="icon-btn like-btn" id="likeBtn" title="Like">♡</button>
+    </div>
+    <div class="nowbar-center">
+      <div class="controls">
+        <button class="icon-btn" id="shuffleBtn">🔀</button>
+        <button class="icon-btn" onclick="prev()">⏮</button>
+        <button class="play-btn" onclick="togglePlay()" id="playBtn">▶</button>
+        <button class="icon-btn" onclick="next()">⏭</button>
+        <button class="icon-btn" id="repeatBtn">🔁</button>
+      </div>
+      <div class="progress-row">
+        <span id="curTime">0:00</span>
+        <input type="range" id="seek" value="0" max="100" step="0.1">
+        <span id="durTime">0:00</span>
+      </div>
+    </div>
+    <div class="nowbar-right">
+      <button class="icon-btn" id="queueBtn" title="Queue">☰</button>
+      <button class="icon-btn" id="expandBtn" title="Full screen">⛶</button>
+      <input type="range" id="volume" min="0" max="100" value="100">
+    </div>
   </footer>
+</div>
 
-  <script src="script.js"></script>
+<!-- FULLSCREEN -->
+<div class="fullscreen" id="fullscreen">
+  <button class="fs-close" id="fsClose">✕</button>
+  <div class="fs-cover">🎵</div>
+  <h1 class="fs-title" id="fsTitle">No track</h1>
+  <div class="fs-artist" id="fsArtist">ARMA PLAY</div>
+  <input type="range" id="fsSeek" value="0" max="100" step="0.1">
+  <div class="fs-times"><span id="fsCur">0:00</span><span id="fsDur">0:00</span></div>
+  <div class="fs-controls">
+    <button class="icon-btn" onclick="prev()">⏮</button>
+    <button class="play-btn" onclick="togglePlay()" id="fsPlayBtn">▶</button>
+    <button class="icon-btn" onclick="next()">⏭</button>
+  </div>
+</div>
 
+<audio id="audio" preload="metadata"></audio>
+<script src="script.js"></script>
 </body>
 </html>
