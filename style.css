@@ -1,280 +1,234 @@
-/* =========================================================
-   ARMA_PLAY_ — Core Script
-   Homepage sections · Player · Audio/Video toggle
-   ========================================================= */
-
-// ---------- MOCK DATA ----------
-const MOCK = [
-  { id: 1,  title: "Midnight Flame",   artist: "Ravi K.",     emoji: "🔥" },
-  { id: 2,  title: "Crimson Skies",    artist: "Nova",        emoji: "🌌" },
-  { id: 3,  title: "Red Light",        artist: "Zayn M.",     emoji: "🚨" },
-  { id: 4,  title: "Burning Heart",    artist: "Aria",        emoji: "❤️‍🔥" },
-  { id: 5,  title: "Neon Fire",        artist: "Pulse",       emoji: "⚡" },
-  { id: 6,  title: "Ruby Nights",      artist: "Kairo",       emoji: "🌙" },
-  { id: 7,  title: "Scarlet",          artist: "Lumen",       emoji: "💃" },
-  { id: 8,  title: "Ember",            artist: "Sora",        emoji: "🕯️" },
-];
-
-// Sections config
-const SECTIONS = [
-  { title: "Recently Played",       badge: "NEW" },
-  { title: "Made For You" },
-  { title: "Your Top Mixes" },
-  { title: "Popular Albums & Singles" },
-  { title: "Charts — Top 50" },
-  { title: "New Releases" },
-  { title: "Podcasts & Shows" },
-  { title: "Jump Back In" },
-];
-
-// ---------- STATE ----------
-let currentTrack = null;
-let isPlaying = false;
-let mode = "audio";   // "audio" | "video"
-let progressTimer = null;
-
-// ---------- DOM REFS ----------
-const $ = (s) => document.querySelector(s);
-const sectionsContainer = $("#sectionsContainer");
-const npTitle = $("#npTitle");
-const npArtist = $("#npArtist");
-const npArt = $("#npArt");
-const playBtn = $("#playBtn");
-const nextBtn = $("#nextBtn");
-const prevBtn = $("#prevBtn");
-const progressBar = $("#progressBar");
-const currentTimeEl = $("#currentTime");
-const durationEl = $("#duration");
-const volumeBar = $("#volumeBar");
-const modeToggle = $("#modeToggle");
-const videoOverlay = $("#videoOverlay");
-const videoPlayer = $("#videoPlayer");
-const audioPlayer = $("#audioPlayer");
-const videoClose = $("#videoClose");
-const toastEl = $("#toast");
-
-// ---------- HELPERS ----------
-function showToast(msg) {
-  toastEl.textContent = msg;
-  toastEl.classList.add("show");
-  clearTimeout(showToast._t);
-  showToast._t = setTimeout(() => toastEl.classList.remove("show"), 2000);
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-function fmtTime(sec) {
-  if (!sec || isNaN(sec)) return "0:00";
-  const m = Math.floor(sec / 60);
-  const s = Math.floor(sec % 60).toString().padStart(2, "0");
-  return `${m}:${s}`;
+body {
+    background-color: #121212;
+    color: white;
+    padding-bottom: 150px; /* Space for player and nav */
 }
 
-// ---------- GREETING ----------
-function setGreeting() {
-  const h = new Date().getHours();
-  let g = "Good evening";
-  if (h < 12) g = "Good morning";
-  else if (h < 18) g = "Good afternoon";
-  $("#greetingText").textContent = g;
+/* Header */
+header {
+    padding: 15px;
+    background-color: #121212;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
-// ---------- BUILD HOMEPAGE ----------
-function buildSections() {
-  sectionsContainer.innerHTML = "";
-  SECTIONS.forEach((sec, idx) => {
-    const sectionEl = document.createElement("section");
-    sectionEl.className = "section";
-
-    const header = document.createElement("div");
-    header.className = "section-header";
-    header.innerHTML = `
-      <h2>${sec.title}</h2>
-      <span class="see-all">Show all</span>
-    `;
-
-    const row = document.createElement("div");
-    row.className = "card-row";
-
-    // shuffle mock data per section
-    const items = [...MOCK].sort(() => Math.random() - 0.5).slice(0, 6);
-
-    items.forEach((track, i) => {
-      const card = document.createElement("div");
-      card.className = "card";
-      card.innerHTML = `
-        <div class="card-img">
-          ${track.emoji}
-          ${idx === 0 && i === 0 ? '<span class="card-badge">NEW</span>' : ''}
-          <div class="card-play">▶</div>
-        </div>
-        <div class="card-title">${track.title}</div>
-        <div class="card-sub">${track.artist}</div>
-      `;
-      card.addEventListener("click", () => playTrack(track));
-      row.appendChild(card);
-    });
-
-    sectionEl.appendChild(header);
-    sectionEl.appendChild(row);
-    sectionsContainer.appendChild(sectionEl);
-  });
+.top-bar {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
 }
 
-// ---------- PLAY LOGIC ----------
-function playTrack(track) {
-  currentTrack = track;
-  npTitle.textContent = track.title;
-  npArtist.textContent = track.artist;
-  npArt.textContent = track.emoji;
-  npArt.style.fontSize = "24px";
-  npArt.style.display = "flex";
-  npArt.style.alignItems = "center";
-  npArt.style.justifyContent = "center";
-
-  if (mode === "video") {
-    openVideoMode();
-    return;
-  }
-
-  // Simulate audio playback (no real audio file in demo)
-  isPlaying = true;
-  playBtn.textContent = "⏸";
-  showToast(`▶ Playing: ${track.title}`);
-  startFakeProgress();
+.profile {
+    background-color: #ff69b4;
+    color: black;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
 }
 
-function startFakeProgress() {
-  clearInterval(progressTimer);
-  let p = 0;
-  const total = 210; // fake 3:30 duration
-  durationEl.textContent = fmtTime(total);
-
-  progressTimer = setInterval(() => {
-    if (!isPlaying) return;
-    p += 1;
-    if (p > 100) { p = 0; nextTrack(); return; }
-    progressBar.value = p;
-    currentTimeEl.textContent = fmtTime((p / 100) * total);
-  }, 300);
+.filters {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
 }
 
-function togglePlay() {
-  if (!currentTrack) { showToast("Pick a song first 🎵"); return; }
-  isPlaying = !isPlaying;
-  playBtn.textContent = isPlaying ? "⏸" : "▶";
-  if (mode === "video") {
-    isPlaying ? videoPlayer.play() : videoPlayer.pause();
-  }
+.filters button {
+    background-color: #2a2a2a;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
 }
 
-function nextTrack() {
-  if (!currentTrack) return;
-  const idx = MOCK.findIndex(t => t.id === currentTrack.id);
-  const next = MOCK[(idx + 1) % MOCK.length];
-  playTrack(next);
+.filters button.active {
+    background-color: #1db954; /* Spotify Green */
+    color: black;
+    font-weight: bold;
 }
 
-function prevTrack() {
-  if (!currentTrack) return;
-  const idx = MOCK.findIndex(t => t.id === currentTrack.id);
-  const prev = MOCK[(idx - 1 + MOCK.length) % MOCK.length];
-  playTrack(prev);
+/* Search Bar */
+.search-container {
+    background-color: white;
+    border-radius: 8px;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-// ---------- AUDIO / VIDEO TOGGLE ----------
-function toggleMode() {
-  if (mode === "audio") {
-    mode = "video";
-    modeToggle.textContent = "🎬 Video";
-    modeToggle.classList.add("video-mode");
-    showToast("Video mode ON 🎬");
-    if (currentTrack) openVideoMode();
-  } else {
-    mode = "audio";
-    modeToggle.textContent = "🎵 Audio";
-    modeToggle.classList.remove("video-mode");
-    closeVideoMode();
-    showToast("Audio mode ON 🎵");
-  }
+.search-container i {
+    color: #333;
 }
 
-function openVideoMode() {
-  videoOverlay.classList.add("active");
-  $("#videoTitle").textContent = currentTrack ? currentTrack.title : "Music Video";
-  $("#videoArtist").textContent = currentTrack ? currentTrack.artist : "ARMA_PLAY_";
-
-  // Demo public sample video (Big Buck Bunny)
-  if (!videoPlayer.src) {
-    videoPlayer.src = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
-  }
-  videoPlayer.volume = volumeBar.value / 100;
-  if (isPlaying) videoPlayer.play().catch(() => {});
+.search-container input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 16px;
+    color: #333;
 }
 
-function closeVideoMode() {
-  videoOverlay.classList.remove("active");
-  videoPlayer.pause();
+/* Main Content */
+main {
+    padding: 0 15px;
 }
 
-// ---------- PROGRESS SEEK ----------
-progressBar.addEventListener("input", () => {
-  const total = 210;
-  currentTimeEl.textContent = fmtTime((progressBar.value / 100) * total);
-  if (mode === "video" && videoPlayer.duration) {
-    videoPlayer.currentTime = (progressBar.value / 100) * videoPlayer.duration;
-  }
-});
-
-// ---------- VOLUME ----------
-volumeBar.addEventListener("input", () => {
-  audioPlayer.volume = volumeBar.value / 100;
-  videoPlayer.volume = volumeBar.value / 100;
-});
-
-// ---------- EVENT BINDINGS ----------
-playBtn.addEventListener("click", togglePlay);
-nextBtn.addEventListener("click", nextTrack);
-prevBtn.addEventListener("click", prevTrack);
-modeToggle.addEventListener("click", toggleMode);
-videoClose.addEventListener("click", closeVideoMode);
-
-document.getElementById("likeBtn").addEventListener("click", () => {
-  showToast("❤ Added to Liked Songs");
-});
-
-document.getElementById("shuffleBtn").addEventListener("click", (e) => {
-  e.currentTarget.classList.toggle("active");
-  showToast("Shuffle toggled");
-});
-
-document.getElementById("repeatBtn").addEventListener("click", (e) => {
-  e.currentTarget.classList.toggle("active");
-  showToast("Repeat toggled");
-});
-
-// Chips
-document.querySelectorAll(".chip").forEach(chip => {
-  chip.addEventListener("click", () => {
-    document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
-    chip.classList.add("active");
-    showToast(`Filter: ${chip.textContent}`);
-  });
-});
-
-// Quick cards
-document.querySelectorAll(".quick-card").forEach(card => {
-  card.addEventListener("click", () => {
-    const track = MOCK[Math.floor(Math.random() * MOCK.length)];
-    playTrack(track);
-  });
-});
-
-// ---------- INIT ----------
-function init() {
-  setGreeting();
-  buildSections();
-  audioPlayer.volume = 0.8;
-  videoPlayer.volume = 0.8;
-  console.log("%cARMA_PLAY_ ready 🎵🎬", "color:#E50914;font-weight:bold;font-size:14px");
+.section-title {
+    font-size: 20px;
+    margin: 20px 0 15px 0;
 }
 
-init();
+.horizontal-scroll {
+    display: flex;
+    overflow-x: auto;
+    gap: 15px;
+    padding-bottom: 10px;
+    scrollbar-width: none; /* Firefox */
+}
+.horizontal-scroll::-webkit-scrollbar { display: none; } /* Chrome */
+
+.card {
+    min-width: 140px;
+    max-width: 140px;
+}
+
+.card img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.card h4 {
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card p {
+    font-size: 12px;
+    color: #b3b3b3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Mini Player */
+.mini-player {
+    position: fixed;
+    bottom: 65px; /* Above nav */
+    left: 10px;
+    right: 10px;
+    background-color: #2a2a2a;
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    z-index: 20;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.mini-player img {
+    width: 45px;
+    height: 45px;
+    border-radius: 5px;
+}
+
+.player-info {
+    flex: 1;
+    overflow: hidden;
+}
+
+.player-info h5 {
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.player-info p {
+    font-size: 12px;
+    color: #b3b3b3;
+}
+
+audio {
+    width: 120px;
+    height: 30px;
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #000;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+    z-index: 20;
+}
+
+.bottom-nav a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #b3b3b3;
+    text-decoration: none;
+    font-size: 11px;
+    gap: 5px;
+}
+
+.bottom-nav a i {
+    font-size: 20px;
+}
+
+.bottom-nav a.active {
+    color: white;
+}
+
+/* Search Results List */
+.search-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    border-bottom: 1px solid #2a2a2a;
+    cursor: pointer;
+}
+
+.search-item:hover {
+    background-color: #2a2a2a;
+}
+
+.search-item img {
+    width: 50px;
+    height: 50px;
+    border-radius: 5px;
+}
+
+.search-item-info h4 {
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.search-item-info p {
+    font-size: 14px;
+    color: #b3b3b3;
+}
