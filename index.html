@@ -1,468 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ARMA_PLAY_ — Music & Video</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-  
-  <style>
-    /* ================= CSS ================= */
-    :root {
-      --red: #E50914;
-      --red-light: #FF2D2D;
-      --red-dark: #8b0000;
-      --bg: #121212;
-      --bg-2: #181818;
-      --bg-3: #282828;
-      --text: #ffffff;
-      --text-dim: #b3b3b3;
-      --radius: 12px;
-      --sidebar-w: 240px;
-      --player-h: 90px;
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      display: grid;
-      grid-template-columns: var(--sidebar-w) 1fr;
-      grid-template-rows: 1fr var(--player-h);
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    /* SIDEBAR */
-    .sidebar {
-      grid-row: 1 / 2;
-      background: #000;
-      padding: 20px 12px;
-      overflow-y: auto;
-      border-right: 1px solid #1f1f1f;
-    }
-
-    .logo { display: flex; align-items: center; gap: 10px; padding: 0 10px 24px; }
-    .logo-mark { width: 36px; height: 36px; background: var(--red); border-radius: 50%; display: flex; align-items: center; justify-content: center; gap: 3px; }
-    .logo-mark span { width: 3px; background: #fff; border-radius: 2px; }
-    .logo-mark span:nth-child(1) { height: 10px; }
-    .logo-mark span:nth-child(2) { height: 18px; }
-    .logo-mark span:nth-child(3) { height: 13px; }
-    .logo-text { font-weight: 800; font-size: 18px; letter-spacing: 0.5px; }
-
-    .side-nav { display: flex; flex-direction: column; gap: 4px; margin-bottom: 24px; }
-    .side-nav a { color: var(--text-dim); text-decoration: none; padding: 10px 12px; border-radius: 8px; font-weight: 600; font-size: 14px; transition: 0.2s; }
-    .side-nav a:hover, .side-nav a.active { color: #fff; }
-    
-    .side-section { padding: 16px 12px; border-top: 1px solid #1f1f1f; }
-    .side-section h4 { font-size: 12px; text-transform: uppercase; color: var(--text-dim); letter-spacing: 1px; margin-bottom: 10px; }
-    .create-btn { width: 100%; background: var(--bg-3); color: #fff; border: none; padding: 10px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; font-weight: 600; text-align: left; transition: 0.2s; }
-    .create-btn:hover { background: var(--red-dark); }
-    .playlists ul { list-style: none; }
-    .playlists li { padding: 8px 0; color: var(--text-dim); font-size: 14px; cursor: pointer; transition: 0.2s; }
-    .playlists li:hover { color: var(--red-light); }
-
-    /* MAIN */
-    .main { grid-row: 1 / 2; overflow-y: auto; padding: 24px 32px; background: linear-gradient(180deg, #2a0a0a 0%, var(--bg) 300px); }
-    .topbar { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
-    .greeting h1 { font-size: 28px; font-weight: 800; margin-bottom: 12px; }
-    .chips { display: flex; gap: 8px; flex-wrap: wrap; }
-    .chip { background: var(--bg-3); padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-    .chip:hover, .chip.active { background: var(--red); color: #fff; }
-    .top-actions { display: flex; align-items: center; gap: 12px; }
-    .icon-btn { background: var(--bg-3); border: none; color: #fff; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; font-size: 16px; }
-    .avatar { width: 38px; height: 38px; background: var(--red); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; cursor: pointer; }
-
-    /* QUICK GRID */
-    .quick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin-bottom: 40px; }
-    .quick-card { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.07); border-radius: 8px; overflow: hidden; cursor: pointer; font-weight: 700; font-size: 14px; transition: 0.2s; }
-    .quick-card:hover { background: rgba(255,255,255,0.15); }
-    .qc-img { width: 64px; height: 64px; flex-shrink: 0; }
-
-    /* SECTIONS */
-    .section { margin-bottom: 40px; }
-    .section-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; }
-    .section-header h2 { font-size: 22px; font-weight: 800; }
-    .section-header .see-all { color: var(--text-dim); font-size: 13px; font-weight: 700; cursor: pointer; text-transform: uppercase; }
-    .section-header .see-all:hover { color: #fff; text-decoration: underline; }
-    .card-row { display: grid; grid-auto-flow: column; grid-auto-columns: 170px; gap: 16px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: thin; }
-    .card-row::-webkit-scrollbar { height: 6px; }
-    .card-row::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
-    
-    .card { background: var(--bg-2); padding: 12px; border-radius: var(--radius); cursor: pointer; transition: 0.25s; position: relative; }
-    .card:hover { background: var(--bg-3); transform: translateY(-4px); }
-    .card-img { width: 100%; aspect-ratio: 1; border-radius: 8px; margin-bottom: 10px; background: linear-gradient(135deg, var(--red), var(--red-dark)); display: flex; align-items: center; justify-content: center; font-size: 36px; position: relative; }
-    .card-play { position: absolute; bottom: 8px; right: 8px; width: 44px; height: 44px; background: var(--red); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #fff; opacity: 0; transform: translateY(8px); transition: 0.25s; box-shadow: 0 4px 12px rgba(229,9,20,0.5); }
-    .card:hover .card-play { opacity: 1; transform: translateY(0); }
-    .card-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .card-sub { font-size: 12px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .card-badge { position: absolute; top: 12px; left: 12px; background: var(--red); color: #fff; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; }
-
-    /* PLAYER BAR */
-    .player { grid-column: 1 / 3; grid-row: 2 / 3; background: #000; border-top: 1px solid #1f1f1f; display: grid; grid-template-columns: 1fr 2fr 1fr; align-items: center; padding: 0 16px; gap: 16px; }
-    .now-playing { display: flex; align-items: center; gap: 12px; min-width: 0; }
-    .np-art { width: 56px; height: 56px; border-radius: 6px; background: linear-gradient(135deg, var(--red), var(--red-dark)); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-    .np-info { min-width: 0; }
-    .np-title { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .np-artist { font-size: 12px; color: var(--text-dim); }
-    .like-btn { background: none; border: none; color: var(--red); font-size: 18px; cursor: pointer; }
-
-    .player-center { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-    .controls { display: flex; align-items: center; gap: 16px; }
-    .controls button { background: none; border: none; color: var(--text-dim); font-size: 18px; cursor: pointer; transition: 0.2s; }
-    .controls button:hover { color: #fff; }
-    .controls button.active { color: var(--red); }
-    .play-btn { width: 38px; height: 38px; background: var(--red) !important; color: #fff !important; border-radius: 50%; font-size: 16px !important; }
-    .play-btn:hover { background: var(--red-light) !important; transform: scale(1.06); }
-
-    .progress-row { display: flex; align-items: center; gap: 10px; width: 100%; max-width: 520px; font-size: 11px; color: var(--text-dim); }
-    .progress-row input[type="range"] { flex: 1; accent-color: var(--red); }
-
-    .player-right { display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
-    .mode-toggle { background: var(--bg-3); color: #fff; border: none; padding: 8px 14px; border-radius: 20px; font-weight: 700; font-size: 12px; cursor: pointer; transition: 0.2s; }
-    .mode-toggle.video-mode { background: var(--red); }
-    #volumeBar { width: 100px; accent-color: var(--red); }
-
-    /* VIDEO OVERLAY */
-    .video-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 999; padding: 24px; }
-    .video-overlay.active { display: flex; }
-    .video-close { position: absolute; top: 20px; right: 20px; background: var(--bg-3); border: none; color: #fff; width: 44px; height: 44px; border-radius: 50%; font-size: 20px; cursor: pointer; }
-    .video-close:hover { background: var(--red); }
-    .video-wrapper { width: 100%; max-width: 900px; aspect-ratio: 16 / 9; background: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 0 40px rgba(229,9,20,0.4); }
-    .video-wrapper video { width: 100%; height: 100%; object-fit: cover; }
-    .video-info { margin-top: 20px; text-align: center; }
-    .video-info h2 { font-size: 22px; font-weight: 800; }
-    .video-info p { color: var(--text-dim); }
-
-    /* TOAST */
-    .toast { position: fixed; bottom: calc(var(--player-h) + 20px); left: 50%; transform: translateX(-50%) translateY(20px); background: var(--red); color: #fff; padding: 12px 24px; border-radius: 8px; font-weight: 700; font-size: 14px; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 1000; }
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-    /* RESPONSIVE (MOBILE) */
-    @media (max-width: 900px) {
-      body { grid-template-columns: 1fr; }
-      .sidebar { display: none; }
-      .main { padding: 16px; }
-      .player { grid-template-columns: 1fr auto; height: auto; padding: 12px; }
-      .player-center, .player-right { display: none; }
-      .mode-toggle { display: block; }
-      .card-row { grid-auto-columns: 140px; }
-      .quick-grid { grid-template-columns: 1fr 1fr; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARMA_PLAY MUSIC APP</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="logo">
-      <div class="logo-mark"><span></span><span></span><span></span></div>
-      <span class="logo-text">ARMA_PLAY_</span>
-    </div>
-    <nav class="side-nav">
-      <a href="#" class="active">🏠 Home</a>
-      <a href="#">🔍 Search</a>
-      <a href="#">📚 Your Library</a>
-    </nav>
-    <div class="side-section">
-      <h4>Create</h4>
-      <button class="create-btn">＋ Playlist</button>
-      <button class="create-btn">❤ Liked Songs</button>
-    </div>
-    <div class="side-section playlists">
-      <h4>Your Playlists</h4>
-      <ul>
-        <li>🔥 Top Hits 2025</li>
-        <li>🌙 Late Night Vibes</li>
-        <li>💪 Workout Red</li>
-        <li>🎬 Music Videos</li>
-      </ul>
-    </div>
-  </aside>
-
-  <!-- MAIN -->
-  <main class="main">
-    <header class="topbar">
-      <div class="greeting">
-        <h1 id="greetingText">Good evening</h1>
-        <div class="chips">
-          <span class="chip active">All</span>
-          <span class="chip">Music</span>
-          <span class="chip">Podcasts</span>
-          <span class="chip">Video</span>
+    <!-- Header Section -->
+    <header>
+        <div class="top-bar">
+            <div class="profile">J</div>
+            <div class="filters">
+                <button class="active">All</button>
+                <button>Music</button>
+                <button>Podcasts</button>
+            </div>
         </div>
-      </div>
-      <div class="top-actions">
-        <button class="icon-btn" title="Settings">⚙️</button>
-        <div class="avatar">A</div>
-      </div>
+        
+        <!-- Search Bar -->
+        <div class="search-container">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchInput" placeholder="What do you want to listen to?">
+        </div>
     </header>
 
-    <section class="quick-grid">
-      <div class="quick-card"><div class="qc-img" style="background:#E50914"></div>Liked Songs</div>
-      <div class="quick-card"><div class="qc-img" style="background:#7a0f0f"></div>Top Hits</div>
-      <div class="quick-card"><div class="qc-img" style="background:#b31212"></div>Workout Red</div>
-      <div class="quick-card"><div class="qc-img" style="background:#450a0a"></div>Chill Nights</div>
-      <div class="quick-card"><div class="qc-img" style="background:#ff2d2d"></div>Music Videos</div>
-      <div class="quick-card"><div class="qc-img" style="background:#8b0000"></div>Daily Mix 1</div>
-    </section>
-
-    <div id="sectionsContainer"></div>
-  </main>
-
-  <!-- PLAYER -->
-  <footer class="player">
-    <div class="now-playing">
-      <div class="np-art" id="npArt"></div>
-      <div class="np-info">
-        <div class="np-title" id="npTitle">Select a song</div>
-        <div class="np-artist" id="npArtist">ARMA_PLAY_</div>
-      </div>
-      <button class="like-btn" id="likeBtn">❤</button>
-    </div>
-    <div class="player-center">
-      <div class="controls">
-        <button id="shuffleBtn">🔀</button>
-        <button id="prevBtn">⏮</button>
-        <button class="play-btn" id="playBtn">▶</button>
-        <button id="nextBtn">⏭</button>
-        <button id="repeatBtn">🔁</button>
-      </div>
-      <div class="progress-row">
-        <span id="currentTime">0:00</span>
-        <input type="range" id="progressBar" min="0" max="100" value="0" />
-        <span id="duration">0:00</span>
-      </div>
-    </div>
-    <div class="player-right">
-      <button class="mode-toggle" id="modeToggle" title="Switch Audio / Video">🎵 Audio</button>
-      <input type="range" id="volumeBar" min="0" max="100" value="80" />
-    </div>
-  </footer>
-
-  <!-- VIDEO OVERLAY -->
-  <div class="video-overlay" id="videoOverlay">
-    <button class="video-close" id="videoClose">✕</button>
-    <div class="video-wrapper">
-      <video id="videoPlayer" controls playsinline></video>
-      <audio id="audioPlayer"></audio>
-    </div>
-    <div class="video-info">
-      <h2 id="videoTitle">Music Video</h2>
-      <p id="videoArtist">ARMA_PLAY_</p>
-    </div>
-  </div>
-
-  <div class="toast" id="toast"></div>
-
-  <script>
-    /* ================= JS ================= */
-    const MOCK = [
-      { id: 1,  title: "Midnight Flame", artist: "Ravi K.", emoji: "🔥" },
-      { id: 2,  title: "Crimson Skies",  artist: "Nova",    emoji: "🌌" },
-      { id: 3,  title: "Red Light",      artist: "Zayn M.", emoji: "🚨" },
-      { id: 4,  title: "Burning Heart",  artist: "Aria",    emoji: "❤️‍🔥" },
-      { id: 5,  title: "Neon Fire",      artist: "Pulse",   emoji: "⚡" },
-      { id: 6,  title: "Ruby Nights",    artist: "Kairo",   emoji: "🌙" },
-    ];
-
-    const SECTIONS = [
-      { title: "Recently Played" },
-      { title: "Made For You" },
-      { title: "Your Top Mixes" },
-      { title: "Popular Albums & Singles" },
-      { title: "Charts — Top 50" },
-      { title: "New Releases" },
-      { title: "Podcasts & Shows" },
-      { title: "Jump Back In" },
-    ];
-
-    let currentTrack = null;
-    let isPlaying = false;
-    let mode = "audio"; 
-    let progressTimer = null;
-
-    const $ = (s) => document.querySelector(s);
-    const sectionsContainer = $("#sectionsContainer");
-    const npTitle = $("#npTitle");
-    const npArtist = $("#npArtist");
-    const npArt = $("#npArt");
-    const playBtn = $("#playBtn");
-    const progressBar = $("#progressBar");
-    const currentTimeEl = $("#currentTime");
-    const durationEl = $("#duration");
-    const volumeBar = $("#volumeBar");
-    const modeToggle = $("#modeToggle");
-    const videoOverlay = $("#videoOverlay");
-    const videoPlayer = $("#videoPlayer");
-    const audioPlayer = $("#audioPlayer");
-    const toastEl = $("#toast");
-
-    function showToast(msg) {
-      toastEl.textContent = msg;
-      toastEl.classList.add("show");
-      clearTimeout(showToast._t);
-      showToast._t = setTimeout(() => toastEl.classList.remove("show"), 2000);
-    }
-
-    function fmtTime(sec) {
-      if (!sec || isNaN(sec)) return "0:00";
-      const m = Math.floor(sec / 60);
-      const s = Math.floor(sec % 60).toString().padStart(2, "0");
-      return `${m}:${s}`;
-    }
-
-    function setGreeting() {
-      const h = new Date().getHours();
-      let g = "Good evening";
-      if (h < 12) g = "Good morning";
-      else if (h < 18) g = "Good afternoon";
-      $("#greetingText").textContent = g;
-    }
-
-    function buildSections() {
-      sectionsContainer.innerHTML = "";
-      SECTIONS.forEach((sec, idx) => {
-        const sectionEl = document.createElement("section");
-        sectionEl.className = "section";
-        const header = document.createElement("div");
-        header.className = "section-header";
-        header.innerHTML = `<h2>${sec.title}</h2><span class="see-all">Show all</span>`;
+    <!-- Main Content Area -->
+    <main id="mainContent">
         
-        const row = document.createElement("div");
-        row.className = "card-row";
-        const items = [...MOCK].sort(() => Math.random() - 0.5).slice(0, 6);
-
-        items.forEach((track, i) => {
-          const card = document.createElement("div");
-          card.className = "card";
-          card.innerHTML = `
-            <div class="card-img">
-              ${track.emoji}
-              ${idx === 0 && i === 0 ? '<span class="card-badge">NEW</span>' : ''}
-              <div class="card-play">▶</div>
+        <!-- Default Homepage Content (Shows when not searching) -->
+        <div id="homeView">
+            <h2 class="section-title">It's New Music Friday!</h2>
+            <div class="horizontal-scroll">
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300&h=300&fit=crop" alt="Music">
+                    <h4>New Music Friday India</h4>
+                    <p>Lil Baby, JENNIE, Jack Harlow</p>
+                </div>
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1493225457124-a1a2a5f5c92f?w=300&h=300&fit=crop" alt="Music">
+                    <h4>Release Radar</h4>
+                    <p>Catch all the latest music</p>
+                </div>
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop" alt="Music">
+                    <h4>Pop Hits</h4>
+                    <p>Top 50 Global</p>
+                </div>
             </div>
-            <div class="card-title">${track.title}</div>
-            <div class="card-sub">${track.artist}</div>
-          `;
-          card.addEventListener("click", () => playTrack(track));
-          row.appendChild(card);
-        });
 
-        sectionEl.appendChild(header);
-        sectionEl.appendChild(row);
-        sectionsContainer.appendChild(sectionEl);
-      });
-    }
+            <h2 class="section-title">Recommended Stations</h2>
+            <div class="horizontal-scroll">
+                <div class="card radio-card">
+                    <img src="https://images.unsplash.com/photo-1516280440502-863a346513c1?w=300&h=300&fit=crop" alt="Arijit">
+                    <h4>Arijit Singh Radio</h4>
+                </div>
+                <div class="card radio-card">
+                    <img src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=300&h=300&fit=crop" alt="Karan">
+                    <h4>Karan Aujla Radio</h4>
+                </div>
+            </div>
+        </div>
 
-    function playTrack(track) {
-      currentTrack = track;
-      npTitle.textContent = track.title;
-      npArtist.textContent = track.artist;
-      npArt.textContent = track.emoji;
+        <!-- Search Results Area (Shows when typing) -->
+        <div id="searchView" style="display: none;">
+            <h2 class="section-title">Search Results</h2>
+            <div id="searchResults"></div>
+        </div>
 
-      if (mode === "video") {
-        openVideoMode();
-        return;
-      }
+    </main>
 
-      isPlaying = true;
-      playBtn.textContent = "⏸";
-      showToast(`▶ Playing: ${track.title}`);
-      startFakeProgress();
-    }
+    <!-- Mini Player (Plays Music) -->
+    <div id="miniPlayer" class="mini-player" style="display: none;">
+        <img id="playerImg" src="" alt="Cover">
+        <div class="player-info">
+            <h5 id="playerTitle">Song Title</h5>
+            <p id="playerArtist">Artist</p>
+        </div>
+        <audio id="audioPlayer" controls></audio>
+    </div>
 
-    function startFakeProgress() {
-      clearInterval(progressTimer);
-      let p = 0;
-      const total = 210;
-      durationEl.textContent = fmtTime(total);
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="#" class="active"><i class="fa-solid fa-house"></i><span>Home</span></a>
+        <a href="#"><i class="fa-solid fa-magnifying-glass"></i><span>Search</span></a>
+        <a href="#"><i class="fa-solid fa-book-open"></i><span>Your Library</span></a>
+        <a href="#"><i class="fa-brands fa-spotify"></i><span>Premium</span></a>
+        <a href="#"><i class="fa-solid fa-plus"></i><span>Create</span></a>
+    </nav>
 
-      progressTimer = setInterval(() => {
-        if (!isPlaying) return;
-        p += 1;
-        if (p > 100) { p = 0; nextTrack(); return; }
-        progressBar.value = p;
-        currentTimeEl.textContent = fmtTime((p / 100) * total);
-      }, 300);
-    }
-
-    function togglePlay() {
-      if (!currentTrack) { showToast("Pick a song first 🎵"); return; }
-      isPlaying = !isPlaying;
-      playBtn.textContent = isPlaying ? "⏸" : "▶";
-      if (mode === "video") {
-        isPlaying ? videoPlayer.play() : videoPlayer.pause();
-      }
-    }
-
-    function nextTrack() {
-      if (!currentTrack) return;
-      const idx = MOCK.findIndex(t => t.id === currentTrack.id);
-      playTrack(MOCK[(idx + 1) % MOCK.length]);
-    }
-
-    function prevTrack() {
-      if (!currentTrack) return;
-      const idx = MOCK.findIndex(t => t.id === currentTrack.id);
-      playTrack(MOCK[(idx - 1 + MOCK.length) % MOCK.length]);
-    }
-
-    function toggleMode() {
-      if (mode === "audio") {
-        mode = "video";
-        modeToggle.textContent = "🎬 Video";
-        modeToggle.classList.add("video-mode");
-        showToast("Video mode ON 🎬");
-        if (currentTrack) openVideoMode();
-      } else {
-        mode = "audio";
-        modeToggle.textContent = "🎵 Audio";
-        modeToggle.classList.remove("video-mode");
-        closeVideoMode();
-        showToast("Audio mode ON 🎵");
-      }
-    }
-
-    function openVideoMode() {
-      videoOverlay.classList.add("active");
-      $("#videoTitle").textContent = currentTrack ? currentTrack.title : "Music Video";
-      $("#videoArtist").textContent = currentTrack ? currentTrack.artist : "ARMA_PLAY_";
-      if (!videoPlayer.src) {
-        videoPlayer.src = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
-      }
-      videoPlayer.volume = volumeBar.value / 100;
-      if (isPlaying) videoPlayer.play().catch(() => {});
-    }
-
-    function closeVideoMode() {
-      videoOverlay.classList.remove("active");
-      videoPlayer.pause();
-    }
-
-    document.getElementById("playBtn").addEventListener("click", togglePlay);
-    document.getElementById("nextBtn").addEventListener("click", nextTrack);
-    document.getElementById("prevBtn").addEventListener("click", prevTrack);
-    document.getElementById("modeToggle").addEventListener("click", toggleMode);
-    document.getElementById("videoClose").addEventListener("click", closeVideoMode);
-    document.getElementById("likeBtn").addEventListener("click", () => showToast("❤ Added to Liked Songs"));
-
-    document.querySelectorAll(".chip").forEach(chip => {
-      chip.addEventListener("click", () => {
-        document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
-        chip.classList.add("active");
-        showToast(`Filter: ${chip.textContent}`);
-      });
-    });
-
-    document.querySelectorAll(".quick-card").forEach(card => {
-      card.addEventListener("click", () => playTrack(MOCK[Math.floor(Math.random() * MOCK.length)]));
-    });
-
-    setGreeting();
-    buildSections();
-  </script>
+    <script src="script.js"></script>
 </body>
 </html>
