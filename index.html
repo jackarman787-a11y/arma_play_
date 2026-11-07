@@ -1,97 +1,409 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARMA_PLAY MUSIC APP</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- FontAwesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARMA PLAY</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
+  body { background:#121212; color:#fff; padding-bottom:140px; overflow-x:hidden; }
+  
+  /* HEADER */
+  header { display:flex; justify-content:space-between; align-items:center; padding:15px 20px; background:#121212; position:sticky; top:0; z-index:100; }
+  header h1 { font-size:20px; letter-spacing:1px; font-weight:800; color:#fff; }
+  header h1 span { color:#1db954; }
+  .profile { width:32px; height:32px; border-radius:50%; background:#ff69b4; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:16px; color:#000; }
+
+  /* PAGES */
+  .page { display:none; padding:10px 15px; }
+  .page.active { display:block; }
+  
+  /* GREETING */
+  .greeting { padding:10px 5px 15px; }
+  .greeting h2 { font-size:26px; font-weight:700; }
+  
+  /* TOP FILTERS */
+  .filters { display:flex; gap:10px; margin-bottom:20px; overflow-x:auto; scrollbar-width:none; }
+  .filters::-webkit-scrollbar { display:none; }
+  .filter-btn { padding:8px 16px; border-radius:20px; background:#2a2a2a; color:#fff; border:1px solid transparent; font-size:14px; white-space:nowrap; cursor:pointer; }
+  .filter-btn.active { background:#1db954; color:#000; font-weight:bold; }
+
+  /* HOME GRID CARDS */
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:25px; }
+  .card-sm { background:#282828; border-radius:6px; display:flex; align-items:center; overflow:hidden; height:60px; cursor:pointer; transition:0.2s; }
+  .card-sm:hover { background:#333; }
+  .card-sm img { width:60px; height:60px; object-fit:cover; }
+  .card-sm h4 { font-size:13px; font-weight:bold; padding:10px; line-height:1.3; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+
+  /* SECTIONS */
+  .section-title { font-size:20px; font-weight:bold; margin:15px 0; padding-left:5px; }
+  .scroll-row { display:flex; gap:15px; overflow-x:auto; scrollbar-width:none; padding-bottom:15px; padding-left:5px; }
+  .scroll-row::-webkit-scrollbar { display:none; }
+  .card-lg { flex:0 0 140px; cursor:pointer; }
+  .card-lg img { width:140px; height:140px; border-radius:8px; object-fit:cover; margin-bottom:8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+  .card-lg h4 { font-size:14px; font-weight:600; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .card-lg p { font-size:12px; color:#aaa; line-height:1.4; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+
+  /* SEARCH PAGE BOXES */
+  .search-input-box { background:#fff; border-radius:8px; display:flex; align-items:center; padding:10px 15px; margin-bottom:20px; }
+  .search-input-box input { border:none; outline:none; width:100%; font-size:16px; font-weight:bold; color:#000; margin-left:10px; }
+  .search-input-box input::placeholder { color:#555; }
+  
+  .bento-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
+  .bento-box { height:90px; border-radius:8px; padding:12px; position:relative; overflow:hidden; cursor:pointer; font-weight:bold; font-size:16px; }
+  .bento-box img { position:absolute; bottom:-10px; right:-10px; width:60px; height:60px; transform:rotate(25deg); border-radius:4px; box-shadow:-2px 2px 5px rgba(0,0,0,0.5); }
+  .bg-pink { background:#e91e63; } .bg-green { background:#00695c; } .bg-purple { background:#673ab7; } .bg-blue { background:#1565c0; } .bg-light { background:#9c27b0; }
+
+  /* SONG LIST (Playlists) */
+  .song { display:flex; align-items:center; padding:10px 5px; border-radius:8px; margin-bottom:5px; }
+  .song:hover, .song.active { background:#282828; }
+  .song img { width:50px; height:50px; border-radius:6px; margin-right:12px; object-fit:cover; }
+  .song-info { flex:1; overflow:hidden; }
+  .song-info h4 { font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .song-info span { font-size:12px; color:#aaa; }
+  .song button { background:none; border:none; color:#fff; font-size:20px; cursor:pointer; margin-left:8px; }
+  .song button.dl { color:#1db954; }
+
+  /* PLAYER BAR */
+  #player-bar { position:fixed; bottom:65px; left:10px; right:10px; background:#1db954; border-radius:8px; padding:8px 12px; display:flex; align-items:center; gap:10px; z-index:200; box-shadow:0 4px 15px rgba(0,0,0,0.5); cursor:pointer; }
+  #player-bar img { width:40px; height:40px; border-radius:4px; object-fit:cover; display:none; }
+  #player-bar .p-info { flex:1; overflow:hidden; color:#000; }
+  #player-bar .p-info h4 { font-size:14px; font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #player-bar .p-info span { font-size:12px; color:#003311; }
+  #player-bar button { background:none; border:none; color:#000; font-size:22px; cursor:pointer; }
+
+  /* BOTTOM NAV */
+  .bottom-nav { position:fixed; bottom:0; left:0; right:0; background:#000; display:flex; justify-content:space-around; padding:10px 0; z-index:150; border-top:1px solid #222; }
+  .nav-item { display:flex; flex-direction:column; align-items:center; color:#aaa; font-size:11px; cursor:pointer; gap:4px; }
+  .nav-item.active { color:#fff; }
+  .nav-item span { font-size:22px; }
+
+  /* MODALS & FULLSCREEN */
+  #settings, #fullscreen { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:400; padding:20px; overflow:auto; }
+  #settings h2 { color:#1db954; margin-bottom:20px; }
+  .set-row { display:flex; justify-content:space-between; padding:15px 0; border-bottom:1px solid #333; font-size:15px; }
+  .set-row button { background:#1db954; color:#000; border:none; padding:6px 15px; border-radius:20px; font-weight:bold; cursor:pointer; }
+  .close-btn { background:#333 !important; color:#fff !important; width:100%; padding:15px; margin-top:20px; border-radius:25px; font-size:16px; border:none; cursor:pointer; }
+
+  #fullscreen { flex-direction:column; align-items:center; justify-content:center; }
+  #fullscreen img { width:80%; max-width:300px; border-radius:15px; margin-bottom:20px; box-shadow:0 10px 30px rgba(29,185,84,0.3); }
+  #fullscreen h2 { font-size:24px; text-align:center; }
+  #fullscreen p { color:#aaa; margin:5px 0 30px; }
+  .fs-controls { display:flex; gap:30px; align-items:center; margin-bottom:30px; }
+  .fs-controls button { background:none; border:none; color:#fff; font-size:35px; cursor:pointer; }
+  .fs-controls .play { font-size:60px; color:#1db954; }
+  #fsClose { position:absolute; top:20px; right:20px; font-size:30px; background:none; border:none; color:#fff; cursor:pointer; }
+  .fs-dl { background:#1db954; color:#000; border:none; padding:12px 30px; border-radius:30px; font-size:16px; font-weight:bold; cursor:pointer; }
+</style>
 </head>
 <body>
 
-    <!-- Header Section -->
-    <header>
-        <div class="top-bar">
-            <div class="profile">J</div>
-            <div class="filters">
-                <button class="active">All</button>
-                <button>Music</button>
-                <button>Podcasts</button>
-            </div>
-        </div>
-        
-        <!-- Search Bar -->
-        <div class="search-container">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="searchInput" placeholder="What do you want to listen to?">
-        </div>
-    </header>
+<!-- HEADER -->
+<header>
+  <div style="display:flex; align-items:center; gap:15px;">
+    <div class="profile">A</div>
+    <h1>ARMA <span>PLAY</span></h1>
+  </div>
+  <div>
+    <button style="background:none; border:none; color:#fff; font-size:20px; margin-right:15px; cursor:pointer;" onclick="showPage('search')">🔍</button>
+    <button style="background:none; border:none; color:#fff; font-size:20px; cursor:pointer;" onclick="openSettings()">⚙️</button>
+  </div>
+</header>
 
-    <!-- Main Content Area -->
-    <main id="mainContent">
-        
-        <!-- Default Homepage Content (Shows when not searching) -->
-        <div id="homeView">
-            <h2 class="section-title">It's New Music Friday!</h2>
-            <div class="horizontal-scroll">
-                <div class="card">
-                    <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300&h=300&fit=crop" alt="Music">
-                    <h4>New Music Friday India</h4>
-                    <p>Lil Baby, JENNIE, Jack Harlow</p>
-                </div>
-                <div class="card">
-                    <img src="https://images.unsplash.com/photo-1493225457124-a1a2a5f5c92f?w=300&h=300&fit=crop" alt="Music">
-                    <h4>Release Radar</h4>
-                    <p>Catch all the latest music</p>
-                </div>
-                <div class="card">
-                    <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop" alt="Music">
-                    <h4>Pop Hits</h4>
-                    <p>Top 50 Global</p>
-                </div>
-            </div>
+<!-- ================= HOME PAGE ================= -->
+<div id="page-home" class="page active">
+  <div class="greeting">
+    <h2 id="greetText">Good Morning</h2>
+  </div>
 
-            <h2 class="section-title">Recommended Stations</h2>
-            <div class="horizontal-scroll">
-                <div class="card radio-card">
-                    <img src="https://images.unsplash.com/photo-1516280440502-863a346513c1?w=300&h=300&fit=crop" alt="Arijit">
-                    <h4>Arijit Singh Radio</h4>
-                </div>
-                <div class="card radio-card">
-                    <img src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=300&h=300&fit=crop" alt="Karan">
-                    <h4>Karan Aujla Radio</h4>
-                </div>
-            </div>
-        </div>
+  <div class="filters">
+    <div class="filter-btn active">All</div>
+    <div class="filter-btn">Music</div>
+    <div class="filter-btn">Podcasts</div>
+  </div>
 
-        <!-- Search Results Area (Shows when typing) -->
-        <div id="searchView" style="display: none;">
-            <h2 class="section-title">Search Results</h2>
-            <div id="searchResults"></div>
-        </div>
+  <!-- Top Grid (Like Screenshot 1) -->
+  <div class="grid-2">
+    <div class="card-sm"><img src="https://picsum.photos/seed/m1/100" alt=""><h4>Masoom Sharma Radio</h4></div>
+    <div class="card-sm"><img src="https://picsum.photos/seed/m2/100" alt=""><h4>Ramaiya Vastavaiya</h4></div>
+    <div class="card-sm"><img src="https://picsum.photos/seed/m3/100" alt=""><h4>Atif Aslam Radio</h4></div>
+    <div class="card-sm"><img src="https://picsum.photos/seed/m4/100" alt=""><h4>Filmy Hangover</h4></div>
+    <div class="card-sm"><img src="https://picsum.photos/seed/m5/100" alt=""><h4>Bhojpuri Jabra Hits</h4></div>
+    <div class="card-sm"><img src="https://picsum.photos/seed/m6/100" alt=""><h4>EhsaaS</h4></div>
+    <div class="card-sm"><img src="https://picsum.photos/seed/m7/100" alt=""><h4>Khesari Lal Yadav Mix</h4></div>
+    <div class="card-sm"><img src="https://picsum.photos/seed/m8/100" alt=""><h4>This Is Karan Aujla</h4></div>
+  </div>
 
-    </main>
-
-    <!-- Mini Player (Plays Music) -->
-    <div id="miniPlayer" class="mini-player" style="display: none;">
-        <img id="playerImg" src="" alt="Cover">
-        <div class="player-info">
-            <h5 id="playerTitle">Song Title</h5>
-            <p id="playerArtist">Artist</p>
-        </div>
-        <audio id="audioPlayer" controls></audio>
+  <!-- New Music Friday -->
+  <h3 class="section-title">It's New Music Friday!</h3>
+  <div class="scroll-row">
+    <div class="card-lg">
+      <img src="https://picsum.photos/seed/friday1/200" alt="">
+      <h4>New Music Friday India</h4>
+      <p>Lil Baby, JENNIE, Jack Harlow...</p>
     </div>
+    <div class="card-lg">
+      <img src="https://picsum.photos/seed/friday2/200" alt="">
+      <h4>Release Radar</h4>
+      <p>Catch all the latest music from artists you follow.</p>
+    </div>
+  </div>
 
-    <!-- Bottom Navigation -->
-    <nav class="bottom-nav">
-        <a href="#" class="active"><i class="fa-solid fa-house"></i><span>Home</span></a>
-        <a href="#"><i class="fa-solid fa-magnifying-glass"></i><span>Search</span></a>
-        <a href="#"><i class="fa-solid fa-book-open"></i><span>Your Library</span></a>
-        <a href="#"><i class="fa-brands fa-spotify"></i><span>Premium</span></a>
-        <a href="#"><i class="fa-solid fa-plus"></i><span>Create</span></a>
-    </nav>
+  <!-- Recommended Stations -->
+  <h3 class="section-title">Recommended Stations</h3>
+  <div class="scroll-row">
+    <div class="card-lg">
+      <img src="https://picsum.photos/seed/arijit/200" alt="">
+      <h4>Arijit Singh Radio</h4>
+      <p>With Pritam, Atif Aslam and more</p>
+    </div>
+    <div class="card-lg">
+      <img src="https://picsum.photos/seed/karan/200" alt="">
+      <h4>Karan Aujla Radio</h4>
+      <p>With AP Dhillon, Sidhu Moose Wala</p>
+    </div>
+  </div>
+  
+  <!-- Playlists / Songs -->
+  <h3 class="section-title">ARMA Play Originals</h3>
+  <div id="home-songs"></div>
+</div>
 
-    <script src="script.js"></script>
+<!-- ================= SEARCH PAGE ================= -->
+<div id="page-search" class="page">
+  <h2 style="font-size:24px; margin-bottom:15px; margin-left:5px;">Search</h2>
+  
+  <div class="search-input-box">
+    <span style="font-size:20px;">🔍</span>
+    <input type="text" id="searchInput" placeholder="What do you want to listen to?" oninput="searchSongs()">
+  </div>
+
+  <div class="bento-grid">
+    <div class="bento-box bg-pink">Music <img src="https://picsum.photos/seed/s1/60" alt=""></div>
+    <div class="bento-box bg-green">Podcasts <img src="https://picsum.photos/seed/s2/60" alt=""></div>
+    <div class="bento-box bg-purple">Live Events <img src="https://picsum.photos/seed/s3/60" alt=""></div>
+    <div class="bento-box bg-blue">Home of I-Pop <img src="https://picsum.photos/seed/s4/60" alt=""></div>
+    <div class="bento-box bg-light">Made For You <img src="https://picsum.photos/seed/s5/60" alt=""></div>
+  </div>
+
+  <h3 class="section-title" style="font-size:18px;">Browse All Songs</h3>
+  <div id="search-songs"></div>
+</div>
+
+<!-- PLAYER BAR (Mini) -->
+<div id="player-bar" onclick="openFullscreen()">
+  <img id="pImg" src="" alt="">
+  <div class="p-info">
+    <h4 id="pTitle">No song playing</h4>
+    <span id="pArtist">ARMA PLAY</span>
+  </div>
+  <button onclick="event.stopPropagation(); togglePlay()" id="pPlay">▶️</button>
+  <button onclick="event.stopPropagation(); downloadSong()" class="dl" style="color:#000;">⬇️</button>
+</div>
+
+<!-- BOTTOM NAVIGATION -->
+<div class="bottom-nav">
+  <div class="nav-item active" onclick="showPage('home')" id="nav-home">
+    <span>🏠</span> Home
+  </div>
+  <div class="nav-item" onclick="showPage('search')" id="nav-search">
+    <span>🔍</span> Search
+  </div>
+  <div class="nav-item" onclick="alert('Library section coming soon!')">
+    <span>📚</span> Your Library
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div id="settings">
+  <h2>⚙️ ARMA PLAY Settings</h2>
+  <div class="set-row"><span>Dark Mode</span><button>On</button></div>
+  <div class="set-row"><span>Audio Quality</span><button onclick="alert('Very High (320kbps)')">Very High</button></div>
+  <div class="set-row"><span>Download over Wi-Fi only</span><button onclick="alert('Enabled')">On</button></div>
+  <div class="set-row"><span>Clear Cache</span><button onclick="alert('Cache cleared!')">Clear</button></div>
+  <button class="close-btn" onclick="closeSettings()">Close</button>
+</div>
+
+<!-- FULLSCREEN PLAYER -->
+<div id="fullscreen">
+  <button id="fsClose" onclick="closeFullscreen()">✖</button>
+  <img id="fsImg" src="" alt="">
+  <h2 id="fsTitle">Song</h2>
+  <p id="fsArtist">Artist</p>
+  <div class="fs-controls">
+    <button onclick="prevSong()">⏮️</button>
+    <button class="play" onclick="togglePlay()" id="fsPlay">▶️</button>
+    <button onclick="nextSong()">⏭️</button>
+  </div>
+  <button class="fs-dl" onclick="downloadSong()">⬇️ Download Song</button>
+</div>
+
+<script>
+// ---------- DATA ----------
+const bollywood = [
+  {title:"Tum Hi Ho", artist:"Arijit Singh", url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"},
+  {title:"Kesariya", artist:"Arijit Singh", url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"},
+  {title:"Raataan Lambiyan", artist:"Jubin Nautiyal", url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"},
+  {title:"Apna Bana Le", artist:"Arijit Singh", url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"},
+  {title:"Kala Chashma", artist:"Badshah", url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3"},
+  {title:"Channa Mereya", artist:"Arijit Singh", url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3"}
+];
+const hollywood = [
+  {title:"Shape of You", artist:"Ed Sheeran", url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3"},
+  {title:"Blinding Lights", artist:"The Weeknd", url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3"},
+  {title:"Perfect", artist:"Ed Sheeran", url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3"},
+  {title:"Believer", artist:"Imagine Dragons", url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3"},
+  {title:"Faded", artist:"Alan Walker", url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3"},
+  {title:"Stay", artist:"The Kid LAROI", url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3"}
+];
+const allSongs = [...bollywood, ...hollywood];
+
+// ---------- DYNAMIC GREETING ----------
+function updateGreeting() {
+  const hour = new Date().getHours();
+  let greet = "Good Morning ☀️";
+  if (hour >= 12 && hour < 17) greet = "Good Afternoon 🌤️";
+  else if (hour >= 17 && hour < 21) greet = "Good Evening 🌆";
+  else if (hour >= 21 || hour < 5) greet = "Good Night 🌙";
+  document.getElementById("greetText").textContent = greet;
+}
+updateGreeting();
+setInterval(updateGreeting, 60000); // Update every minute
+
+// ---------- PAGE NAVIGATION ----------
+function showPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + pageId).classList.add('active');
+  
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('nav-' + pageId).classList.add('active');
+}
+
+// ---------- RENDER SONGS ----------
+function renderSongList(list, containerId) {
+  const c = document.getElementById(containerId);
+  if(!c) return;
+  c.innerHTML = "";
+  list.forEach((s, i) => {
+    const div = document.createElement("div");
+    div.className = "song";
+    div.dataset.search = (s.title + " " + s.artist).toLowerCase();
+    
+    // random images for songs
+    const imgUrl = `https://picsum.photos/seed/${encodeURIComponent(s.title)}/50`;
+    
+    div.innerHTML = `
+      <img src="${imgUrl}" alt="">
+      <div class="song-info">
+        <h4>${s.title}</h4>
+        <span>${s.artist}</span>
+      </div>
+      <button class="pl-btn">▶️</button>
+      <button class="dl" onclick="event.stopPropagation(); downloadDirect('${s.url}')">⬇️</button>`;
+    
+    div.onclick = () => playSong(s);
+    c.appendChild(div);
+  });
+}
+
+// Render on both pages
+renderSongList(allSongs, "home-songs");
+renderSongList(allSongs, "search-songs");
+
+// ---------- AUDIO & PLAYER LOGIC ----------
+const audio = new Audio();
+let currentSong = null;
+let currentIndex = -1;
+
+function playSong(song) {
+  currentSong = song;
+  currentIndex = allSongs.findIndex(s => s.title === song.title);
+  audio.src = song.url;
+  audio.play().catch(e => alert("Song load nahi hua. Internet check karein."));
+  
+  // Update UI
+  const imgUrl = `https://picsum.photos/seed/${encodeURIComponent(song.title)}/200`;
+  
+  document.getElementById("pTitle").textContent = song.title;
+  document.getElementById("pArtist").textContent = song.artist;
+  document.getElementById("pImg").src = imgUrl;
+  document.getElementById("pImg").style.display = "block";
+  document.getElementById("pPlay").textContent = "⏸️";
+  
+  document.getElementById("fsTitle").textContent = song.title;
+  document.getElementById("fsArtist").textContent = song.artist;
+  document.getElementById("fsImg").src = imgUrl;
+  document.getElementById("fsPlay").textContent = "⏸️";
+
+  // Highlight active
+  document.querySelectorAll(".song").forEach(el => {
+    el.classList.remove("active");
+    if(el.querySelector("h4").textContent === song.title) el.classList.add("active");
+  });
+}
+
+function togglePlay() {
+  if(!currentSong) { alert("Pehle koi gaana select karein! 🎵"); return; }
+  if(audio.paused) {
+    audio.play();
+    document.getElementById("pPlay").textContent = "⏸️";
+    document.getElementById("fsPlay").textContent = "⏸️";
+  } else {
+    audio.pause();
+    document.getElementById("pPlay").textContent = "▶️";
+    document.getElementById("fsPlay").textContent = "▶️";
+  }
+}
+
+function nextSong() {
+  if(!currentSong) return;
+  currentIndex = (currentIndex + 1) % allSongs.length;
+  playSong(allSongs[currentIndex]);
+}
+
+function prevSong() {
+  if(!currentSong) return;
+  currentIndex = (currentIndex - 1 + allSongs.length) % allSongs.length;
+  playSong(allSongs[currentIndex]);
+}
+
+audio.addEventListener("ended", nextSong);
+
+// ---------- SEARCH ----------
+function searchSongs() {
+  const q = document.getElementById("searchInput").value.toLowerCase().trim();
+  // Search in Search page list
+  document.querySelectorAll("#search-songs .song").forEach(el => {
+    el.style.display = el.dataset.search.includes(q) ? "flex" : "none";
+  });
+}
+
+// ---------- SETTINGS ----------
+function openSettings() { document.getElementById("settings").style.display = "block"; }
+function closeSettings() { document.getElementById("settings").style.display = "none"; }
+
+// ---------- FULLSCREEN ----------
+function openFullscreen() {
+  if(!currentSong) { alert("Pehle koi gaana play karein! 🎵"); return; }
+  document.getElementById("fullscreen").style.display = "flex";
+}
+function closeFullscreen() { document.getElementById("fullscreen").style.display = "none"; }
+
+// ---------- DOWNLOAD ----------
+function downloadSong() {
+  if(!currentSong) { alert("Pehle koi gaana play karein! 🎵"); return; }
+  downloadDirect(currentSong.url);
+}
+function downloadDirect(url) {
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = url.split("/").pop();
+  a.target = "_blank";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  alert("⬇️ Download shuru ho gaya! (ARMA PLAY) ✅");
+}
+</script>
 </body>
 </html>
