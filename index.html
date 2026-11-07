@@ -2,17 +2,20 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ARMA PLAY</title>
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', -apple-system, sans-serif; }
   body { background:#121212; color:#fff; padding-bottom:140px; overflow-x:hidden; }
   
   /* HEADER */
   header { display:flex; justify-content:space-between; align-items:center; padding:15px 20px; background:#121212; position:sticky; top:0; z-index:100; }
   header h1 { font-size:20px; letter-spacing:1px; font-weight:800; color:#fff; }
   header h1 span { color:#1db954; }
-  .profile { width:32px; height:32px; border-radius:50%; background:#ff69b4; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:16px; color:#000; }
+  .profile { width:32px; height:32px; border-radius:50%; background:#ff69b4; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:16px; color:#000; margin-right:12px;}
+  .header-right { display:flex; gap:20px; align-items:center; }
+  .icon-btn { background:none; border:none; cursor:pointer; padding:5px; display:flex; align-items:center; justify-content:center; }
+  .icon-btn svg { width:24px; height:24px; fill:#fff; }
 
   /* PAGES */
   .page { display:none; padding:10px 15px; }
@@ -21,16 +24,16 @@
   /* GREETING */
   .greeting { padding:10px 5px 15px; }
   .greeting h2 { font-size:26px; font-weight:700; }
-  
+
   /* TOP FILTERS */
   .filters { display:flex; gap:10px; margin-bottom:20px; overflow-x:auto; scrollbar-width:none; }
   .filters::-webkit-scrollbar { display:none; }
-  .filter-btn { padding:8px 16px; border-radius:20px; background:#2a2a2a; color:#fff; border:1px solid transparent; font-size:14px; white-space:nowrap; cursor:pointer; }
+  .filter-btn { padding:8px 16px; border-radius:20px; background:#2a2a2a; color:#fff; border:1px solid transparent; font-size:14px; white-space:nowrap; cursor:pointer; transition:0.2s; }
   .filter-btn.active { background:#1db954; color:#000; font-weight:bold; }
 
   /* HOME GRID CARDS */
   .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:25px; }
-  .card-sm { background:#282828; border-radius:6px; display:flex; align-items:center; overflow:hidden; height:60px; cursor:pointer; transition:0.2s; }
+  .card-sm { background:#282828; border-radius:6px; display:flex; align-items:center; overflow:hidden; height:60px; cursor:pointer; }
   .card-sm:hover { background:#333; }
   .card-sm img { width:60px; height:60px; object-fit:cover; }
   .card-sm h4 { font-size:13px; font-weight:bold; padding:10px; line-height:1.3; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
@@ -46,7 +49,8 @@
 
   /* SEARCH PAGE BOXES */
   .search-input-box { background:#fff; border-radius:8px; display:flex; align-items:center; padding:10px 15px; margin-bottom:20px; }
-  .search-input-box input { border:none; outline:none; width:100%; font-size:16px; font-weight:bold; color:#000; margin-left:10px; }
+  .search-input-box svg { width:22px; height:22px; fill:#000; }
+  .search-input-box input { border:none; outline:none; width:100%; font-size:16px; font-weight:bold; color:#000; margin-left:10px; background:transparent; }
   .search-input-box input::placeholder { color:#555; }
   
   .bento-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
@@ -54,15 +58,16 @@
   .bento-box img { position:absolute; bottom:-10px; right:-10px; width:60px; height:60px; transform:rotate(25deg); border-radius:4px; box-shadow:-2px 2px 5px rgba(0,0,0,0.5); }
   .bg-pink { background:#e91e63; } .bg-green { background:#00695c; } .bg-purple { background:#673ab7; } .bg-blue { background:#1565c0; } .bg-light { background:#9c27b0; }
 
-  /* SONG LIST (Playlists) */
-  .song { display:flex; align-items:center; padding:10px 5px; border-radius:8px; margin-bottom:5px; }
+  /* SONG LIST */
+  .song { display:flex; align-items:center; padding:10px 5px; border-radius:8px; margin-bottom:5px; cursor:pointer; transition:0.2s; }
   .song:hover, .song.active { background:#282828; }
   .song img { width:50px; height:50px; border-radius:6px; margin-right:12px; object-fit:cover; }
   .song-info { flex:1; overflow:hidden; }
-  .song-info h4 { font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .song-info h4 { font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:2px; }
   .song-info span { font-size:12px; color:#aaa; }
-  .song button { background:none; border:none; color:#fff; font-size:20px; cursor:pointer; margin-left:8px; }
-  .song button.dl { color:#1db954; }
+  .song button { background:none; border:none; cursor:pointer; margin-left:10px; display:flex; align-items:center;}
+  .song button svg { width:22px; height:22px; fill:#fff; }
+  .song button.dl svg { fill:#1db954; }
 
   /* PLAYER BAR */
   #player-bar { position:fixed; bottom:65px; left:10px; right:10px; background:#1db954; border-radius:8px; padding:8px 12px; display:flex; align-items:center; gap:10px; z-index:200; box-shadow:0 4px 15px rgba(0,0,0,0.5); cursor:pointer; }
@@ -70,13 +75,14 @@
   #player-bar .p-info { flex:1; overflow:hidden; color:#000; }
   #player-bar .p-info h4 { font-size:14px; font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   #player-bar .p-info span { font-size:12px; color:#003311; }
-  #player-bar button { background:none; border:none; color:#000; font-size:22px; cursor:pointer; }
+  #player-bar button { background:none; border:none; cursor:pointer; display:flex; align-items:center; padding:5px;}
+  #player-bar button svg { width:26px; height:26px; fill:#000; }
 
-  /* BOTTOM NAV */
-  .bottom-nav { position:fixed; bottom:0; left:0; right:0; background:#000; display:flex; justify-content:space-around; padding:10px 0; z-index:150; border-top:1px solid #222; }
-  .nav-item { display:flex; flex-direction:column; align-items:center; color:#aaa; font-size:11px; cursor:pointer; gap:4px; }
+  /* BOTTOM NAV (SVG Icons) */
+  .bottom-nav { position:fixed; bottom:0; left:0; right:0; background:#000; display:flex; justify-content:space-around; padding:10px 0 15px 0; z-index:150; border-top:1px solid #222; }
+  .nav-item { display:flex; flex-direction:column; align-items:center; color:#aaa; font-size:11px; cursor:pointer; gap:6px; }
   .nav-item.active { color:#fff; }
-  .nav-item span { font-size:22px; }
+  .nav-item svg { width:24px; height:24px; fill:currentColor; }
 
   /* MODALS & FULLSCREEN */
   #settings, #fullscreen { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:400; padding:20px; overflow:auto; }
@@ -90,23 +96,36 @@
   #fullscreen h2 { font-size:24px; text-align:center; }
   #fullscreen p { color:#aaa; margin:5px 0 30px; }
   .fs-controls { display:flex; gap:30px; align-items:center; margin-bottom:30px; }
-  .fs-controls button { background:none; border:none; color:#fff; font-size:35px; cursor:pointer; }
-  .fs-controls .play { font-size:60px; color:#1db954; }
-  #fsClose { position:absolute; top:20px; right:20px; font-size:30px; background:none; border:none; color:#fff; cursor:pointer; }
-  .fs-dl { background:#1db954; color:#000; border:none; padding:12px 30px; border-radius:30px; font-size:16px; font-weight:bold; cursor:pointer; }
+  .fs-controls button { background:none; border:none; cursor:pointer; display:flex; align-items:center; }
+  .fs-controls svg { width:40px; height:40px; fill:#fff; }
+  .fs-controls .play svg { width:65px; height:65px; fill:#1db954; }
+  #fsClose { position:absolute; top:20px; right:20px; background:none; border:none; cursor:pointer; }
+  #fsClose svg { width:30px; height:30px; fill:#fff; }
+  .fs-dl { background:#1db954; color:#000; border:none; padding:12px 30px; border-radius:30px; font-size:16px; font-weight:bold; cursor:pointer; display:flex; align-items:center; gap:8px; }
+  .fs-dl svg { width:20px; height:20px; fill:#000; }
+  
+  /* Loading Spinner */
+  .loader { border: 3px solid #333; border-top: 3px solid #1db954; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; display: none; }
+  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 
 <!-- HEADER -->
 <header>
-  <div style="display:flex; align-items:center; gap:15px;">
+  <div style="display:flex; align-items:center;">
     <div class="profile">A</div>
     <h1>ARMA <span>PLAY</span></h1>
   </div>
-  <div>
-    <button style="background:none; border:none; color:#fff; font-size:20px; margin-right:15px; cursor:pointer;" onclick="showPage('search')">🔍</button>
-    <button style="background:none; border:none; color:#fff; font-size:20px; cursor:pointer;" onclick="openSettings()">⚙️</button>
+  <div class="header-right">
+    <!-- New Search Icon -->
+    <button class="icon-btn" onclick="showPage('search')">
+      <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+    </button>
+    <!-- New Settings Icon -->
+    <button class="icon-btn" onclick="openSettings()">
+      <svg viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
+    </button>
   </div>
 </header>
 
@@ -122,7 +141,6 @@
     <div class="filter-btn">Podcasts</div>
   </div>
 
-  <!-- Top Grid (Like Screenshot 1) -->
   <div class="grid-2">
     <div class="card-sm"><img src="https://picsum.photos/seed/m1/100" alt=""><h4>Masoom Sharma Radio</h4></div>
     <div class="card-sm"><img src="https://picsum.photos/seed/m2/100" alt=""><h4>Ramaiya Vastavaiya</h4></div>
@@ -130,11 +148,8 @@
     <div class="card-sm"><img src="https://picsum.photos/seed/m4/100" alt=""><h4>Filmy Hangover</h4></div>
     <div class="card-sm"><img src="https://picsum.photos/seed/m5/100" alt=""><h4>Bhojpuri Jabra Hits</h4></div>
     <div class="card-sm"><img src="https://picsum.photos/seed/m6/100" alt=""><h4>EhsaaS</h4></div>
-    <div class="card-sm"><img src="https://picsum.photos/seed/m7/100" alt=""><h4>Khesari Lal Yadav Mix</h4></div>
-    <div class="card-sm"><img src="https://picsum.photos/seed/m8/100" alt=""><h4>This Is Karan Aujla</h4></div>
   </div>
 
-  <!-- New Music Friday -->
   <h3 class="section-title">It's New Music Friday!</h3>
   <div class="scroll-row">
     <div class="card-lg">
@@ -149,7 +164,6 @@
     </div>
   </div>
 
-  <!-- Recommended Stations -->
   <h3 class="section-title">Recommended Stations</h3>
   <div class="scroll-row">
     <div class="card-lg">
@@ -164,8 +178,7 @@
     </div>
   </div>
   
-  <!-- Playlists / Songs -->
-  <h3 class="section-title">ARMA Play Originals</h3>
+  <h3 class="section-title">Trending Now</h3>
   <div id="home-songs"></div>
 </div>
 
@@ -174,20 +187,26 @@
   <h2 style="font-size:24px; margin-bottom:15px; margin-left:5px;">Search</h2>
   
   <div class="search-input-box">
-    <span style="font-size:20px;">🔍</span>
-    <input type="text" id="searchInput" placeholder="What do you want to listen to?" oninput="searchSongs()">
+    <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+    <input type="text" id="searchInput" placeholder="Songs, artists, or lyrics..." oninput="debounceSearch()">
   </div>
 
-  <div class="bento-grid">
-    <div class="bento-box bg-pink">Music <img src="https://picsum.photos/seed/s1/60" alt=""></div>
-    <div class="bento-box bg-green">Podcasts <img src="https://picsum.photos/seed/s2/60" alt=""></div>
-    <div class="bento-box bg-purple">Live Events <img src="https://picsum.photos/seed/s3/60" alt=""></div>
-    <div class="bento-box bg-blue">Home of I-Pop <img src="https://picsum.photos/seed/s4/60" alt=""></div>
-    <div class="bento-box bg-light">Made For You <img src="https://picsum.photos/seed/s5/60" alt=""></div>
+  <!-- Search Results Container -->
+  <div id="search-results-container" style="display:none;">
+    <div class="loader" id="searchLoader"></div>
+    <div id="search-results"></div>
   </div>
 
-  <h3 class="section-title" style="font-size:18px;">Browse All Songs</h3>
-  <div id="search-songs"></div>
+  <!-- Default Browse Grid -->
+  <div id="browse-grid">
+    <div class="bento-grid">
+      <div class="bento-box bg-pink">Music <img src="https://picsum.photos/seed/s1/60" alt=""></div>
+      <div class="bento-box bg-green">Podcasts <img src="https://picsum.photos/seed/s2/60" alt=""></div>
+      <div class="bento-box bg-purple">Live Events <img src="https://picsum.photos/seed/s3/60" alt=""></div>
+      <div class="bento-box bg-blue">Home of I-Pop <img src="https://picsum.photos/seed/s4/60" alt=""></div>
+      <div class="bento-box bg-light">Made For You <img src="https://picsum.photos/seed/s5/60" alt=""></div>
+    </div>
+  </div>
 </div>
 
 <!-- PLAYER BAR (Mini) -->
@@ -197,20 +216,26 @@
     <h4 id="pTitle">No song playing</h4>
     <span id="pArtist">ARMA PLAY</span>
   </div>
-  <button onclick="event.stopPropagation(); togglePlay()" id="pPlay">▶️</button>
-  <button onclick="event.stopPropagation(); downloadSong()" class="dl" style="color:#000;">⬇️</button>
+  <!-- New Play/Pause Icon -->
+  <button onclick="event.stopPropagation(); togglePlay()" id="pPlayBtn">
+    <svg viewBox="0 0 24 24" id="pPlayIcon"><path d="M8 5v14l11-7z"/></svg>
+  </button>
+  <!-- New Download Icon -->
+  <button onclick="event.stopPropagation(); downloadSong()" class="dl">
+    <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+  </button>
 </div>
 
-<!-- BOTTOM NAVIGATION -->
+<!-- BOTTOM NAVIGATION (New Icons) -->
 <div class="bottom-nav">
   <div class="nav-item active" onclick="showPage('home')" id="nav-home">
-    <span>🏠</span> Home
+    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Home
   </div>
   <div class="nav-item" onclick="showPage('search')" id="nav-search">
-    <span>🔍</span> Search
+    <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg> Search
   </div>
   <div class="nav-item" onclick="alert('Library section coming soon!')">
-    <span>📚</span> Your Library
+    <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z"/></svg> Library
   </div>
 </div>
 
@@ -226,38 +251,25 @@
 
 <!-- FULLSCREEN PLAYER -->
 <div id="fullscreen">
-  <button id="fsClose" onclick="closeFullscreen()">✖</button>
+  <button id="fsClose" onclick="closeFullscreen()">
+    <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+  </button>
   <img id="fsImg" src="" alt="">
   <h2 id="fsTitle">Song</h2>
   <p id="fsArtist">Artist</p>
   <div class="fs-controls">
-    <button onclick="prevSong()">⏮️</button>
-    <button class="play" onclick="togglePlay()" id="fsPlay">▶️</button>
-    <button onclick="nextSong()">⏭️</button>
+    <button onclick="prevSong()"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+    <button class="play" onclick="togglePlay()" id="fsPlayBtn">
+      <svg viewBox="0 0 24 24" id="fsPlayIcon"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+    <button onclick="nextSong()"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
   </div>
-  <button class="fs-dl" onclick="downloadSong()">⬇️ Download Song</button>
+  <button class="fs-dl" onclick="downloadSong()">
+    <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg> Download
+  </button>
 </div>
 
 <script>
-// ---------- DATA ----------
-const bollywood = [
-  {title:"Tum Hi Ho", artist:"Arijit Singh", url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"},
-  {title:"Kesariya", artist:"Arijit Singh", url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"},
-  {title:"Raataan Lambiyan", artist:"Jubin Nautiyal", url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"},
-  {title:"Apna Bana Le", artist:"Arijit Singh", url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"},
-  {title:"Kala Chashma", artist:"Badshah", url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3"},
-  {title:"Channa Mereya", artist:"Arijit Singh", url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3"}
-];
-const hollywood = [
-  {title:"Shape of You", artist:"Ed Sheeran", url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3"},
-  {title:"Blinding Lights", artist:"The Weeknd", url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3"},
-  {title:"Perfect", artist:"Ed Sheeran", url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3"},
-  {title:"Believer", artist:"Imagine Dragons", url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3"},
-  {title:"Faded", artist:"Alan Walker", url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3"},
-  {title:"Stay", artist:"The Kid LAROI", url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3"}
-];
-const allSongs = [...bollywood, ...hollywood];
-
 // ---------- DYNAMIC GREETING ----------
 function updateGreeting() {
   const hour = new Date().getHours();
@@ -268,7 +280,6 @@ function updateGreeting() {
   document.getElementById("greetText").textContent = greet;
 }
 updateGreeting();
-setInterval(updateGreeting, 60000); // Update every minute
 
 // ---------- PAGE NAVIGATION ----------
 function showPage(pageId) {
@@ -276,134 +287,160 @@ function showPage(pageId) {
   document.getElementById('page-' + pageId).classList.add('active');
   
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('nav-' + pageId).classList.add('active');
+  const navEl = document.getElementById('nav-' + pageId);
+  if(navEl) navEl.classList.add('active');
 }
 
-// ---------- RENDER SONGS ----------
+// ---------- HOME SONGS (Preloaded using iTunes API on load) ----------
+const audio = new Audio();
+let currentSong = null;
+let playlist = [];
+
+async function loadHomeSongs() {
+  try {
+    const res = await fetch("https://itunes.apple.com/search?term=arijit+singh&entity=song&limit=10");
+    const data = await res.json();
+    const songs = data.results.map(item => ({
+      title: item.trackName,
+      artist: item.artistName,
+      url: item.previewUrl,
+      img: item.artworkUrl100 ? item.artworkUrl100.replace('100x100bb', '200x200bb') : 'https://picsum.photos/seed/music/100'
+    })).filter(s => s.url); // Only keep songs with valid audio
+    
+    playlist = songs;
+    renderSongList(songs, "home-songs");
+  } catch(e) {
+    console.log("Home songs load failed", e);
+  }
+}
+loadHomeSongs();
+
 function renderSongList(list, containerId) {
   const c = document.getElementById(containerId);
   if(!c) return;
   c.innerHTML = "";
+  if(list.length === 0) {
+    c.innerHTML = "<p style='color:#aaa; padding:10px; font-size:14px;'>No songs found.</p>";
+    return;
+  }
   list.forEach((s, i) => {
     const div = document.createElement("div");
     div.className = "song";
-    div.dataset.search = (s.title + " " + s.artist).toLowerCase();
-    
-    // random images for songs
-    const imgUrl = `https://picsum.photos/seed/${encodeURIComponent(s.title)}/50`;
-    
     div.innerHTML = `
-      <img src="${imgUrl}" alt="">
+      <img src="${s.img}" alt="cover">
       <div class="song-info">
         <h4>${s.title}</h4>
         <span>${s.artist}</span>
       </div>
-      <button class="pl-btn">▶️</button>
-      <button class="dl" onclick="event.stopPropagation(); downloadDirect('${s.url}')">⬇️</button>`;
-    
-    div.onclick = () => playSong(s);
+      <button onclick="event.stopPropagation(); playSong(${i}, '${containerId}')">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+      <button class="dl" onclick="event.stopPropagation(); downloadDirect('${s.url}')">
+        <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+      </button>`;
+    div.onclick = () => playSong(i, containerId);
     c.appendChild(div);
   });
 }
 
-// Render on both pages
-renderSongList(allSongs, "home-songs");
-renderSongList(allSongs, "search-songs");
-
-// ---------- AUDIO & PLAYER LOGIC ----------
-const audio = new Audio();
-let currentSong = null;
-let currentIndex = -1;
-
-function playSong(song) {
-  currentSong = song;
-  currentIndex = allSongs.findIndex(s => s.title === song.title);
-  audio.src = song.url;
-  audio.play().catch(e => alert("Song load nahi hua. Internet check karein."));
+// ---------- AUDIO LOGIC ----------
+function playSong(index, containerId) {
+  const list = containerId === 'search-results' ? searchResultsData : playlist;
+  const song = list[index];
+  if(!song || !song.url) return alert("Song preview not available.");
   
-  // Update UI
-  const imgUrl = `https://picsum.photos/seed/${encodeURIComponent(song.title)}/200`;
+  currentSong = song;
+  audio.src = song.url;
+  audio.play().catch(e => alert("Playback error. Try another song."));
   
   document.getElementById("pTitle").textContent = song.title;
   document.getElementById("pArtist").textContent = song.artist;
-  document.getElementById("pImg").src = imgUrl;
+  document.getElementById("pImg").src = song.img;
   document.getElementById("pImg").style.display = "block";
-  document.getElementById("pPlay").textContent = "⏸️";
   
   document.getElementById("fsTitle").textContent = song.title;
   document.getElementById("fsArtist").textContent = song.artist;
-  document.getElementById("fsImg").src = imgUrl;
-  document.getElementById("fsPlay").textContent = "⏸️";
-
+  document.getElementById("fsImg").src = song.img;
+  
+  updatePlayIcons(true);
+  
   // Highlight active
-  document.querySelectorAll(".song").forEach(el => {
-    el.classList.remove("active");
-    if(el.querySelector("h4").textContent === song.title) el.classList.add("active");
-  });
+  document.querySelectorAll(".song").forEach(el => el.classList.remove("active"));
+  if(event && event.currentTarget) event.currentTarget.classList.add("active");
+}
+
+function updatePlayIcons(isPlaying) {
+  const playSvg = `<path d="M8 5v14l11-7z"/>`;
+  const pauseSvg = `<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>`;
+  document.getElementById("pPlayIcon").innerHTML = isPlaying ? pauseSvg : playSvg;
+  document.getElementById("fsPlayIcon").innerHTML = isPlaying ? pauseSvg : playSvg;
 }
 
 function togglePlay() {
-  if(!currentSong) { alert("Pehle koi gaana select karein! 🎵"); return; }
+  if(!currentSong) { alert("Search and select a song first! 🎵"); return; }
   if(audio.paused) {
     audio.play();
-    document.getElementById("pPlay").textContent = "⏸️";
-    document.getElementById("fsPlay").textContent = "⏸️";
+    updatePlayIcons(true);
   } else {
     audio.pause();
-    document.getElementById("pPlay").textContent = "▶️";
-    document.getElementById("fsPlay").textContent = "▶️";
+    updatePlayIcons(false);
   }
 }
 
-function nextSong() {
-  if(!currentSong) return;
-  currentIndex = (currentIndex + 1) % allSongs.length;
-  playSong(allSongs[currentIndex]);
+function nextSong() { /* iTunes only returns previews, skipping next/prev logic for simplicity */ alert("Preview mode active. Search for new songs!"); }
+function prevSong() { alert("Preview mode active."); }
+
+audio.addEventListener("ended", () => updatePlayIcons(false));
+
+// ---------- SEARCH LOGIC (iTunes API) ----------
+let searchTimeout = null;
+let searchResultsData = [];
+
+function debounceSearch() {
+  const q = document.getElementById("searchInput").value.trim();
+  const resultsContainer = document.getElementById("search-results-container");
+  const browseGrid = document.getElementById("browse-grid");
+  const loader = document.getElementById("searchLoader");
+
+  if(q.length < 2) {
+    resultsContainer.style.display = "none";
+    browseGrid.style.display = "block";
+    return;
+  }
+
+  resultsContainer.style.display = "block";
+  browseGrid.style.display = "none";
+  loader.style.display = "block";
+  document.getElementById("search-results").innerHTML = "";
+
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => fetchSearchResults(q), 500);
 }
 
-function prevSong() {
-  if(!currentSong) return;
-  currentIndex = (currentIndex - 1 + allSongs.length) % allSongs.length;
-  playSong(allSongs[currentIndex]);
+async function fetchSearchResults(query) {
+  try {
+    // iTunes Search API
+    const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=25`);
+    const data = await res.json();
+    
+    searchResultsData = data.results.map(item => ({
+      title: item.trackName,
+      artist: item.artistName,
+      url: item.previewUrl,
+      img: item.artworkUrl100 ? item.artworkUrl100.replace('100x100bb', '200x200bb') : 'https://picsum.photos/seed/music/100'
+    })).filter(s => s.url); // Only show playable results
+
+    document.getElementById("searchLoader").style.display = "none";
+    renderSongList(searchResultsData, "search-results");
+  } catch(e) {
+    document.getElementById("searchLoader").style.display = "none";
+    document.getElementById("search-results").innerHTML = "<p style='color:#aaa; padding:10px;'>Search failed. Check internet.</p>";
+  }
 }
 
-audio.addEventListener("ended", nextSong);
-
-// ---------- SEARCH ----------
-function searchSongs() {
-  const q = document.getElementById("searchInput").value.toLowerCase().trim();
-  // Search in Search page list
-  document.querySelectorAll("#search-songs .song").forEach(el => {
-    el.style.display = el.dataset.search.includes(q) ? "flex" : "none";
-  });
-}
-
-// ---------- SETTINGS ----------
+// ---------- SETTINGS & FULLSCREEN ----------
 function openSettings() { document.getElementById("settings").style.display = "block"; }
 function closeSettings() { document.getElementById("settings").style.display = "none"; }
 
-// ---------- FULLSCREEN ----------
 function openFullscreen() {
-  if(!currentSong) { alert("Pehle koi gaana play karein! 🎵"); return; }
-  document.getElementById("fullscreen").style.display = "flex";
-}
-function closeFullscreen() { document.getElementById("fullscreen").style.display = "none"; }
-
-// ---------- DOWNLOAD ----------
-function downloadSong() {
-  if(!currentSong) { alert("Pehle koi gaana play karein! 🎵"); return; }
-  downloadDirect(currentSong.url);
-}
-function downloadDirect(url) {
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = url.split("/").pop();
-  a.target = "_blank";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  alert("⬇️ Download shuru ho gaya! (ARMA PLAY) ✅");
-}
-</script>
-</body>
-</html>
+  if(!currentSong) { alert("Pehle koi gaana play karein!
