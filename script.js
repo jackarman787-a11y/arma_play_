@@ -1,87 +1,291 @@
-const searchInput = document.getElementById('searchInput');
-const searchView = document.getElementById('searchView');
-const homeView = document.getElementById('homeView');
-const searchResults = document.getElementById('searchResults');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARMA_PLAY_</title>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- CLEAN SPOTIFY GREEN THEME --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #121212; color: white; padding-bottom: 150px; }
+        
+        /* Header */
+        header { padding: 15px; background-color: #121212; position: sticky; top: 0; z-index: 10; }
+        .top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; }
+        .logo-area { display: flex; align-items: center; gap: 10px; }
+        .logo-circle { background-color: #1db954; color: black; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; }
+        .logo-text { font-size: 18px; font-weight: bold; }
+        .settings-btn { background: none; border: none; color: #1db954; font-size: 22px; cursor: pointer; }
 
-// Player Elements
-const miniPlayer = document.getElementById('miniPlayer');
-const audioPlayer = document.getElementById('audioPlayer');
-const playerImg = document.getElementById('playerImg');
-const playerTitle = document.getElementById('playerTitle');
-const playerArtist = document.getElementById('playerArtist');
+        /* Search Bar */
+        .search-container { background-color: #282828; border-radius: 8px; padding: 10px 15px; display: flex; align-items: center; gap: 10px; margin: 0 15px; }
+        .search-container i { color: #b3b3b3; }
+        .search-container input { border: none; outline: none; width: 100%; font-size: 16px; color: white; background: transparent; }
 
-// Function to search songs online using iTunes API (Free)
-searchInput.addEventListener('keyup', async (e) => {
-    const query = e.target.value.trim();
+        /* Main Content */
+        main { padding: 0 15px; margin-top: 20px; }
+        .section-title { font-size: 20px; margin-bottom: 15px; color: #1db954; }
 
-    // If input is empty, show home, hide search
-    if (query.length === 0) {
-        searchView.style.display = 'none';
-        homeView.style.display = 'block';
-        return;
-    }
+        /* Search Results List */
+        .search-item { display: flex; align-items: center; gap: 15px; padding: 10px; border-bottom: 1px solid #2a2a2a; cursor: pointer; border-radius: 8px; transition: 0.2s; }
+        .search-item:hover { background-color: #2a2a2a; }
+        .search-item img { width: 50px; height: 50px; border-radius: 5px; object-fit: cover; }
+        .search-item-info h4 { font-size: 15px; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .search-item-info p { font-size: 12px; color: #b3b3b3; }
 
-    // If typing, show search, hide home
-    if (query.length > 1) {
-        searchView.style.display = 'block';
-        homeView.style.display = 'none';
+        /* Local File Section */
+        .local-upload { background: #181818; padding: 15px; border-radius: 8px; margin-top: 20px; border: 1px dashed #1db954; }
+        .local-upload input { color: white; margin-top: 10px; }
 
-        try {
-            // Fetch data from iTunes API
-            const response = await fetch(`https://itunes.apple.com/search?term=${query}&media=music&limit=15`);
-            const data = await response.json();
+        /* Mini Player (Fixed at Bottom) */
+        .mini-player { position: fixed; bottom: 65px; left: 10px; right: 10px; background-color: #181818; border: 1px solid #333; border-radius: 10px; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; z-index: 20; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .player-info { display: flex; align-items: center; gap: 10px; width: 40%; overflow: hidden; }
+        .player-info img { width: 45px; height: 45px; border-radius: 5px; }
+        .player-text h5 { font-size: 14px; color: #1db954; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .player-text p { font-size: 11px; color: #b3b3b3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-            searchResults.innerHTML = ''; // Clear previous results
+        /* Player Controls */
+        .player-controls { display: flex; align-items: center; gap: 15px; }
+        .player-controls button { background: none; border: none; color: white; font-size: 14px; cursor: pointer; font-weight: bold; }
+        .player-controls .play-btn { background-color: #1db954; color: black; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; }
 
-            if (data.results.length === 0) {
-                searchResults.innerHTML = '<p style="color: gray;">No songs found.</p>';
+        /* Bottom Navigation */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background-color: #000; display: flex; justify-content: space-around; padding: 10px 0; z-index: 20; border-top: 1px solid #222; }
+        .bottom-nav a { display: flex; flex-direction: column; align-items: center; color: #b3b3b3; text-decoration: none; font-size: 11px; gap: 5px; }
+        .bottom-nav a i { font-size: 20px; }
+        .bottom-nav a.active { color: #1db954; }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <div class="top-bar">
+            <div class="logo-area">
+                <div class="logo-circle">A</div>
+                <div class="logo-text">ARMA_PLAY_</div>
+            </div>
+            <!-- Settings Icon -->
+            <button class="settings-btn" id="settingsBtn">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
+        
+        <!-- Search Bar -->
+        <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="What do you want to listen to?">
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main>
+        <!-- Home View (Initially Visible) -->
+        <div id="homeView">
+            <h2 class="section-title">Good Morning!</h2>
+            <p style="color: #888;">Search for songs above or play from local storage.</p>
+        </div>
+
+        <!-- Search Results View -->
+        <div id="searchView" style="display: none;">
+            <h2 class="section-title">Search Results</h2>
+            <div id="searchResults"></div>
+        </div>
+
+        <!-- Local Files -->
+        <div class="local-upload">
+            <h3 style="color: #1db954; margin-bottom: 10px;">Local Songs (Offline)</h3>
+            <input type="file" id="fileInput" accept="audio/*">
+            <p id="localStatus" style="margin-top: 10px; font-size: 12px; color: #888;">No file loaded.</p>
+        </div>
+    </main>
+
+    <!-- MINI PLAYER BAR -->
+    <div class="mini-player" id="miniPlayer" style="display: none;">
+        <div class="player-info">
+            <img id="playerImg" src="https://via.placeholder.com/50?text=Music" alt="cover">
+            <div class="player-text">
+                <h5 id="currentSongTitle">No song playing</h5>
+                <p id="playerArtist">ARMA_PLAY_</p>
+            </div>
+        </div>
+        
+        <div class="player-controls">
+            <!-- 10 Sec Back -->
+            <button id="backBtn"><i class="fas fa-undo"></i> 10s</button>
+            <!-- Play/Pause -->
+            <button class="play-btn" id="playBtn"><i class="fas fa-play"></i></button>
+            <!-- 10 Sec Forward -->
+            <button id="forwardBtn">10s <i class="fas fa-redo"></i></button>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAVIGATION -->
+    <div class="bottom-nav">
+        <a href="#" class="active" onclick="showHome()"><i class="fas fa-home"></i> Home</a>
+        <a href="#"><i class="fas fa-search"></i> Search</a>
+        <a href="#"><i class="fas fa-book"></i> Library</a>
+        <a href="#"><i class="fas fa-crown"></i> Premium</a>
+    </div>
+
+    <!-- AUDIO ELEMENT -->
+    <audio id="audioPlayer"></audio>
+
+    <!-- --- JAVASCRIPT LOGIC --- -->
+    <script>
+        // Elements
+        const searchInput = document.getElementById('searchInput');
+        const searchView = document.getElementById('searchView');
+        const homeView = document.getElementById('homeView');
+        const searchResults = document.getElementById('searchResults');
+        const miniPlayer = document.getElementById('miniPlayer');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const playerImg = document.getElementById('playerImg');
+        const playerTitle = document.getElementById('currentSongTitle');
+        const playerArtist = document.getElementById('playerArtist');
+        const playBtn = document.getElementById('playBtn');
+        const backBtn = document.getElementById('backBtn');
+        const forwardBtn = document.getElementById('forwardBtn');
+        const localStatus = document.getElementById('localStatus');
+        
+        // State
+        let isPlaying = false;
+
+        // 1. SEARCH ONLINE (iTunes API + CORS Proxy Fixed)
+        searchInput.addEventListener('keyup', async (e) => {
+            const query = e.target.value.trim();
+
+            if (query.length === 0) {
+                searchView.style.display = 'none';
+                homeView.style.display = 'block';
                 return;
             }
 
-            // Loop through results and create list items
-            data.results.forEach(song => {
-                // iTunes returns 100x100 image, we replace to get 300x300 for better quality
-                const highResImg = song.artworkUrl100.replace('100x100', '300x300'); 
-                
-                const div = document.createElement('div');
-                div.className = 'search-item';
-                div.innerHTML = `
-                    <img src="${highResImg}" alt="cover">
-                    <div class="search-item-info">
-                        <h4>${song.trackName}</h4>
-                        <p>${song.artistName}</p>
-                    </div>
-                `;
-                
-                // Add click event to play the song
-                div.onclick = () => playSong(song.previewUrl, song.trackName, song.artistName, highResImg);
-                
-                searchResults.appendChild(div);
-            });
+            if (query.length > 1) {
+                searchView.style.display = 'block';
+                homeView.style.display = 'none';
+                searchResults.innerHTML = '<p style="color: #1db954;">Searching...</p>';
 
-        } catch (error) {
-            console.error("Error fetching data:", error);
-            searchResults.innerHTML = '<p style="color: red;">Error loading songs.</p>';
+                try {
+                    // CORS Proxy is MUST for GitHub Pages
+                    const proxy = 'https://corsproxy.io/?';
+                    const api = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&limit=15`;
+                    
+                    const response = await fetch(proxy + api);
+                    const data = await response.json();
+
+                    searchResults.innerHTML = ''; 
+
+                    if (data.results.length === 0) {
+                        searchResults.innerHTML = '<p style="color: gray;">No songs found.</p>';
+                        return;
+                    }
+
+                    data.results.forEach(song => {
+                        if(!song.previewUrl) return; // Skip if no audio available
+
+                        const highResImg = song.artworkUrl100.replace('100x100', '300x300'); 
+                        const div = document.createElement('div');
+                        div.className = 'search-item';
+                        div.innerHTML = `
+                            <img src="${highResImg}" alt="cover">
+                            <div class="search-item-info">
+                                <h4>${song.trackName}</h4>
+                                <p>${song.artistName}</p>
+                            </div>
+                        `;
+                        
+                        div.onclick = () => playSong(song.previewUrl, song.trackName, song.artistName, highResImg);
+                        searchResults.appendChild(div);
+                    });
+
+                } catch (error) {
+                    console.error("API Error:", error);
+                    searchResults.innerHTML = '<p style="color: red;">Error loading songs. Check connection.</p>';
+                }
+            }
+        });
+
+        // 2. PLAY SONG (From Search)
+        function playSong(audioUrl, title, artist, image) {
+            if (!audioUrl) return alert("Preview not available.");
+
+            playerImg.src = image;
+            playerTitle.innerText = title;
+            playerArtist.innerText = artist;
+            miniPlayer.style.display = 'flex';
+            
+            audioPlayer.src = audioUrl;
+            audioPlayer.play();
+            
+            isPlaying = true;
+            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
         }
-    }
-});
 
-// Function to play selected song
-function playSong(audioUrl, title, artist, image) {
-    if (!audioUrl) {
-        alert("Preview not available for this song.");
-        return;
-    }
+        // 3. PLAY / PAUSE TOGGLE
+        playBtn.addEventListener('click', () => {
+            if (audioPlayer.src) {
+                if (isPlaying) {
+                    audioPlayer.pause();
+                    playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                    isPlaying = false;
+                } else {
+                    audioPlayer.play();
+                    playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                    isPlaying = true;
+                }
+            } else {
+                alert("Pehle koi song select karein!");
+            }
+        });
 
-    // Update Player UI
-    playerImg.src = image;
-    playerTitle.innerText = title;
-    playerArtist.innerText = artist;
-    
-    // Show Player
-    miniPlayer.style.display = 'flex';
-    
-    // Play Audio
-    audioPlayer.src = audioUrl;
-    audioPlayer.play();
-}
+        // 4. 10 SEC BACK & FORWARD
+        backBtn.addEventListener('click', () => {
+            if (audioPlayer.src) audioPlayer.currentTime = Math.max(0, audioPlayer.currentTime - 10);
+        });
+
+        forwardBtn.addEventListener('click', () => {
+            if (audioPlayer.src) audioPlayer.currentTime = Math.min(audioPlayer.duration, audioPlayer.currentTime + 10);
+        });
+
+        // 5. LOCAL FILE HANDLING
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const fileURL = URL.createObjectURL(file);
+                audioPlayer.src = fileURL;
+                
+                localStatus.innerText = "Loaded: " + file.name;
+                playerTitle.innerText = file.name;
+                playerArtist.innerText = "Local Storage";
+                playerImg.src = "https://via.placeholder.com/50?text=Local";
+                miniPlayer.style.display = 'flex';
+                
+                audioPlayer.play();
+                isPlaying = true;
+                playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            }
+        });
+
+        // 6. SETTINGS BUTTON
+        document.getElementById('settingsBtn').addEventListener('click', () => {
+            alert("Settings Menu Opening...");
+        });
+
+        // 7. HOME VIEW FUNCTION
+        function showHome() {
+            searchInput.value = '';
+            searchView.style.display = 'none';
+            homeView.style.display = 'block';
+        }
+
+        // Reset play button when song ends
+        audioPlayer.addEventListener('ended', () => {
+            isPlaying = false;
+            playBtn.innerHTML = '<i class="fas fa-play"></i>';
+        });
+    </script>
+</body>
+</html>
