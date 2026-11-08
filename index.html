@@ -4,146 +4,197 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ARMA PLAY</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- CSS STYLING (Spotify Look) --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #121212; color: white; padding-bottom: 80px; }
+        
+        /* Header */
+        header { display: flex; justify-content: space-between; align-items: center; padding: 15px; }
+        .logo { font-size: 22px; font-weight: bold; display: flex; align-items: center; gap: 10px; }
+        .logo-circle { background: #ff69b4; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 18px; }
+        .logo-text span { color: #1DB954; }
+        .header-icons button { background: none; border: none; color: white; font-size: 20px; margin-left: 15px; cursor: pointer; }
+
+        /* Tabs */
+        .tabs { display: flex; gap: 10px; padding: 0 15px; margin-bottom: 15px; }
+        .tab { background: #2a2a2a; border: none; color: white; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: 500;}
+        .tab.active { background: #1DB954; color: black; }
+
+        /* Cards Grid */
+        .section-title { padding: 0 15px; font-size: 20px; font-weight: bold; margin-bottom: 10px; margin-top: 10px;}
+        .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 15px; }
+        .card { background: #181818; border-radius: 8px; overflow: hidden; display: flex; align-items: center; cursor: pointer; transition: 0.3s; }
+        .card:hover { background: #282828; }
+        .card-img { width: 60px; height: 60px; object-fit: cover; }
+        .card-title { padding: 10px; font-size: 14px; font-weight: bold; }
+
+        /* Settings Modal (Popup) */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: #282828; padding: 20px; border-radius: 10px; width: 80%; max-width: 300px; }
+        .modal-content h3 { margin-bottom: 15px; }
+        .modal-content p { margin-bottom: 10px; font-size: 14px; color: #b3b3b3; }
+        .close-btn { background: #1DB954; color: black; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 15px;}
+
+        /* Bottom Player */
+        .bottom-player { position: fixed; bottom: 0; left: 0; width: 100%; background: #1DB954; color: black; display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; z-index: 999; }
+        .player-info { display: flex; flex-direction: column; overflow: hidden; width: 70%; }
+        .player-info span { font-size: 14px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .player-info small { font-size: 12px; opacity: 0.8; }
+        .player-controls button { background: none; border: none; font-size: 24px; cursor: pointer; }
+
+        /* Loading Spinner */
+        #loader { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); border: 4px solid #333; border-top: 4px solid #1DB954; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; z-index: 1001; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
 </head>
 <body>
 
-    <!-- MAIN APP CONTAINER -->
-    <div id="app">
-        
-        <!-- ================= HOME PAGE ================= -->
-        <div id="home-page" class="page active">
-            <header class="top-bar">
-                <div class="profile">
-                    <div class="avatar bg-pink">A</div>
-                    <h2>ARMA <span class="text-green">PLAY</span></h2>
-                </div>
-                <div class="top-icons">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <i class="fa-solid fa-gear" onclick="openSettings()"></i>
-                </div>
-            </header>
-
-            <main class="content">
-                <h1>Good Morning</h1>
-                <!-- Filters -->
-                <div class="filters">
-                    <button class="filter-btn active">All</button>
-                    <button class="filter-btn">Music</button>
-                    <button class="filter-btn">Podcasts</button>
-                </div>
-
-                <!-- Grid (Like your screenshot) -->
-                <div class="music-grid">
-                    <div class="card">
-                        <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=150" alt="Music">
-                        <div class="card-info">
-                            <h4>Masoom Sharma</h4>
-                            <p>Radio</p>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=150" alt="Music">
-                        <div class="card-info">
-                            <h4>Atif Aslam</h4>
-                            <p>Radio</p>
-                        </div>
-                    </div>
-                </div>
-
-                <h2>It's New Music Friday!</h2>
-                <div class="music-grid">
-                    <div class="card-large">
-                        <img src="https://images.unsplash.com/photo-1493225457124-a1a2a5f1b7e2?w=300" alt="New Music">
-                        <h4>New Music India</h4>
-                        <p>Latest releases</p>
-                    </div>
-                </div>
-            </main>
-            
-            <!-- Bottom Player Bar -->
-            <div class="player-bar">
-                <div class="song-info">
-                    <p class="song-title">No song playing</p>
-                    <p class="artist">ARMA PLAY</p>
-                </div>
-                <div class="player-controls">
-                    <i class="fa-solid fa-play"></i>
-                    <i class="fa-solid fa-download"></i>
-                </div>
-            </div>
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <div class="logo-circle">A</div>
+            <div class="logo-text">ARMA <span>PLAY</span></div>
         </div>
-
-        <!-- ================= SETTINGS PAGE ================= -->
-        <div id="settings-page" class="page">
-            <header class="top-bar settings-header">
-                <i class="fa-solid fa-arrow-left" onclick="closeSettings()"></i>
-                <h2>Settings</h2>
-                <i class="fa-solid fa-magnifying-glass"></i>
-            </header>
-
-            <main class="content settings-content">
-                <div class="premium-banner">
-                    <h3>Free account</h3>
-                    <button class="btn-primary">Go Premium</button>
-                    <div class="premium-options">
-                        <div class="option">
-                            <i class="fa-solid fa-chart-simple"></i>
-                            <p>Data saver mode</p>
-                            <small>Automatic</small>
-                        </div>
-                        <div class="option">
-                            <i class="fa-solid fa-eye-slash"></i>
-                            <p>Private session</p>
-                            <small>Off</small>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Settings List (Matches your screenshots) -->
-                <ul class="settings-list">
-                    <li><i class="fa-regular fa-user"></i> <div>Account <br><small>Username • Close account</small></div></li>
-                    <li><i class="fa-solid fa-music"></i> <div>Content and display <br><small>Canvas • Languages</small></div></li>
-                    <li><i class="fa-solid fa-lock"></i> <div>Privacy and social <br><small>Private session • Playlists</small></div></li>
-                    <li><i class="fa-solid fa-volume-high"></i> <div>Playback <br><small>Gapless playback • Autoplay</small></div></li>
-                    <li><i class="fa-regular fa-bell"></i> <div>Notifications <br><small>Push • Email</small></div></li>
-                    <li><i class="fa-solid fa-mobile-screen"></i> <div>Apps and devices <br><small>Google Maps • Import</small></div></li>
-                    <li><i class="fa-solid fa-download"></i> <div>Data-saving and offline <br><small>Data saver • Downloads</small></div></li>
-                    <li><i class="fa-solid fa-chart-column"></i> <div>Media quality <br><small>Wi-Fi streaming • Audio download</small></div></li>
-                    <li><i class="fa-regular fa-rectangle-list"></i> <div>Advertising <br><small>Tailored ads</small></div></li>
-                    <li><i class="fa-solid fa-circle-info"></i> <div>About and support <br><small>Version • Privacy Policy</small></div></li>
-                </ul>
-                
-                <button class="btn-logout">Log out</button>
-            </main>
+        <div class="header-icons">
+            <button onclick="alert('Search button clicked!')">🔍</button>
+            <button onclick="openSettings()">⚙️</button>
         </div>
+    </header>
 
-        <!-- FLOATING AI ASSISTANT BUTTON (Your unique feature) -->
-        <div class="ai-assistant-btn" onclick="toggleAI()">
-            <i class="fa-solid fa-robot"></i>
-        </div>
+    <!-- Greeting -->
+    <div class="section-title">Good Morning</div>
 
-        <!-- AI CHAT WINDOW -->
-        <div id="ai-chat" class="ai-chat hidden">
-            <div class="chat-header">
-                <h3>ARMA AI Assistant</h3>
-                <i class="fa-solid fa-xmark" onclick="toggleAI()"></i>
-            </div>
-            <div class="chat-body" id="chat-body">
-                <p class="bot-msg">Hello! I am ARMA AI. How can I help you today?</p>
-            </div>
-            <div class="chat-input-area">
-                <input type="text" id="ai-input" placeholder="Ask me anything...">
-                <button onclick="sendAIMessage()"><i class="fa-solid fa-paper-plane"></i></button>
-            </div>
-        </div>
-
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab active" onclick="showTab('All')">All</button>
+        <button class="tab" onclick="showTab('Music')">Music</button>
+        <button class="tab" onclick="showTab('Podcasts')">Podcasts</button>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Cards -->
+    <div class="grid-container" id="song-grid">
+        <!-- Cards will be injected here via JS -->
+        <div class="card" style="opacity: 0.5;"><div class="card-title">Loading...</div></div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <h3>Settings</h3>
+            <p>✅ Audio Quality: High</p>
+            <p>✅ Dark Mode: On</p>
+            <p>✅ Online API: Connected</p>
+            <button class="close-btn" onclick="closeSettings()">Close Settings</button>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loader"></div>
+
+    <!-- Bottom Player -->
+    <div class="bottom-player">
+        <div class="player-info">
+            <span id="player-title">No song playing</span>
+            <small id="player-subtitle">ARMA PLAY</small>
+        </div>
+        <div class="player-controls">
+            <button id="play-pause-btn" onclick="togglePlay()">▶</button>
+        </div>
+    </div>
+
+    <!-- Hidden Audio Element -->
+    <audio id="audio-player"></audio>
+
+    <!-- JavaScript -->
+    <script>
+        const audio = document.getElementById('audio-player');
+        const playBtn = document.getElementById('play-pause-btn');
+        const playerTitle = document.getElementById('player-title');
+        const playerSub = document.getElementById('player-subtitle');
+        const loader = document.getElementById('loader');
+        const songGrid = document.getElementById('song-grid');
+
+        // 1. Settings Modal Logic
+        function openSettings() { document.getElementById('settingsModal').style.display = 'flex'; }
+        function closeSettings() { document.getElementById('settingsModal').style.display = 'none'; }
+
+        // 2. Tabs Logic
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            // For demo, just alerting
+            console.log("Switched to: " + tabName);
+        }
+
+        // 3. Play/Pause Toggle
+        function togglePlay() {
+            if (audio.src === "") {
+                alert("Please select a song first by clicking on the cards!");
+                return;
+            }
+            if (audio.paused) {
+                audio.play();
+                playBtn.innerHTML = "⏸";
+            } else {
+                audio.pause();
+                playBtn.innerHTML = "▶";
+            }
+        }
+
+        // 4. Fetch Songs from JioSaavn API (Unofficial)
+        // Note: If this API fails, it might be down. We are using a reliable mirror.
+        async function fetchSongs() {
+            loader.style.display = 'block';
+            try {
+                // Search query for popular Bollywood songs (aap yahan 'arijit singh' ya kuch aur bhi likh sakte hain)
+                const response = await fetch('https://saavn.dev/api/search/songs?query=atif%20aslam&limit=10');
+                const data = await response.json();
+                
+                songGrid.innerHTML = ''; // Clear loading
+                
+                if(data.success && data.data.results.length > 0) {
+                    data.data.results.forEach(song => {
+                        // Get high quality image and audio URL
+                        const image = song.image[2].url || song.image[1].url;
+                        const audioUrl = song.downloadUrl[4].url || song.downloadUrl[3].url; // Highest quality
+                        const title = song.name;
+                        const artist = song.artists.primary[0].name;
+
+                        // Create Card
+                        const card = document.createElement('div');
+                        card.className = 'card';
+                        card.onclick = () => playSong(audioUrl, title, artist);
+                        card.innerHTML = `
+                            <img src="${image}" class="card-img" alt="cover">
+                            <div class="card-title">${title}</div>
+                        `;
+                        songGrid.appendChild(card);
+                    });
+                } else {
+                    songGrid.innerHTML = '<div style="color:red">API Error: Songs not found.</div>';
+                }
+            } catch (error) {
+                console.error("API Error:", error);
+                songGrid.innerHTML = '<div style="color:red">Network Error: API se connect nahi ho paya.</div>';
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+
+        // 5. Play Song Function
+        function playSong(url, title, artist) {
+            audio.src = url;
+            playerTitle.innerText = title;
+            playerSub.innerText = artist;
+            audio.play();
+            playBtn.innerHTML = "⏸";
+        }
+
+        // Initialize App
+        window.onload = () => {
+            fetchSongs();
+        };
+    </script>
 </body>
 </html>
