@@ -13,6 +13,7 @@
             --gold-hover: #FFDF00;
             --text-main: #FFFFFF;
             --text-muted: #B3B3B3;
+            --spotify-green: #1DB954;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -32,59 +33,28 @@
         /* --- CARDS & SETTINGS --- */
         .card { background-color: var(--bg-card); border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid #222; }
         .card-title { color: var(--gold); font-size: 18px; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
-        .info-row { margin-bottom: 10px; color: var(--text-muted); font-size: 15px; }
-        .info-row strong { color: var(--text-main); }
         
-        .settings-list { list-style: none; }
-        .settings-item { padding: 15px 0; border-bottom: 1px solid #222; display: flex; align-items: center; gap: 15px; cursor: pointer; color: var(--text-main); font-size: 16px; transition: 0.3s;}
-        .settings-item:hover { color: var(--gold); }
-        
-        /* --- TOGGLE SWITCH --- */
-        .switch { position: relative; display: inline-block; width: 50px; height: 24px; margin-left: auto; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 24px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--gold); }
-        input:checked + .slider:before { transform: translateX(26px); background-color: #000;}
-
         /* --- FORMS & BUTTONS --- */
-        .input-group { margin-bottom: 15px; }
-        .input-group input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #333; background: #000; color: var(--gold); outline: none;}
-        .input-group input:focus { border-color: var(--gold); }
-        .btn { width: 100%; padding: 12px; background: var(--gold); color: #000; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px;}
+        .input-group { margin-bottom: 15px; display: flex; gap: 10px; }
+        .input-group input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #333; background: #000; color: var(--gold); outline: none;}
+        .btn { padding: 12px 20px; background: var(--gold); color: #000; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s;}
         .btn:hover { background: var(--gold-hover); }
+        .btn-green { background: var(--spotify-green); color: #000; border-radius: 20px; }
         
-        /* --- CONTENT GRIDS --- */
-        .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .music-card { background: var(--bg-card); padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #222; cursor: pointer; transition: 0.3s;}
-        .music-card:hover { border-color: var(--gold); }
-        .music-card h4 { color: var(--gold); font-size: 14px;}
-        .music-card .img-placeholder { background:#222; height:100px; border-radius:8px; margin-bottom:10px; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 30px;}
+        /* --- ONLINE SONG RESULTS --- */
+        .song-result-item { background: #1a1a1a; padding: 12px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333; }
+        .song-result-info { font-size: 14px; color: #fff; flex: 1; margin-right: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .action-icon { cursor: pointer; font-size: 18px; margin-left: 10px; transition: 0.2s; }
+        .action-icon:hover { transform: scale(1.2); }
         
-        /* --- PREMIUM PAGE --- */
-        .premium-box { text-align: center; padding: 30px 20px; border: 2px solid var(--gold); border-radius: 15px; background: linear-gradient(180deg, #121212 0%, #1a1500 100%); }
-        .price-tag { font-size: 40px; font-weight: 900; color: var(--gold); margin: 15px 0;}
-        .price-sub { font-size: 14px; color: var(--text-muted); text-decoration: line-through;}
-
-        /* --- AI ASSISTANT --- */
-        .ai-btn { position: fixed; bottom: 150px; right: 20px; background: linear-gradient(45deg, #D4AF37, #FFDF00); color: #000; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4); cursor: pointer; z-index: 200; border: 2px solid #fff; transition: 0.3s;}
-        .ai-btn:hover { transform: scale(1.1); }
-        .ai-chat-box { position: fixed; bottom: 220px; right: 20px; width: 320px; background: #0a0a0a; border-radius: 12px; padding: 15px; display: none; z-index: 200; box-shadow: 0 4px 20px rgba(212, 175, 55, 0.2); border: 1px solid var(--gold); }
-        .ai-chat-header { display: flex; justify-content: space-between; font-weight: bold; color: var(--gold); margin-bottom: 10px; border-bottom: 1px solid #222; padding-bottom: 8px;}
-        .ai-messages { font-size: 13px; color: #ddd; height: 180px; overflow-y: auto; padding-right: 5px;}
-        .ai-chat-input { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #333; margin-top: 10px; background: #000; color: var(--gold); outline: none;}
-
         /* --- BOTTOM NAV & PLAYER --- */
         .bottom-player { position: fixed; bottom: 65px; left: 10px; right: 10px; background: linear-gradient(90deg, #D4AF37, #FFDF00); border-radius: 8px; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; color: #000; z-index: 100; box-shadow: 0 -2px 10px rgba(0,0,0,0.5);}
+        .player-controls { display: flex; align-items: center; gap: 12px; }
+        .player-controls button { background: none; border: none; font-size: 16px; cursor: pointer; font-weight: bold; color: #000; }
         .nav-bar { position: fixed; bottom: 0; width: 100%; background-color: #000; display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; border-top: 1px solid #222; }
         .nav-item { display: flex; flex-direction: column; align-items: center; color: #666; font-size: 11px; cursor: pointer; gap: 4px; transition: 0.3s; font-weight: bold;}
         .nav-item.active { color: var(--gold); }
-        
-        /* SVG Icons */
         .nav-item svg { width: 24px; height: 24px; fill: currentColor; }
-        .setting-icon svg { width: 24px; height: 24px; fill: var(--gold); }
-        .policy-text h3 { color: var(--gold); margin-top: 15px; margin-bottom: 5px; font-size: 16px;}
-        .policy-text p { color: var(--text-muted); font-size: 13px; line-height: 1.6;}
     </style>
 </head>
 <body>
@@ -100,28 +70,12 @@
     
     <div class="time-display" id="clock">Current Time: --:--</div>
 
-    <!-- 1. HOME PAGE -->
+    <!-- 1. HOME PAGE (Green Theme Integration) -->
     <div id="page-home" class="page-container active">
-        <h1 style="margin-bottom: 20px; color: var(--gold);">Good Morning!</h1>
-        
-        <h3 style="margin-bottom: 15px; color: var(--text-muted);">Trending Now (Online)</h3>
-        <div class="grid-container">
-            <div class="music-card" onclick="playOnlineSong('Top Hits')">
-                <div class="img-placeholder">🔥</div>
-                <h4>Top Hits</h4>
-            </div>
-            <div class="music-card" onclick="playOnlineSong('Chill Vibes')">
-                <div class="img-placeholder">🌊</div>
-                <h4>Chill Vibes</h4>
-            </div>
-            <div class="music-card" onclick="playOnlineSong('Workout')">
-                <div class="img-placeholder">💪</div>
-                <h4>Workout</h4>
-            </div>
-            <div class="music-card" onclick="playOnlineSong('Lo-Fi Beats')">
-                <div class="img-placeholder">🎧</div>
-                <h4>Lo-Fi Beats</h4>
-            </div>
+        <h1 style="margin-bottom: 20px; color: var(--spotify-green);">Good Morning!</h1>
+        <div class="card" style="border-color: var(--spotify-green);">
+            <h3 style="margin-bottom: 15px; color: var(--spotify-green);">Trending Now</h3>
+            <p style="color: var(--text-muted); font-size: 14px;">Go to Search to find your favorite tracks online or upload from local storage.</p>
         </div>
     </div>
 
@@ -129,22 +83,20 @@
     <div id="page-search" class="page-container">
         <h1 style="margin-bottom: 20px; color: var(--gold);">Search</h1>
         
+        <!-- ONLINE SONGS -->
         <div class="card">
             <h3 style="color: var(--gold); margin-bottom: 10px;">Online Songs</h3>
-            <div class="input-group" style="display: flex; gap: 10px;">
-                <input type="text" id="onlineSearchInput" placeholder="Search online songs...">
-                <button class="btn" style="width: 80px; margin-top: 0;" onclick="searchOnline()">Go</button>
+            <div class="input-group">
+                <input type="text" id="onlineSearchInput" placeholder="Search online songs... (e.g., Die with you)">
+                <button class="btn btn-green" onclick="searchOnline()">Go</button>
             </div>
             <div id="onlineResults" style="margin-top: 15px;">
-                <div class="music-card" style="margin-bottom: 10px; display: flex; justify-content: space-between;" onclick="playOnlineSong('Shape of You')">
-                    <span>Shape of You - Ed Sheeran</span> <span>▶️ / ⬇️</span>
-                </div>
-                <div class="music-card" style="margin-bottom: 10px; display: flex; justify-content: space-between;" onclick="playOnlineSong('Blinding Lights')">
-                    <span>Blinding Lights - The Weeknd</span> <span>▶️ / ⬇️</span>
-                </div>
+                <!-- Results will be injected here by JS -->
+                <p style="color: #666; font-size: 13px;">Search for a song to see results.</p>
             </div>
         </div>
 
+        <!-- LOCAL SONGS -->
         <div class="card">
             <h3 style="color: var(--gold); margin-bottom: 10px;">Local Songs</h3>
             <p style="font-size: 12px; color: #888; margin-bottom: 10px;">Play music from your device storage (Offline).</p>
@@ -153,112 +105,27 @@
         </div>
     </div>
 
-    <!-- 3. LIBRARY PAGE -->
-    <div id="page-library" class="page-container">
-        <h1 style="margin-bottom: 20px; color: var(--gold);">Your Library</h1>
-        <div class="card" onclick="switchPage('search')">
-            <div class="info-row">❤️ Liked Songs</div>
-        </div>
-        <div class="card" onclick="alert('Offline Downloads: 0 songs found.')">
-            <div class="info-row">⬇️ Downloaded (Offline)</div>
-        </div>
-        <div class="card" onclick="alert('No Playlists created yet.')">
-            <div class="info-row">📁 Your Playlists</div>
-        </div>
-    </div>
-
-    <!-- 4. PREMIUM PAGE -->
-    <div id="page-premium" class="page-container">
-        <h1 style="margin-bottom: 20px; color: var(--gold);">ARMA Premium</h1>
-        <div class="premium-box">
-            <h2 style="color: white; font-size: 24px;">Go Premium</h2>
-            <p style="color: var(--text-muted); margin-top: 5px;">Ad-free music, High quality audio, Offline downloads.</p>
-            
-            <div class="price-tag">₹50</div>
-            <p style="color: var(--gold); font-weight: bold;">For First 3 Months</p>
-            <p class="price-sub">Then ₹99 / month</p>
-            
-            <button class="btn" style="margin-top: 25px;" onclick="buyPremium()">Buy Now</button>
-        </div>
-    </div>
-
-    <!-- 5. ACCOUNT PAGE -->
-    <div id="page-account" class="page-container">
-        <p style="margin-bottom: 15px; cursor: pointer; color: var(--gold);" onclick="switchPage('settings')">← Back to Settings</p>
-        <div class="card">
-            <div class="card-title">👤 Profile Information</div>
-            <div class="info-row" id="profile-email">Email: Not logged in</div>
-            <div class="info-row" id="profile-name">Username: Guest</div>
-            <div class="info-row" id="profile-phone">Phone: Not Linked</div>
-            <div class="info-row" id="profile-plan">Plan: <strong style="color: var(--gold);">Free Account</strong></div>
-        </div>
-        <div class="card">
-            <div class="card-title">🔐 Login / Update</div>
-            <div class="login-tab" style="display: flex; gap: 10px; margin-bottom: 15px;">
-                <button id="tab-email" class="btn" style="background: var(--gold); color: black;" onclick="toggleLogin('email')">Email</button>
-                <button id="tab-phone" class="btn" style="background: #222; color: white;" onclick="toggleLogin('phone')">Phone</button>
-            </div>
-            <div id="form-email"><div class="input-group"><input type="email" id="input-email" placeholder="Enter Email"></div></div>
-            <div id="form-phone" style="display: none;"><div class="input-group"><input type="tel" id="input-phone" placeholder="Enter Phone Number"></div></div>
-            <button class="btn" onclick="handleLogin()">Login / Save</button>
-        </div>
-    </div>
-
-    <!-- 6. SETTINGS PAGE -->
+    <!-- 3. SETTINGS PAGE -->
     <div id="page-settings" class="page-container">
         <h1 style="margin-bottom: 20px; color: var(--gold);">Settings</h1>
-        <ul class="settings-list">
-            <li class="settings-item" onclick="switchPage('account')"><span class="setting-icon"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></span> Account Settings</li>
-            <li class="settings-item" onclick="switchPage('privacy')"><span class="setting-icon"><svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/></svg></span> Privacy Policy & Rules</li>
-            <li class="settings-item"><span class="setting-icon"><svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg></span> Data-saving and Offline
-                <label class="switch"><input type="checkbox" id="dataSavingToggle" onchange="toggleDataSaving()"><span class="slider"></span></label>
-            </li>
-        </ul>
-    </div>
-
-    <!-- 7. ADVANCED PRIVACY POLICY -->
-    <div id="page-privacy" class="page-container">
-        <p style="margin-bottom: 15px; cursor: pointer; color: var(--gold);" onclick="switchPage('settings')">← Back to Settings</p>
         <div class="card">
-            <div class="card-title">📜 ARMA_PLAY_ Rules & Privacy</div>
-            <div class="policy-text">
-                <h3>1. Data Collection & Usage</h3>
-                <p>We strictly collect your email or phone number for account verification and login purposes only. Your personal data is encrypted and will never be sold, rented, or shared with third-party advertisers.</p>
-                <h3>2. Data Saving & Offline Mode</h3>
-                <p>When Data Saving mode is enabled, ARMA_PLAY_ dynamically reduces the audio streaming bitrate to conserve your mobile data. Downloaded songs are stored locally on your device and can be accessed without an internet connection.</p>
-                <h3>3. Premium Subscription Policy</h3>
-                <p>The Premium plan costs ₹50 for the first 3 months. After the initial period, it automatically renews at ₹99/month unless canceled. Premium grants you ad-free listening, high-fidelity audio, and unlimited offline downloads.</p>
-                <h3>4. Content & Copyright Rules</h3>
-                <p>Uploading, sharing, or distributing any illegal, copyright-infringing, or offensive content is strictly prohibited. ARMA_PLAY_ respects intellectual property rights. Violations will result in immediate account termination.</p>
-                <h3>5. Account Security</h3>
-                <p>You are responsible for maintaining the confidentiality of your account credentials. Never share your OTP or password. If you suspect unauthorized access, contact our AI Support immediately.</p>
-                <h3>6. Fair Usage Policy</h3>
-                <p>Automated bots, scrapers, or scripts used to exploit the search or download features are strictly banned. We monitor server traffic to ensure a stable experience for all users.</p>
-            </div>
+            <div class="card-title">⚙️ App Settings</div>
+            <p style="color: var(--text-muted); font-size: 14px;">More settings coming soon.</p>
         </div>
     </div>
 
-    <!-- ADVANCED AI ASSISTANT -->
-    <div class="ai-btn" onclick="toggleAI()">AI</div>
-    <div class="ai-chat-box" id="ai-chat-box">
-        <div class="ai-chat-header">
-            <span>🤖 ARMA AI Support</span>
-            <span style="cursor: pointer; color: white;" onclick="toggleAI()">✖</span>
-        </div>
-        <div id="ai-messages" class="ai-messages">
-            <div style="margin-bottom: 5px; color: var(--gold);">🤖 AI:</div>
-            <div>Hello! I am ARMA AI. I can solve server issues, internet errors, app bugs, and guide you. How can I help?</div>
-        </div>
-        <input type="text" class="ai-chat-input" id="ai-input" placeholder="Type your issue..." onkeypress="handleAIInput(event)">
-    </div>
-
-    <!-- BOTTOM PLAYER -->
+    <!-- BOTTOM PLAYER (With 10s Skip Buttons) -->
     <div class="bottom-player">
-        <div>
-            <div id="player-title" style="font-weight: bold; font-size: 14px;">No song playing</div>
+        <div style="width: 40%;">
+            <div id="player-title" style="font-weight: bold; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">No song playing</div>
             <div style="font-size: 11px; font-weight: bold;">ARMA_PLAY_</div>
         </div>
-        <div style="font-size: 20px; cursor: pointer;" onclick="togglePlay()">▶️</div>
+        
+        <div class="player-controls">
+            <button onclick="skipTime(-10)">⏪ 10s</button>
+            <button onclick="togglePlay()" id="playPauseBtn">▶️</button>
+            <button onclick="skipTime(10)">10s ⏩</button>
+        </div>
     </div>
 
     <!-- BOTTOM NAVIGATION -->
@@ -269,12 +136,6 @@
         <div class="nav-item" id="nav-search" onclick="switchPage('search')">
             <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg> Search
         </div>
-        <div class="nav-item" id="nav-library" onclick="switchPage('library')">
-            <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z"/></svg> Library
-        </div>
-        <div class="nav-item" id="nav-premium" onclick="switchPage('premium')">
-            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg> Premium
-        </div>
         <div class="nav-item" id="nav-settings" onclick="switchPage('settings')">
             <svg viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg> Settings
         </div>
@@ -282,8 +143,9 @@
 
     <!-- --- JAVASCRIPT LOGIC --- -->
     <script>
+        // Audio Player Setup
+        let audioPlayer = new Audio();
         let isPlaying = false;
-        let localAudio = new Audio();
 
         // 1. Clock
         setInterval(() => {
@@ -299,170 +161,110 @@
             document.getElementById('page-' + pageId).classList.add('active');
             const navItem = document.getElementById('nav-' + pageId);
             if(navItem) navItem.classList.add('active');
-            window.scrollTo(0, 0);
         }
 
-        // 3. Login Toggle
-        function toggleLogin(type) {
-            const emailBtn = document.getElementById('tab-email');
-            const phoneBtn = document.getElementById('tab-phone');
-            
-            if(type === 'email') {
-                emailBtn.style.background = 'var(--gold)'; emailBtn.style.color = 'black';
-                phoneBtn.style.background = '#222'; phoneBtn.style.color = 'white';
-                document.getElementById('form-email').style.display = 'block';
-                document.getElementById('form-phone').style.display = 'none';
-            } else {
-                phoneBtn.style.background = 'var(--gold)'; phoneBtn.style.color = 'black';
-                emailBtn.style.background = '#222'; emailBtn.style.color = 'white';
-                document.getElementById('form-email').style.display = 'none';
-                document.getElementById('form-phone').style.display = 'block';
-            }
-        }
-
-        // 4. Handle Login
-        function handleLogin() {
-            const email = document.getElementById('input-email').value;
-            const phone = document.getElementById('input-phone').value;
-            
-            if(email) {
-                localStorage.setItem('arma_email', email);
-                localStorage.setItem('arma_username', email.split('@')[0]);
-            }
-            if(phone) localStorage.setItem('arma_phone', phone);
-            
-            loadProfile();
-            alert("Login Successful! Profile Updated.");
-        }
-
-        // 5. Load Profile
-        function loadProfile() {
-            const savedEmail = localStorage.getItem('arma_email');
-            const savedName = localStorage.getItem('arma_username');
-            const savedPhone = localStorage.getItem('arma_phone');
-
-            if(savedEmail) document.getElementById('profile-email').innerHTML = `Email: <strong>${savedEmail}</strong>`;
-            if(savedName) document.getElementById('profile-name').innerHTML = `Username: <strong>${savedName}</strong>`;
-            if(savedPhone) document.getElementById('profile-phone').innerHTML = `Phone: <strong>${savedPhone}</strong>`;
-        }
-
-        // 6. Data Saving Toggle
-        function toggleDataSaving() {
-            const isChecked = document.getElementById('dataSavingToggle').checked;
-            if(isChecked) {
-                alert("Data Saving Mode ON. Audio quality will be reduced to save data.");
-            } else {
-                alert("Data Saving Mode OFF. High quality audio enabled.");
-            }
-        }
-
-        // 7. Premium Purchase
-        function buyPremium() {
-            const confirmPurchase = confirm("Buy ARMA Premium for ₹50 (First 3 months)?\n\nYou will be charged ₹99/month after 3 months.");
-            if(confirmPurchase) {
-                document.getElementById('profile-plan').innerHTML = `Plan: <strong style="color: var(--gold);">Premium (₹50 for 3 months)</strong>`;
-                alert("Premium Activated Successfully! Enjoy high-quality music.");
-                switchPage('account');
-            }
-        }
-
-        // 8. Online Song Playback (Mock)
-        function playOnlineSong(songName) {
-            document.getElementById('player-title').innerText = "Playing: " + songName;
-            isPlaying = true;
-            alert("Streaming online: " + songName + "\n(Server connected)");
-        }
-
-        // 9. Search Online
-        function searchOnline() {
+        // 3. FIXED ONLINE SEARCH (Using iTunes API + CORS Proxy)
+        async function searchOnline() {
             const query = document.getElementById('onlineSearchInput').value;
-            if(query) {
-                alert("Searching server for: " + query + "\n\nResults found. Click any song to play or download.");
-            } else {
-                alert("Please enter a song name.");
+            const resultsDiv = document.getElementById('onlineResults');
+            
+            if(!query) return alert("Please enter a song name.");
+
+            resultsDiv.innerHTML = '<p style="color: var(--gold);">Searching...</p>';
+
+            try {
+                // CORS Proxy is required because GitHub pages block direct API calls
+                const proxyUrl = 'https://corsproxy.io/?';
+                const apiUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=8`;
+                
+                const response = await fetch(proxyUrl + apiUrl);
+                const data = await response.json();
+
+                resultsDiv.innerHTML = ''; // Clear previous results
+
+                if(data.results.length === 0) {
+                    resultsDiv.innerHTML = '<p style="color: red;">No songs found.</p>';
+                    return;
+                }
+
+                // Render results dynamically
+                data.results.forEach(song => {
+                    const songDiv = document.createElement('div');
+                    songDiv.className = 'song-result-item';
+                    songDiv.innerHTML = `
+                        <div class="song-result-info">
+                            <strong>${song.trackName}</strong><br>
+                            <span style="font-size: 11px; color: #888;">${song.artistName}</span>
+                        </div>
+                        <span class="action-icon" onclick="playOnlineSong('${song.previewUrl}', '${song.trackName.replace(/'/g, "\\'")}')">▶️</span>
+                    `;
+                    resultsDiv.appendChild(songDiv);
+                });
+
+            } catch (error) {
+                console.error(error);
+                resultsDiv.innerHTML = '<p style="color: red;">Error fetching songs. Check internet connection.</p>';
             }
         }
 
-        // 10. Local File Upload & Play (Offline)
+        // 4. PLAY ONLINE SONG
+        function playOnlineSong(url, title) {
+            if(!url || url === 'null') {
+                alert("Preview not available for this song.");
+                return;
+            }
+            audioPlayer.src = url;
+            audioPlayer.play();
+            isPlaying = true;
+            document.getElementById('playPauseBtn').innerText = "⏸️";
+            document.getElementById('player-title').innerText = "Playing: " + title;
+        }
+
+        // 5. LOCAL FILE UPLOAD & PLAY
         function loadLocalSong(input) {
             if (input.files && input.files[0]) {
                 const file = input.files[0];
                 const fileURL = URL.createObjectURL(file);
+                
                 document.getElementById('localSongDisplay').innerText = "Loaded: " + file.name;
                 document.getElementById('player-title').innerText = "Offline: " + file.name;
                 
-                localAudio.src = fileURL;
-                localAudio.play();
+                audioPlayer.src = fileURL;
+                audioPlayer.play();
                 isPlaying = true;
+                document.getElementById('playPauseBtn').innerText = "⏸️";
             }
         }
 
-        // 11. Player Toggle
+        // 6. PLAY / PAUSE TOGGLE
         function togglePlay() {
-            if(localAudio.src) {
+            if(audioPlayer.src) {
                 if(isPlaying) {
-                    localAudio.pause();
+                    audioPlayer.pause();
+                    document.getElementById('playPauseBtn').innerText = "▶️";
                     isPlaying = false;
                 } else {
-                    localAudio.play();
+                    audioPlayer.play();
+                    document.getElementById('playPauseBtn').innerText = "⏸️";
                     isPlaying = true;
                 }
             } else {
-                alert("No local song loaded. Go to Search > Local Songs to upload.");
+                alert("No song loaded. Search online or upload a local song.");
             }
         }
 
-        // 12. ADVANCED AI ARMA LOGIC
-        function toggleAI() {
-            const chatBox = document.getElementById('ai-chat-box');
-            chatBox.style.display = (chatBox.style.display === 'block') ? 'none' : 'block';
-        }
-
-        function handleAIInput(event) {
-            if(event.key === 'Enter') {
-                const input = document.getElementById('ai-input');
-                const msg = input.value.trim().toLowerCase();
-                if(msg) {
-                    const messagesDiv = document.getElementById('ai-messages');
-                    messagesDiv.innerHTML += `<div style="text-align: right; margin: 8px 0; color: #D4AF37;">You: ${input.value}</div>`;
-                    input.value = '';
-                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-                    
-                    // AI Solving Logic
-                    setTimeout(() => {
-                        let reply = "";
-
-                        if(msg.includes('server') || msg.includes('down') || msg.includes('error')) {
-                            reply = "Server/App Error Detected: \n1. Please refresh the page (F5).\n2. Check if GitHub is down.\n3. Clear browser cache. Our servers are mostly stable, it might be your connection.";
-                        } 
-                        else if(msg.includes('internet') || msg.includes('net') || msg.includes('slow')) {
-                            reply = "Internet Issue: \n1. Check your WiFi/Mobile Data.\n2. Turn on 'Data Saving' in settings to reduce load.\n3. If using Jio/Airtel, try switching to 4G if 5G is unstable.";
-                        } 
-                        else if(msg.includes('play') || msg.includes('song') || msg.includes('music')) {
-                            reply = "Playback Support: \n1. For Online: Ensure you have internet.\n2. For Offline: Go to Search > Local Songs, upload a file from your phone, and it will play instantly.";
-                        } 
-                        else if(msg.includes('download')) {
-                            reply = "Download Issue: \nCheck your phone storage space. If space is full, downloads will fail. Also, ensure you have allowed storage permissions for this browser.";
-                        }
-                        else if(msg.includes('premium') || msg.includes('price') || msg.includes('plan')) {
-                            reply = "Premium Plan: \nGet Ad-free music and offline downloads for ₹50 for the first 3 months. After that, it's ₹99/month. Go to the Premium tab to upgrade!";
-                        }
-                        else if(msg.includes('bug') || msg.includes('fix') || msg.includes('crash')) {
-                            reply = "App Crash/Bug: \nPlease clear your browser history and try reloading. If the issue persists, report it to armaplay.support@gmail.com.";
-                        }
-                        else {
-                            reply = "I am ARMA AI. I can help you with:\n- Server Problems\n- Internet Issues\n- App Errors & Bugs\n- Playback & Download Support\nPlease type your exact issue.";
-                        }
-
-                        messagesDiv.innerHTML += `<div style="margin: 8px 0; color: #fff;">🤖 AI: ${reply}</div>`;
-                        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-                    }, 700);
-                }
+        // 7. 10 SEC FORWARD / BACKWARD
+        function skipTime(seconds) {
+            if(audioPlayer.src) {
+                audioPlayer.currentTime += seconds;
             }
         }
 
-        // Initialize Profile
-        window.onload = loadProfile;
+        // Reset Play button when song ends
+        audioPlayer.addEventListener('ended', () => {
+            isPlaying = false;
+            document.getElementById('playPauseBtn').innerText = "▶️";
+        });
     </script>
 </body>
 </html>
