@@ -1,234 +1,452 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARMA_PLAY_ Premium</title>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- CLEANED UP CSS (Spotify Theme) --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-body {
-    background-color: #121212;
-    color: white;
-    padding-bottom: 150px; /* Space for player and nav */
-}
+        body {
+            background-color: #121212;
+            color: white;
+            padding-bottom: 160px; /* Space for player and nav */
+        }
 
-/* Header */
-header {
-    padding: 15px;
-    background-color: #121212;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
+        /* Header */
+        header {
+            padding: 15px;
+            background-color: #121212;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
 
-.top-bar {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 15px;
-}
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
 
-.profile {
-    background-color: #ff69b4;
-    color: black;
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-}
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-.filters {
-    display: flex;
-    gap: 10px;
-    overflow-x: auto;
-}
+        .logo-circle {
+            background-color: #1db954; /* Spotify Green */
+            color: black;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
 
-.filters button {
-    background-color: #2a2a2a;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 14px;
-}
+        .logo-text {
+            font-size: 18px;
+            font-weight: bold;
+        }
 
-.filters button.active {
-    background-color: #1db954; /* Spotify Green */
-    color: black;
-    font-weight: bold;
-}
+        .settings-btn {
+            background: none;
+            border: none;
+            color: #1db954;
+            font-size: 22px;
+            cursor: pointer;
+        }
 
-/* Search Bar */
-.search-container {
-    background-color: white;
-    border-radius: 8px;
-    padding: 10px 15px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
+        /* Search Bar */
+        .search-container {
+            background-color: #282828;
+            border-radius: 8px;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 15px;
+        }
 
-.search-container i {
-    color: #333;
-}
+        .search-container i { color: #b3b3b3; }
 
-.search-container input {
-    border: none;
-    outline: none;
-    width: 100%;
-    font-size: 16px;
-    color: #333;
-}
+        .search-container input {
+            border: none;
+            outline: none;
+            width: 100%;
+            font-size: 16px;
+            color: white;
+            background: transparent;
+        }
 
-/* Main Content */
-main {
-    padding: 0 15px;
-}
+        .go-btn {
+            background-color: #1db954;
+            color: black;
+            border: none;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
 
-.section-title {
-    font-size: 20px;
-    margin: 20px 0 15px 0;
-}
+        /* Main Content */
+        main {
+            padding: 0 15px;
+            margin-top: 20px;
+        }
 
-.horizontal-scroll {
-    display: flex;
-    overflow-x: auto;
-    gap: 15px;
-    padding-bottom: 10px;
-    scrollbar-width: none; /* Firefox */
-}
-.horizontal-scroll::-webkit-scrollbar { display: none; } /* Chrome */
+        .section-title {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #1db954;
+        }
 
-.card {
-    min-width: 140px;
-    max-width: 140px;
-}
+        /* Search Results List */
+        .search-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #2a2a2a;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
 
-.card img {
-    width: 100%;
-    height: 140px;
-    object-fit: cover;
-    border-radius: 8px;
-    margin-bottom: 8px;
-}
+        .search-item:hover { background-color: #2a2a2a; }
 
-.card h4 {
-    font-size: 14px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+        .search-item-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+            overflow: hidden;
+        }
 
-.card p {
-    font-size: 12px;
-    color: #b3b3b3;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+        .search-item-info img {
+            width: 50px;
+            height: 50px;
+            border-radius: 5px;
+            object-fit: cover;
+        }
 
-/* Mini Player */
-.mini-player {
-    position: fixed;
-    bottom: 65px; /* Above nav */
-    left: 10px;
-    right: 10px;
-    background-color: #2a2a2a;
-    border-radius: 8px;
-    padding: 10px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    z-index: 20;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-}
+        .search-item-info h4 {
+            font-size: 15px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 5px;
+        }
 
-.mini-player img {
-    width: 45px;
-    height: 45px;
-    border-radius: 5px;
-}
+        .search-item-info p {
+            font-size: 12px;
+            color: #b3b3b3;
+        }
 
-.player-info {
-    flex: 1;
-    overflow: hidden;
-}
+        .action-btn {
+            background: none;
+            border: none;
+            color: #1db954;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 10px;
+        }
 
-.player-info h5 {
-    font-size: 14px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+        /* Local Songs Section */
+        .local-upload {
+            background: #181818;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border: 1px dashed #1db954;
+        }
 
-.player-info p {
-    font-size: 12px;
-    color: #b3b3b3;
-}
+        /* Mini Player (Fixed at Bottom) */
+        .mini-player {
+            position: fixed;
+            bottom: 65px;
+            left: 10px;
+            right: 10px;
+            background-color: #181818;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 20;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
 
-audio {
-    width: 120px;
-    height: 30px;
-}
+        .player-info {
+            width: 35%;
+            overflow: hidden;
+        }
 
-/* Bottom Navigation */
-.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    background-color: #000;
-    display: flex;
-    justify-content: space-around;
-    padding: 10px 0;
-    z-index: 20;
-}
+        .player-info h5 {
+            font-size: 14px;
+            color: #1db954;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
-.bottom-nav a {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: #b3b3b3;
-    text-decoration: none;
-    font-size: 11px;
-    gap: 5px;
-}
+        .player-info p {
+            font-size: 11px;
+            color: #b3b3b3;
+        }
 
-.bottom-nav a i {
-    font-size: 20px;
-}
+        /* Player Controls */
+        .player-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
 
-.bottom-nav a.active {
-    color: white;
-}
+        .player-controls button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
 
-/* Search Results List */
-.search-item {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 10px;
-    border-bottom: 1px solid #2a2a2a;
-    cursor: pointer;
-}
+        .player-controls .play-btn {
+            background-color: #1db954;
+            color: black;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
 
-.search-item:hover {
-    background-color: #2a2a2a;
-}
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #000;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 20;
+            border-top: 1px solid #222;
+        }
 
-.search-item img {
-    width: 50px;
-    height: 50px;
-    border-radius: 5px;
-}
+        .bottom-nav a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #b3b3b3;
+            text-decoration: none;
+            font-size: 11px;
+            gap: 5px;
+        }
 
-.search-item-info h4 {
-    font-size: 16px;
-    margin-bottom: 5px;
-}
+        .bottom-nav a i { font-size: 20px; }
+        .bottom-nav a.active { color: #1db954; }
+    </style>
+</head>
+<body>
 
-.search-item-info p {
-    font-size: 14px;
-    color: #b3b3b3;
-}
+    <!-- HEADER -->
+    <header>
+        <div class="top-bar">
+            <div class="logo-area">
+                <div class="logo-circle">A</div>
+                <div class="logo-text">ARMA_PLAY_</div>
+            </div>
+            <!-- Settings Icon -->
+            <button class="settings-btn" onclick="alert('Settings Page Opening...')">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
+        
+        <!-- Search Bar -->
+        <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="What do you want to listen to?" onkeypress="handleSearchEnter(event)">
+            <button class="go-btn" onclick="searchOnline()">Go</button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main>
+        <h2 class="section-title">Online Songs</h2>
+        <div id="searchResults">
+            <p style="color: #888; font-size: 14px;">Search for a song to see results here...</p>
+        </div>
+
+        <div class="local-upload">
+            <h3 style="color: #1db954; margin-bottom: 10px;">Local Songs (Offline)</h3>
+            <input type="file" id="localFile" accept="audio/*" onchange="loadLocalSong(this)" style="color: white;">
+            <p id="localStatus" style="margin-top: 10px; font-size: 12px; color: #888;">No file loaded.</p>
+        </div>
+    </main>
+
+    <!-- MINI PLAYER BAR -->
+    <div class="mini-player">
+        <div class="player-info">
+            <h5 id="songTitle">No song playing</h5>
+            <p id="songArtist">ARMA_PLAY_</p>
+        </div>
+        
+        <div class="player-controls">
+            <!-- 10 Sec Back -->
+            <button onclick="skipTime(-10)"><i class="fas fa-undo"></i> 10s</button>
+            
+            <!-- Play/Pause -->
+            <button class="play-btn" id="playBtn" onclick="togglePlay()"><i class="fas fa-play"></i></button>
+            
+            <!-- 10 Sec Forward -->
+            <button onclick="skipTime(10)">10s <i class="fas fa-redo"></i></button>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAVIGATION -->
+    <div class="bottom-nav">
+        <a href="#" class="active"><i class="fas fa-home"></i> Home</a>
+        <a href="#"><i class="fas fa-search"></i> Search</a>
+        <a href="#"><i class="fas fa-book"></i> Library</a>
+        <a href="#"><i class="fas fa-crown"></i> Premium</a>
+    </div>
+
+    <!-- AUDIO ELEMENT -->
+    <audio id="audioPlayer"></audio>
+
+    <!-- --- JAVASCRIPT LOGIC --- -->
+    <script>
+        const audioPlayer = document.getElementById('audioPlayer');
+        const playBtnIcon = document.getElementById('playBtn').querySelector('i');
+        const songTitle = document.getElementById('songTitle');
+        const songArtist = document.getElementById('songArtist');
+        const searchResults = document.getElementById('searchResults');
+
+        // 1. ONLINE SEARCH FIX (Using iTunes API + CORS Proxy)
+        async function searchOnline() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) return alert("Please enter a song name!");
+
+            searchResults.innerHTML = '<p style="color: #1db954;">Searching...</p>';
+
+            try {
+                // CORS Proxy is necessary for GitHub Pages
+                const proxy = 'https://corsproxy.io/?';
+                const api = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=10`;
+                
+                const response = await fetch(proxy + api);
+                const data = await response.json();
+
+                searchResults.innerHTML = ''; // Clear loader
+
+                if (data.results.length === 0) {
+                    searchResults.innerHTML = '<p style="color: red;">No results found.</p>';
+                    return;
+                }
+
+                // Render Songs
+                data.results.forEach(song => {
+                    const div = document.createElement('div');
+                    div.className = 'search-item';
+                    
+                    // Image fallback if artwork is missing
+                    const imgUrl = song.artworkUrl100 || 'https://via.placeholder.com/50?text=Music';
+                    
+                    div.innerHTML = `
+                        <div class="search-item-info">
+                            <img src="${imgUrl}" alt="cover">
+                            <div>
+                                <h4>${song.trackName}</h4>
+                                <p>${song.artistName}</p>
+                            </div>
+                        </div>
+                        <button class="action-btn" onclick="playOnlineSong('${song.previewUrl}', '${song.trackName.replace(/'/g, "\\'")}', '${song.artistName.replace(/'/g, "\\'")}')">
+                            <i class="fas fa-play-circle"></i>
+                        </button>
+                    `;
+                    searchResults.appendChild(div);
+                });
+
+            } catch (error) {
+                console.error(error);
+                searchResults.innerHTML = '<p style="color: red;">Error fetching songs. Check internet.</p>';
+            }
+        }
+
+        // Enter key search
+        function handleSearchEnter(e) {
+            if (e.key === 'Enter') searchOnline();
+        }
+
+        // 2. PLAY ONLINE SONG
+        function playOnlineSong(url, title, artist) {
+            if (!url) return alert("Preview not available for this track.");
+            
+            audioPlayer.src = url;
+            audioPlayer.play();
+            updatePlayerUI(title, artist);
+            playBtnIcon.className = "fas fa-pause";
+        }
+
+        // 3. LOCAL FILE UPLOAD & PLAY
+        function loadLocalSong(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                audioPlayer.src = URL.createObjectURL(file);
+                audioPlayer.play();
+                
+                document.getElementById('localStatus').innerText = "Loaded: " + file.name;
+                updatePlayerUI(file.name, "Local File");
+                playBtnIcon.className = "fas fa-pause";
+            }
+        }
+
+        // 4. PLAY / PAUSE TOGGLE
+        function togglePlay() {
+            if (!audioPlayer.src) return alert("Select a song first!");
+            
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+                playBtnIcon.className = "fas fa-pause";
+            } else {
+                audioPlayer.pause();
+                playBtnIcon.className = "fas fa-play";
+            }
+        }
+
+        // 5. 10 SEC FORWARD / BACKWARD LOGIC
+        function skipTime(seconds) {
+            if (audioPlayer.src) {
+                audioPlayer.currentTime += seconds;
+            }
+        }
+
+        // 6. UPDATE UI HELPER
+        function updatePlayerUI(title, artist) {
+            songTitle.innerText = title;
+            songArtist.innerText = artist;
+        }
+
+        // Reset button when song ends
+        audioPlayer.addEventListener('ended', () => {
+            playBtnIcon.className = "fas fa-play";
+        });
+    </script>
+</body>
+</html>
