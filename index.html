@@ -46,6 +46,17 @@
         /* Search Bar */
         .search-input { width: calc(100% - 40px); margin: 0 20px; padding: 12px; border-radius: 8px; border: none; font-size: 16px; outline: none; }
 
+        /* Settings List */
+        .settings-list { margin-top: 20px; padding: 0 20px; }
+        .settings-item { display: flex; align-items: center; padding: 15px 0; border-bottom: 1px solid #333; font-size: 16px; cursor: pointer; }
+        .settings-item i { margin-right: 15px; width: 20px; text-align: center;}
+        
+        /* Account & Privacy Box */
+        .info-box { background: #282828; padding: 20px; border-radius: 8px; margin: 20px; }
+        .info-box h3 { margin-bottom: 10px; color: var(--brand-green); }
+        .info-box p { color: var(--text-secondary); font-size: 14px; line-height: 1.5; }
+        .back-btn { background: none; border: none; color: white; font-size: 16px; cursor: pointer; padding: 20px; display: flex; align-items: center; gap: 10px;}
+
         /* Player Bar */
         .player-bar { 
             position: fixed; bottom: 70px; left: 10px; right: 10px; 
@@ -79,7 +90,7 @@
     <!-- HEADER -->
     <div class="header">
         <div style="display: flex; align-items: center;">
-            <div class="profile-icon">A</div>
+            <div class="profile-icon" onclick="switchPage('account')">A</div>
             <div class="logo">ARMA <span>PLAY</span></div>
         </div>
         <div class="header-icons">
@@ -99,39 +110,61 @@
         </div>
 
         <h3 style="padding: 0 20px; margin-bottom: 15px;">It's New Music Friday!</h3>
-        <div class="grid-container" id="home-grid">
-            <!-- Data JavaScript se aayega -->
-        </div>
+        <div class="grid-container" id="home-grid"></div>
     </div>
 
     <!-- ================= SEARCH PAGE ================= -->
     <div id="search" class="page-section">
         <h2 style="padding: 0 20px 15px 20px;">Search</h2>
-        <input type="text" id="search-input" class="search-input" placeholder="Songs search karein (e.g. Arijit Singh)..." onkeyup="handleSearch(event)">
-        
+        <input type="text" id="search-input" class="search-input" placeholder="Search songs (Press Enter)..." onkeyup="handleSearch(event)">
         <h3 style="padding: 20px;" id="search-title">Latest Songs</h3>
-        <div class="grid-container" id="search-results">
-            <!-- Search results yahan aayenge -->
-        </div>
+        <div class="grid-container" id="search-results"></div>
     </div>
 
     <!-- ================= LIBRARY PAGE ================= -->
     <div id="library" class="page-section" style="padding: 20px;">
         <h2>Your Library</h2>
-        <p style="color: grey; margin-top: 10px;">Aapne abhi tak koi song play nahi kiya hai.</p>
+        <p style="color: grey; margin-top: 10px;">You haven't played any songs yet.</p>
     </div>
 
     <!-- ================= SETTINGS PAGE ================= -->
-    <div id="settings" class="page-section" style="padding: 20px;">
-        <h2>Settings</h2>
-        <div style="margin-top: 20px;">
-            <p style="margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; font-size: 18px;"><i class="fas fa-user"></i> Account</p>
-            <p style="margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; font-size: 18px;"><i class="fas fa-lock"></i> Privacy and social</p>
-            <p style="margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; font-size: 18px;"><i class="fas fa-download"></i> Data-saving and offline</p>
+    <div id="settings" class="page-section">
+        <h2 style="padding: 20px;">Settings</h2>
+        <div class="settings-list">
+            <div class="settings-item" onclick="switchPage('account')">
+                <i class="fas fa-user"></i> Account
+            </div>
+            <div class="settings-item" onclick="switchPage('privacy')">
+                <i class="fas fa-lock"></i> Privacy Policy
+            </div>
+            <div class="settings-item">
+                <i class="fas fa-download"></i> Data-saving and offline
+            </div>
         </div>
     </div>
 
-    <!-- AUDIO PLAYER (Hidden) -->
+    <!-- ================= ACCOUNT PAGE ================= -->
+    <div id="account" class="page-section">
+        <button class="back-btn" onclick="switchPage('settings')"><i class="fas fa-arrow-left"></i> Back to Settings</button>
+        <div class="info-box">
+            <h3><i class="fas fa-user-circle"></i> Profile Information</h3>
+            <p style="margin-top: 10px;"><strong>Email:</strong> user.armaplay@gmail.com</p>
+            <p><strong>Username:</strong> Arma User</p>
+            <p><strong>Plan:</strong> Free Account</p>
+        </div>
+    </div>
+
+    <!-- ================= PRIVACY POLICY PAGE ================= -->
+    <div id="privacy" class="page-section">
+        <button class="back-btn" onclick="switchPage('settings')"><i class="fas fa-arrow-left"></i> Back to Settings</button>
+        <div class="info-box">
+            <h3>Privacy Policy</h3>
+            <p style="margin-top: 10px;">Welcome to ARMA PLAY. Your privacy is important to us. This application does not store or share your personal data. All music streams are provided by third-party APIs.</p>
+            <p style="margin-top: 10px;">We do not track your location or listening habits. This is a demo project created for educational purposes.</p>
+        </div>
+    </div>
+
+    <!-- AUDIO PLAYER -->
     <audio id="audio-player" ontimeupdate="updateProgress()"></audio>
 
     <!-- PLAYER BAR -->
@@ -179,9 +212,9 @@
             document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
             
             const targetPage = document.getElementById(pageId);
-            const targetNav = document.getElementById('nav-' + pageId);
-            
             if(targetPage) targetPage.classList.add('active');
+            
+            const targetNav = document.getElementById('nav-' + pageId);
             if(targetNav) targetNav.classList.add('active');
         }
 
@@ -206,7 +239,7 @@
         let isPlaying = false;
 
         function playSong(url, title, artist) {
-            if(!url) { alert("Song link nahi mila!"); return; }
+            if(!url) { alert("Song link not found!"); return; }
             
             audio.src = url;
             audio.play();
@@ -219,7 +252,7 @@
         }
 
         function togglePlay() {
-            if (audio.src === "") { alert("Pehle koi gaana select karein!"); return; }
+            if (audio.src === "") { alert("Please select a song first!"); return; }
             
             if (isPlaying) {
                 audio.pause();
@@ -260,14 +293,13 @@
         }
         renderHomeCards(homeData);
 
-        // 6. SEARCH FUNCTION (Enter dabane par chalega)
+        // 6. SEARCH FUNCTION
         function handleSearch(event) {
             if (event.key === "Enter") {
                 searchSongs(event.target.value);
             }
         }
 
-        // 7. NEW STABLE API FETCH
         async function searchSongs(query) {
             if(query.trim() === '') return;
             
@@ -276,15 +308,13 @@
             resultsGrid.innerHTML = '<p style="padding: 0 20px;">Loading songs...</p>';
 
             try {
-                // Naya Stable API (saavn.dev)
-                const response = await fetch(`https://saavn.dev/api/search/songs?query=${encodeURIComponent(query)}`);
+                const response = await fetch(`https://jiosaavn-api-privatecvc2.vercel.app/search/songs?query=${encodeURIComponent(query)}`);
                 const data = await response.json();
                 
                 if(data.success && data.data.results.length > 0) {
-                    document.getElementById('search-title').innerText = query.toUpperCase() + " - Results";
+                    document.getElementById('search-title').innerText = "Results for: " + query;
                     
                     resultsGrid.innerHTML = data.data.results.map((song) => {
-                        // Data nikalna safe tareeke se
                         let imgUrl = song.image && song.image.length > 0 ? song.image[1].link : 'https://via.placeholder.com/150';
                         let audioUrl = song.downloadUrl && song.downloadUrl.length > 0 ? song.downloadUrl[2].link : ''; 
                         let songName = song.name ? song.name.replace(/'/g, "\\'") : 'Unknown';
@@ -299,11 +329,11 @@
                         `;
                     }).join('');
                 } else {
-                    resultsGrid.innerHTML = '<p style="padding: 0 20px;">Koi gaana nahi mila.</p>';
+                    resultsGrid.innerHTML = '<p style="padding: 0 20px;">No songs found.</p>';
                 }
             } catch (error) {
                 console.error("API Error: ", error);
-                resultsGrid.innerHTML = '<p style="padding: 0 20px; color: red;">Server down hai, thodi der baad search karein.</p>';
+                resultsGrid.innerHTML = '<p style="padding: 0 20px; color: red;">Server is currently down. Please try again later.</p>';
             }
         }
 
