@@ -425,3 +425,44 @@
                 if(msg) {
                     const messagesDiv = document.getElementById('ai-messages');
                     messagesDiv.innerHTML += `<div style="text-align: right; margin: 8px 0; color: #D4AF37;">You: ${input.value}</div>`;
+                    input.value = '';
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                    
+                    // AI Solving Logic
+                    setTimeout(() => {
+                        let reply = "";
+
+                        if(msg.includes('server') || msg.includes('down') || msg.includes('error')) {
+                            reply = "Server/App Error Detected: \n1. Please refresh the page (F5).\n2. Check if GitHub is down.\n3. Clear browser cache. Our servers are mostly stable, it might be your connection.";
+                        } 
+                        else if(msg.includes('internet') || msg.includes('net') || msg.includes('slow')) {
+                            reply = "Internet Issue: \n1. Check your WiFi/Mobile Data.\n2. Turn on 'Data Saving' in settings to reduce load.\n3. If using Jio/Airtel, try switching to 4G if 5G is unstable.";
+                        } 
+                        else if(msg.includes('play') || msg.includes('song') || msg.includes('music')) {
+                            reply = "Playback Support: \n1. For Online: Ensure you have internet.\n2. For Offline: Go to Search > Local Songs, upload a file from your phone, and it will play instantly.";
+                        } 
+                        else if(msg.includes('download')) {
+                            reply = "Download Issue: \nCheck your phone storage space. If space is full, downloads will fail. Also, ensure you have allowed storage permissions for this browser.";
+                        }
+                        else if(msg.includes('premium') || msg.includes('price') || msg.includes('plan')) {
+                            reply = "Premium Plan: \nGet Ad-free music and offline downloads for ₹50 for the first 3 months. After that, it's ₹99/month. Go to the Premium tab to upgrade!";
+                        }
+                        else if(msg.includes('bug') || msg.includes('fix') || msg.includes('crash')) {
+                            reply = "App Crash/Bug: \nPlease clear your browser history and try reloading. If the issue persists, report it to armaplay.support@gmail.com.";
+                        }
+                        else {
+                            reply = "I am ARMA AI. I can help you with:\n- Server Problems\n- Internet Issues\n- App Errors & Bugs\n- Playback & Download Support\nPlease type your exact issue.";
+                        }
+
+                        messagesDiv.innerHTML += `<div style="margin: 8px 0; color: #fff;">🤖 AI: ${reply}</div>`;
+                        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                    }, 700);
+                }
+            }
+        }
+
+        // Initialize Profile
+        window.onload = loadProfile;
+    </script>
+</body>
+</html>
