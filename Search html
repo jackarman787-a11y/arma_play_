@@ -1,0 +1,16 @@
+<!-- Inside settings.html body -->
+<div class="settings-list">
+    <div class="setting-item"><i class="fas fa-user"></i> Account</div>
+    <div class="setting-item"><i class="fas fa-lock"></i> Privacy and social</div>
+    <div class="setting-item"><i class="fas fa-bell"></i> Notifications</div>
+    <div class="setting-item"><i class="fas fa-download"></i> Data-saving and offline</div>
+</div>
+
+<!-- Feature 5: The last end line show welcome ARMA PLAY -->
+<div class="welcome-footer">
+    <h3>Welcome to ARMA PLAY</h3>
+    <p>Version 1.0.0</p>
+</div>
+
+<!-- The Red Arrow suggests Logout -->
+<button class="logout-btn" onclick="logout()">Log out</button>
