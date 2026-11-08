@@ -3,345 +3,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARMA PLAY</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>ARMA PLAY - Updated</title>
     <style>
-        :root {
-            --bg-color: #121212;
-            --card-bg: #181818;
-            --text-primary: #ffffff;
-            --text-secondary: #a7a7a7;
-            --brand-green: #1db954;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-primary); padding-bottom: 160px; overflow-x: hidden; }
+        /* --- BASE STYLES (Dark Theme) --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #121212; color: #ffffff; padding-bottom: 70px; }
+        .header { padding: 15px; display: flex; align-items: center; justify-content: space-between; background-color: #121212; position: sticky; top: 0; z-index: 100;}
+        .logo { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: bold; }
+        .logo-circle { background-color: #ff4081; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .logo-text span { color: #1db954; }
+        .time-display { text-align: center; color: #1db954; font-size: 14px; margin-bottom: 15px; }
         
-        /* Header */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: var(--bg-color); position: sticky; top: 0; z-index: 10; }
-        .profile-icon { background: #ff6b9e; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; }
-        .logo { font-size: 24px; font-weight: bold; margin-left: 10px; }
-        .logo span { color: var(--brand-green); }
-        .header-icons i { font-size: 20px; margin-left: 15px; cursor: pointer; }
+        /* --- PAGE CONTENT --- */
+        .page-container { padding: 15px; display: none; }
+        .page-container.active { display: block; }
         
-        /* Time */
-        .live-time { text-align: center; font-size: 13px; color: var(--brand-green); margin-bottom: 10px; font-weight: bold; }
-
-        /* Tabs */
-        .tabs { padding: 0 20px; display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab { background: #282828; padding: 8px 18px; border-radius: 20px; font-size: 14px; cursor: pointer; transition: 0.2s; }
-        .tab.active { background: var(--brand-green); color: black; font-weight: bold; }
-
-        /* Grid & Cards */
-        .grid-container { padding: 0 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
-        .card { background: #282828; border-radius: 8px; overflow: hidden; cursor: pointer; transition: 0.3s; padding-bottom: 10px;}
-        .card:hover { background: #333; }
-        .card img { width: 100%; height: 130px; object-fit: cover; margin-bottom: 8px; }
-        .card-title { padding: 0 10px; font-size: 14px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        /* --- PROFILE & SETTINGS CARD --- */
+        .card { background-color: #282828; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        .card-title { color: #1db954; font-size: 18px; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .info-row { margin-bottom: 10px; color: #b3b3b3; font-size: 15px; }
+        .info-row strong { color: #ffffff; }
         
-        /* Sections */
-        .page-section { display: none; }
-        .page-section.active { display: block; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* Search Bar */
-        .search-input { width: calc(100% - 40px); margin: 0 20px; padding: 12px; border-radius: 8px; border: none; font-size: 16px; outline: none; }
-
-        /* Settings List */
-        .settings-list { margin-top: 20px; padding: 0 20px; }
-        .settings-item { display: flex; align-items: center; padding: 15px 0; border-bottom: 1px solid #333; font-size: 16px; cursor: pointer; }
-        .settings-item i { margin-right: 15px; width: 20px; text-align: center;}
+        /* --- SETTINGS LIST --- */
+        .settings-list { list-style: none; }
+        .settings-item { padding: 15px 0; border-bottom: 1px solid #333; display: flex; align-items: center; gap: 15px; cursor: pointer; color: #ffffff; font-size: 16px; }
+        .settings-item:hover { color: #1db954; }
         
-        /* Account & Privacy Box */
-        .info-box { background: #282828; padding: 20px; border-radius: 8px; margin: 20px; }
-        .info-box h3 { margin-bottom: 10px; color: var(--brand-green); }
-        .info-box p { color: var(--text-secondary); font-size: 14px; line-height: 1.5; }
-        .back-btn { background: none; border: none; color: white; font-size: 16px; cursor: pointer; padding: 20px; display: flex; align-items: center; gap: 10px;}
+        /* --- TOGGLE SWITCH --- */
+        .switch { position: relative; display: inline-block; width: 50px; height: 24px; margin-left: auto; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #555; transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #1db954; }
+        input:checked + .slider:before { transform: translateX(26px); }
 
-        /* Player Bar */
-        .player-bar { 
-            position: fixed; bottom: 70px; left: 10px; right: 10px; 
-            background: var(--brand-green); color: black; 
-            padding: 12px 15px; border-radius: 8px; 
-            display: flex; justify-content: space-between; align-items: center;
-            z-index: 100;
-        }
-        .player-bar i { font-size: 22px; cursor: pointer; margin-left: 15px; }
-        .song-info h4 { font-size: 14px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;}
-        .song-info p { font-size: 12px; opacity: 0.8; }
-        
-        /* Progress Bar */
-        .progress-container { width: 100%; height: 4px; background: rgba(0,0,0,0.3); position: absolute; top: 0; left: 0; border-radius: 8px 8px 0 0;}
-        .progress { height: 100%; background: white; width: 0%; border-radius: 8px 0 0 0;}
+        /* --- LOGIN FORMS --- */
+        .login-tab { display: flex; gap: 10px; margin-bottom: 15px; }
+        .login-tab button { flex: 1; padding: 10px; background: #333; color: white; border: none; border-radius: 8px; cursor: pointer; }
+        .login-tab button.active { background: #1db954; font-weight: bold; }
+        .input-group { margin-bottom: 15px; }
+        .input-group input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: #222; color: white; }
+        .btn { width: 100%; padding: 12px; background: #1db954; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
-        /* Bottom Navigation */
-        .bottom-nav { 
-            position: fixed; bottom: 0; left: 0; width: 100%; 
-            background: #000; padding: 12px 0 20px 0; 
-            display: flex; justify-content: space-around; z-index: 100;
-            border-top: 1px solid #282828;
-        }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-secondary); cursor: pointer; font-size: 11px; }
-        .nav-item i { font-size: 20px; margin-bottom: 5px; }
-        .nav-item.active { color: var(--text-primary); }
+        /* --- PRIVACY POLICY --- */
+        .policy-text { font-size: 14px; line-height: 1.6; color: #b3b3b3; }
+        .policy-text h3 { color: #fff; margin-top: 15px; margin-bottom: 5px; }
+
+        /* --- BOTTOM NAV & PLAYER --- */
+        .bottom-player { position: fixed; bottom: 55px; left: 10px; right: 10px; background-color: #1db954; border-radius: 8px; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; color: #000; z-index: 100; }
+        .nav-bar { position: fixed; bottom: 0; width: 100%; background-color: #000; display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; border-top: 1px solid #222; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #b3b3b3; font-size: 12px; cursor: pointer; gap: 4px; }
+        .nav-item.active { color: #ffffff; }
+        .icon { font-size: 20px; }
     </style>
 </head>
 <body>
 
     <!-- HEADER -->
     <div class="header">
-        <div style="display: flex; align-items: center;">
-            <div class="profile-icon" onclick="switchPage('account')">A</div>
-            <div class="logo">ARMA <span>PLAY</span></div>
+        <div class="logo">
+            <div class="logo-circle">A</div>
+            <div class="logo-text">ARMA <span>PLAY</span></div>
         </div>
-        <div class="header-icons">
-            <i class="fas fa-search" onclick="switchPage('search')"></i>
-            <i class="fas fa-cog" onclick="switchPage('settings')"></i>
+        <div style="font-size: 20px;">⚙️</div>
+    </div>
+    
+    <div class="time-display" id="clock">Current Time: --:--</div>
+
+    <!-- 1. ACCOUNT PAGE (Profile Info) -->
+    <div id="page-account" class="page-container">
+        <p style="margin-bottom: 15px; cursor: pointer;" onclick="switchPage('settings')">← Back to Settings</p>
+        
+        <div class="card">
+            <div class="card-title">👤 Profile Information</div>
+            <div class="info-row" id="profile-email">Email: Loading...</div>
+            <div class="info-row" id="profile-name">Username: Loading...</div>
+            <div class="info-row" id="profile-phone">Phone: Not Linked</div>
+            <div class="info-row">Plan: <strong>Free Account</strong></div>
         </div>
-    </div>
-    <div class="live-time" id="clock">Loading Time...</div>
 
-    <!-- ================= HOME PAGE ================= -->
-    <div id="home" class="page-section active">
-        <h2 style="padding: 0 20px; margin-bottom: 15px;">Good Morning</h2>
-        <div class="tabs">
-            <div class="tab active" onclick="filterTabs('all', this)">All</div>
-            <div class="tab" onclick="filterTabs('music', this)">Music</div>
-            <div class="tab" onclick="filterTabs('podcast', this)">Podcasts</div>
-        </div>
-
-        <h3 style="padding: 0 20px; margin-bottom: 15px;">It's New Music Friday!</h3>
-        <div class="grid-container" id="home-grid"></div>
-    </div>
-
-    <!-- ================= SEARCH PAGE ================= -->
-    <div id="search" class="page-section">
-        <h2 style="padding: 0 20px 15px 20px;">Search</h2>
-        <input type="text" id="search-input" class="search-input" placeholder="Search songs (Press Enter)..." onkeyup="handleSearch(event)">
-        <h3 style="padding: 20px;" id="search-title">Latest Songs</h3>
-        <div class="grid-container" id="search-results"></div>
-    </div>
-
-    <!-- ================= LIBRARY PAGE ================= -->
-    <div id="library" class="page-section" style="padding: 20px;">
-        <h2>Your Library</h2>
-        <p style="color: grey; margin-top: 10px;">You haven't played any songs yet.</p>
-    </div>
-
-    <!-- ================= SETTINGS PAGE ================= -->
-    <div id="settings" class="page-section">
-        <h2 style="padding: 20px;">Settings</h2>
-        <div class="settings-list">
-            <div class="settings-item" onclick="switchPage('account')">
-                <i class="fas fa-user"></i> Account
+        <!-- Login Form -->
+        <div class="card">
+            <div class="card-title">🔐 Login / Update</div>
+            <div class="login-tab">
+                <button id="tab-email" class="active" onclick="toggleLogin('email')">Email</button>
+                <button id="tab-phone" onclick="toggleLogin('phone')">Phone</button>
             </div>
-            <div class="settings-item" onclick="switchPage('privacy')">
-                <i class="fas fa-lock"></i> Privacy Policy
+            
+            <div id="form-email">
+                <div class="input-group"><input type="email" id="input-email" placeholder="Enter Email"></div>
             </div>
-            <div class="settings-item">
-                <i class="fas fa-download"></i> Data-saving and offline
+            
+            <div id="form-phone" style="display: none;">
+                <div class="input-group"><input type="tel" id="input-phone" placeholder="Enter Phone Number"></div>
+            </div>
+            
+            <button class="btn" onclick="handleLogin()">Login / Save</button>
+        </div>
+    </div>
+
+    <!-- 2. SETTINGS PAGE -->
+    <div id="page-settings" class="page-container active">
+        <h1 style="margin-bottom: 20px;">Settings</h1>
+        <ul class="settings-list">
+            <li class="settings-item" onclick="switchPage('account')">
+                <span>👤</span> Account
+            </li>
+            <li class="settings-item" onclick="switchPage('privacy')">
+                <span>🔒</span> Privacy Policy
+            </li>
+            <li class="settings-item">
+                <span>⬇️</span> Data-saving and offline
+                <label class="switch">
+                    <input type="checkbox" id="dataSavingToggle" onchange="toggleDataSaving()">
+                    <span class="slider"></span>
+                </label>
+            </li>
+        </ul>
+    </div>
+
+    <!-- 3. PRIVACY POLICY PAGE -->
+    <div id="page-privacy" class="page-container">
+         <p style="margin-bottom: 15px; cursor: pointer;" onclick="switchPage('settings')">← Back to Settings</p>
+        <div class="card">
+            <div class="card-title">📜 ARMA PLAY Rules & Privacy</div>
+            <div class="policy-text">
+                <h3>1. Data Collection</h3>
+                <p>Hum aapka email ya phone number sirf login verification ke liye use karte hain. Aapka data kisi third-party ko nahi becha jata.</p>
+                
+                <h3>2. Data Saving</h3>
+                <p>Jab aap Data Saving mode on karte hain, toh hum audio bitrate kam kar dete hain taaki aapka mobile data bache. Offline mode mein sirf downloaded songs play honge.</p>
+                
+                <h3>3. Content Rules</h3>
+                <p>ARMA PLAY par kisi bhi prakar ka illegal, copyright-infringing, ya offensive content upload karna strictly mana hai. Aisa karne par account ban kiya ja sakta hai.</p>
+                
+                <h3>4. Account Security</h3>
+                <p>Apna password aur OTP kisi ke saath share na karein. Agar aapko koi suspicious activity dikhe, toh turant support se contact karein.</p>
+                
+                <h3>5. Fair Usage</h3>
+                <p>Automated bots ya scripts ka use karke songs download karna ya stream karna allowed nahi hai. Server ko theek rakhne ke liye fair usage policy apply hoti hai.</p>
             </div>
         </div>
     </div>
 
-    <!-- ================= ACCOUNT PAGE ================= -->
-    <div id="account" class="page-section">
-        <button class="back-btn" onclick="switchPage('settings')"><i class="fas fa-arrow-left"></i> Back to Settings</button>
-        <div class="info-box">
-            <h3><i class="fas fa-user-circle"></i> Profile Information</h3>
-            <p style="margin-top: 10px;"><strong>Email:</strong> user.armaplay@gmail.com</p>
-            <p><strong>Username:</strong> Arma User</p>
-            <p><strong>Plan:</strong> Free Account</p>
+    <!-- BOTTOM PLAYER & NAVIGATION -->
+    <div class="bottom-player">
+        <div>
+            <div style="font-weight: bold; font-size: 14px;">No song playing</div>
+            <div style="font-size: 12px;">ARMA PLAY</div>
+        </div>
+        <div style="font-size: 20px;">▶️</div>
+    </div>
+
+    <div class="nav-bar">
+        <div class="nav-item" onclick="alert('Home page coming soon!')">
+            <span class="icon">🏠</span> Home
+        </div>
+        <div class="nav-item" onclick="alert('Search page coming soon!')">
+            <span class="icon">🔍</span> Search
+        </div>
+        <div class="nav-item" onclick="alert('Library page coming soon!')">
+            <span class="icon">📚</span> Library
+        </div>
+        <div class="nav-item active" onclick="switchPage('settings')">
+            <span class="icon">⚙️</span> Settings
         </div>
     </div>
 
-    <!-- ================= PRIVACY POLICY PAGE ================= -->
-    <div id="privacy" class="page-section">
-        <button class="back-btn" onclick="switchPage('settings')"><i class="fas fa-arrow-left"></i> Back to Settings</button>
-        <div class="info-box">
-            <h3>Privacy Policy</h3>
-            <p style="margin-top: 10px;">Welcome to ARMA PLAY. Your privacy is important to us. This application does not store or share your personal data. All music streams are provided by third-party APIs.</p>
-            <p style="margin-top: 10px;">We do not track your location or listening habits. This is a demo project created for educational purposes.</p>
-        </div>
-    </div>
-
-    <!-- AUDIO PLAYER -->
-    <audio id="audio-player" ontimeupdate="updateProgress()"></audio>
-
-    <!-- PLAYER BAR -->
-    <div class="player-bar">
-        <div class="progress-container"><div class="progress" id="progress-bar"></div></div>
-        <div class="song-info">
-            <h4 id="player-title">No song playing</h4>
-            <p id="player-artist">ARMA PLAY</p>
-        </div>
-        <div style="display: flex; align-items: center;">
-            <i class="fas fa-play" id="play-pause-btn" onclick="togglePlay()"></i>
-        </div>
-    </div>
-
-    <!-- BOTTOM NAVIGATION -->
-    <div class="bottom-nav">
-        <div class="nav-item active" id="nav-home" onclick="switchPage('home')">
-            <i class="fas fa-home"></i><span>Home</span>
-        </div>
-        <div class="nav-item" id="nav-search" onclick="switchPage('search')">
-            <i class="fas fa-search"></i><span>Search</span>
-        </div>
-        <div class="nav-item" id="nav-library" onclick="switchPage('library')">
-            <i class="fas fa-book-open"></i><span>Library</span>
-        </div>
-        <div class="nav-item" id="nav-settings" onclick="switchPage('settings')">
-            <i class="fas fa-cog"></i><span>Settings</span>
-        </div>
-    </div>
-
-    <!-- ================= JAVASCRIPT LOGIC ================= -->
+    <!-- --- JAVASCRIPT LOGIC --- -->
     <script>
-        // 1. TIME UPDATE
+        // 1. Clock Update
         setInterval(() => {
             const now = new Date();
-            const clockElement = document.getElementById('clock');
-            if(clockElement) {
-                clockElement.innerText = "Current Time: " + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            }
+            document.getElementById('clock').innerText = "Current Time: " + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         }, 1000);
 
-        // 2. PAGE NAVIGATION
+        // 2. Page Navigation Logic
         function switchPage(pageId) {
-            document.querySelectorAll('.page-section').forEach(page => page.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-            
-            const targetPage = document.getElementById(pageId);
-            if(targetPage) targetPage.classList.add('active');
-            
-            const targetNav = document.getElementById('nav-' + pageId);
-            if(targetNav) targetNav.classList.add('active');
+            document.querySelectorAll('.page-container').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById('page-' + pageId).classList.add('active');
         }
 
-        // 3. TABS FILTER
-        function filterTabs(type, element) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            element.classList.add('active');
-            
-            if(type === 'all') {
-                renderHomeCards(homeData);
+        // 3. Login Toggle Logic (Email vs Phone)
+        function toggleLogin(type) {
+            document.getElementById('tab-email').classList.remove('active');
+            document.getElementById('tab-phone').classList.remove('active');
+            document.getElementById('form-email').style.display = 'none';
+            document.getElementById('form-phone').style.display = 'none';
+
+            if(type === 'email') {
+                document.getElementById('tab-email').classList.add('active');
+                document.getElementById('form-email').style.display = 'block';
             } else {
-                const filtered = homeData.filter(item => item.type === type);
-                renderHomeCards(filtered);
+                document.getElementById('tab-phone').classList.add('active');
+                document.getElementById('form-phone').style.display = 'block';
             }
         }
 
-        // 4. PLAYER LOGIC
-        const audio = document.getElementById('audio-player');
-        const playBtn = document.getElementById('play-pause-btn');
-        const playerTitle = document.getElementById('player-title');
-        const playerArtist = document.getElementById('player-artist');
-        let isPlaying = false;
-
-        function playSong(url, title, artist) {
-            if(!url) { alert("Song link not found!"); return; }
+        // 4. Handle Login & Profile Update
+        function handleLogin() {
+            const email = document.getElementById('input-email').value;
+            const phone = document.getElementById('input-phone').value;
             
-            audio.src = url;
-            audio.play();
-            playerTitle.innerText = title;
-            playerArtist.innerText = artist;
+            // LocalStorage mein save karna (Demo ke liye)
+            if(email) {
+                localStorage.setItem('arma_email', email);
+                // Email se naam nikalna (jaise user.armaplay@gmail.com -> user.armaplay)
+                let username = email.split('@')[0];
+                localStorage.setItem('arma_username', username);
+            }
+            if(phone) {
+                localStorage.setItem('arma_phone', phone);
+            }
             
-            playBtn.classList.remove('fa-play');
-            playBtn.classList.add('fa-pause');
-            isPlaying = true;
+            loadProfile();
+            alert("Login Successful! Profile Updated.");
         }
 
-        function togglePlay() {
-            if (audio.src === "") { alert("Please select a song first!"); return; }
-            
-            if (isPlaying) {
-                audio.pause();
-                playBtn.classList.remove('fa-pause');
-                playBtn.classList.add('fa-play');
+        // 5. Load Profile Data (Jo save hua hai)
+        function loadProfile() {
+            const savedEmail = localStorage.getItem('arma_email');
+            const savedName = localStorage.getItem('arma_username');
+            const savedPhone = localStorage.getItem('arma_phone');
+
+            if(savedEmail) {
+                document.getElementById('profile-email').innerHTML = `Email: <strong>${savedEmail}</strong>`;
+            }
+            if(savedName) {
+                document.getElementById('profile-name').innerHTML = `Username: <strong>${savedName}</strong>`;
+            }
+            if(savedPhone) {
+                document.getElementById('profile-phone').innerHTML = `Phone: <strong>${savedPhone}</strong>`;
+            }
+        }
+
+        // 6. Data Saving Toggle Logic
+        function toggleDataSaving() {
+            const isChecked = document.getElementById('dataSavingToggle').checked;
+            if(isChecked) {
+                // Data saving ON logic yahan aayega
+                console.log("Data Saving Mode: ON. Audio quality set to LOW.");
+                alert("Data Saving Mode ON. Video/Audio quality will be reduced to save data.");
             } else {
-                audio.play();
-                playBtn.classList.remove('fa-play');
-                playBtn.classList.add('fa-pause');
-            }
-            isPlaying = !isPlaying;
-        }
-
-        function updateProgress() {
-            if (audio.duration) {
-                const percent = (audio.currentTime / audio.duration) * 100;
-                document.getElementById('progress-bar').style.width = percent + '%';
+                // Data saving OFF logic
+                console.log("Data Saving Mode: OFF. Audio quality set to HIGH.");
             }
         }
 
-        // 5. HOME PAGE DATA
-        const homeData = [
-            { title: "Lofi Beats", type: "music", img: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=500&q=80", query: "lofi" },
-            { title: "Top Podcasts", type: "podcast", img: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=500&q=80", query: "podcast" },
-            { title: "Arijit Singh Hits", type: "music", img: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500&q=80", query: "arijit singh" },
-            { title: "English Top 50", type: "music", img: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&q=80", query: "top english" }
-        ];
-
-        function renderHomeCards(data) {
-            const grid = document.getElementById('home-grid');
-            if(!grid) return;
-            grid.innerHTML = data.map(item => `
-                <div class="card" onclick="loadSearchAndPlay('${item.query}')">
-                    <img src="${item.img}" alt="cover">
-                    <div class="card-title">${item.title}</div>
-                </div>
-            `).join('');
-        }
-        renderHomeCards(homeData);
-
-        // 6. SEARCH FUNCTION
-        function handleSearch(event) {
-            if (event.key === "Enter") {
-                searchSongs(event.target.value);
-            }
-        }
-
-        async function searchSongs(query) {
-            if(query.trim() === '') return;
-            
-            document.getElementById('search-title').innerText = "Searching for: " + query;
-            const resultsGrid = document.getElementById('search-results');
-            resultsGrid.innerHTML = '<p style="padding: 0 20px;">Loading songs...</p>';
-
-            try {
-                const response = await fetch(`https://jiosaavn-api-privatecvc2.vercel.app/search/songs?query=${encodeURIComponent(query)}`);
-                const data = await response.json();
-                
-                if(data.success && data.data.results.length > 0) {
-                    document.getElementById('search-title').innerText = "Results for: " + query;
-                    
-                    resultsGrid.innerHTML = data.data.results.map((song) => {
-                        let imgUrl = song.image && song.image.length > 0 ? song.image[1].link : 'https://via.placeholder.com/150';
-                        let audioUrl = song.downloadUrl && song.downloadUrl.length > 0 ? song.downloadUrl[2].link : ''; 
-                        let songName = song.name ? song.name.replace(/'/g, "\\'") : 'Unknown';
-                        let artistName = song.primaryArtists ? song.primaryArtists.replace(/'/g, "\\'") : 'Unknown Artist';
-
-                        return `
-                        <div class="card" onclick="playSong('${audioUrl}', '${songName}', '${artistName}')">
-                            <img src="${imgUrl}" alt="cover">
-                            <div class="card-title">${song.name}</div>
-                            <div style="padding: 0 10px; font-size: 12px; color: grey; white-space: nowrap; overflow: hidden;">${song.primaryArtists}</div>
-                        </div>
-                        `;
-                    }).join('');
-                } else {
-                    resultsGrid.innerHTML = '<p style="padding: 0 20px;">No songs found.</p>';
-                }
-            } catch (error) {
-                console.error("API Error: ", error);
-                resultsGrid.innerHTML = '<p style="padding: 0 20px; color: red;">Server is currently down. Please try again later.</p>';
-            }
-        }
-
-        function loadSearchAndPlay(query) {
-            switchPage('search');
-            document.getElementById('search-input').value = query;
-            searchSongs(query);
-        }
+        // Initialize Profile on Load
+        window.onload = loadProfile;
     </script>
 </body>
 </html>
