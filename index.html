@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARMA PLAY - Updated</title>
+    <title>ARMA PLAY</title>
     <style>
-        /* --- BASE STYLES (Dark Theme) --- */
+        /* --- BASE STYLES --- */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #121212; color: #ffffff; padding-bottom: 70px; }
+        body { background-color: #121212; color: #ffffff; padding-bottom: 130px; }
+        
+        /* --- HEADER --- */
         .header { padding: 15px; display: flex; align-items: center; justify-content: space-between; background-color: #121212; position: sticky; top: 0; z-index: 100;}
         .logo { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: bold; }
         .logo-circle { background-color: #ff4081; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; }
@@ -18,13 +20,12 @@
         .page-container { padding: 15px; display: none; }
         .page-container.active { display: block; }
         
-        /* --- PROFILE & SETTINGS CARD --- */
+        /* --- CARDS & SETTINGS --- */
         .card { background-color: #282828; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
         .card-title { color: #1db954; font-size: 18px; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
         .info-row { margin-bottom: 10px; color: #b3b3b3; font-size: 15px; }
         .info-row strong { color: #ffffff; }
         
-        /* --- SETTINGS LIST --- */
         .settings-list { list-style: none; }
         .settings-item { padding: 15px 0; border-bottom: 1px solid #333; display: flex; align-items: center; gap: 15px; cursor: pointer; color: #ffffff; font-size: 16px; }
         .settings-item:hover { color: #1db954; }
@@ -45,16 +46,26 @@
         .input-group input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: #222; color: white; }
         .btn { width: 100%; padding: 12px; background: #1db954; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
-        /* --- PRIVACY POLICY --- */
-        .policy-text { font-size: 14px; line-height: 1.6; color: #b3b3b3; }
-        .policy-text h3 { color: #fff; margin-top: 15px; margin-bottom: 5px; }
+        /* --- CONTENT GRIDS (Home, Search, Library) --- */
+        .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .music-card { background: #282828; padding: 15px; border-radius: 10px; text-align: center; }
+        .music-card img { width: 100%; border-radius: 8px; margin-bottom: 10px; height: 120px; object-fit: cover; background: #333; }
+
+        /* --- AI ARMA ASSISTANT --- */
+        .ai-btn { position: fixed; bottom: 140px; right: 20px; background: #1db954; color: white; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); cursor: pointer; z-index: 200; border: 2px solid #fff; }
+        .ai-chat-box { position: fixed; bottom: 200px; right: 20px; width: 300px; background: #282828; border-radius: 12px; padding: 15px; display: none; z-index: 200; box-shadow: 0 4px 15px rgba(0,0,0,0.8); border: 1px solid #1db954; }
+        .ai-chat-header { display: flex; justify-content: space-between; font-weight: bold; color: #1db954; margin-bottom: 10px; }
+        .ai-chat-input { width: 100%; padding: 8px; border-radius: 5px; border: none; margin-top: 10px; background: #121212; color: white; }
 
         /* --- BOTTOM NAV & PLAYER --- */
-        .bottom-player { position: fixed; bottom: 55px; left: 10px; right: 10px; background-color: #1db954; border-radius: 8px; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; color: #000; z-index: 100; }
+        .bottom-player { position: fixed; bottom: 60px; left: 10px; right: 10px; background-color: #1db954; border-radius: 8px; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; color: #000; z-index: 100; }
         .nav-bar { position: fixed; bottom: 0; width: 100%; background-color: #000; display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; border-top: 1px solid #222; }
         .nav-item { display: flex; flex-direction: column; align-items: center; color: #b3b3b3; font-size: 12px; cursor: pointer; gap: 4px; }
         .nav-item.active { color: #ffffff; }
-        .icon { font-size: 20px; }
+        
+        /* SVG Icons */
+        .nav-item svg { width: 24px; height: 24px; fill: currentColor; }
+        .setting-icon svg { width: 24px; height: 24px; fill: #b3b3b3; }
     </style>
 </head>
 <body>
@@ -65,15 +76,65 @@
             <div class="logo-circle">A</div>
             <div class="logo-text">ARMA <span>PLAY</span></div>
         </div>
-        <div style="font-size: 20px;">⚙️</div>
+        <div style="font-size: 20px; cursor: pointer;" onclick="switchPage('settings')">⚙️</div>
     </div>
     
     <div class="time-display" id="clock">Current Time: --:--</div>
 
-    <!-- 1. ACCOUNT PAGE (Profile Info) -->
+    <!-- 1. HOME PAGE -->
+    <div id="page-home" class="page-container active">
+        <h1 style="margin-bottom: 20px;">Good Morning!</h1>
+        <h3 style="margin-bottom: 15px; color: #b3b3b3;">Trending Now</h3>
+        <div class="grid-container">
+            <div class="music-card">
+                <div style="background:#555; height:120px; border-radius:8px; margin-bottom:10px;"></div>
+                <h4>Top Hits</h4>
+            </div>
+            <div class="music-card">
+                <div style="background:#555; height:120px; border-radius:8px; margin-bottom:10px;"></div>
+                <h4>Chill Vibes</h4>
+            </div>
+            <div class="music-card">
+                <div style="background:#555; height:120px; border-radius:8px; margin-bottom:10px;"></div>
+                <h4>Workout</h4>
+            </div>
+            <div class="music-card">
+                <div style="background:#555; height:120px; border-radius:8px; margin-bottom:10px;"></div>
+                <h4>Lo-Fi Beats</h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. SEARCH PAGE -->
+    <div id="page-search" class="page-container">
+        <h1 style="margin-bottom: 20px;">Search</h1>
+        <input type="text" placeholder="What do you want to listen to?" style="width: 100%; padding: 15px; border-radius: 8px; border: none; background: #282828; color: white; margin-bottom: 20px;">
+        <h3 style="margin-bottom: 15px; color: #b3b3b3;">Browse Categories</h3>
+        <div class="grid-container">
+            <div class="music-card" style="background: #ff4081;"><h4>Pop</h4></div>
+            <div class="music-card" style="background: #1db954;"><h4>Hip-Hop</h4></div>
+            <div class="music-card" style="background: #03a9f4;"><h4>Rock</h4></div>
+            <div class="music-card" style="background: #ff9800;"><h4>Romantic</h4></div>
+        </div>
+    </div>
+
+    <!-- 3. LIBRARY PAGE -->
+    <div id="page-library" class="page-container">
+        <h1 style="margin-bottom: 20px;">Your Library</h1>
+        <div class="card">
+            <div class="info-row">Liked Songs (0)</div>
+        </div>
+        <div class="card">
+            <div class="info-row">Downloaded (0)</div>
+        </div>
+        <div class="card">
+            <div class="info-row">Your Playlists (0)</div>
+        </div>
+    </div>
+
+    <!-- 4. ACCOUNT PAGE -->
     <div id="page-account" class="page-container">
         <p style="margin-bottom: 15px; cursor: pointer;" onclick="switchPage('settings')">← Back to Settings</p>
-        
         <div class="card">
             <div class="card-title">👤 Profile Information</div>
             <div class="info-row" id="profile-email">Email: Loading...</div>
@@ -81,69 +142,61 @@
             <div class="info-row" id="profile-phone">Phone: Not Linked</div>
             <div class="info-row">Plan: <strong>Free Account</strong></div>
         </div>
-
-        <!-- Login Form -->
         <div class="card">
             <div class="card-title">🔐 Login / Update</div>
             <div class="login-tab">
                 <button id="tab-email" class="active" onclick="toggleLogin('email')">Email</button>
                 <button id="tab-phone" onclick="toggleLogin('phone')">Phone</button>
             </div>
-            
-            <div id="form-email">
-                <div class="input-group"><input type="email" id="input-email" placeholder="Enter Email"></div>
-            </div>
-            
-            <div id="form-phone" style="display: none;">
-                <div class="input-group"><input type="tel" id="input-phone" placeholder="Enter Phone Number"></div>
-            </div>
-            
+            <div id="form-email"><div class="input-group"><input type="email" id="input-email" placeholder="Enter Email"></div></div>
+            <div id="form-phone" style="display: none;"><div class="input-group"><input type="tel" id="input-phone" placeholder="Enter Phone Number"></div></div>
             <button class="btn" onclick="handleLogin()">Login / Save</button>
         </div>
     </div>
 
-    <!-- 2. SETTINGS PAGE -->
-    <div id="page-settings" class="page-container active">
+    <!-- 5. SETTINGS PAGE -->
+    <div id="page-settings" class="page-container">
         <h1 style="margin-bottom: 20px;">Settings</h1>
         <ul class="settings-list">
-            <li class="settings-item" onclick="switchPage('account')">
-                <span>👤</span> Account
-            </li>
-            <li class="settings-item" onclick="switchPage('privacy')">
-                <span>🔒</span> Privacy Policy
-            </li>
-            <li class="settings-item">
-                <span>⬇️</span> Data-saving and offline
-                <label class="switch">
-                    <input type="checkbox" id="dataSavingToggle" onchange="toggleDataSaving()">
-                    <span class="slider"></span>
-                </label>
+            <li class="settings-item" onclick="switchPage('account')"><span class="setting-icon"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></span> Account</li>
+            <li class="settings-item" onclick="switchPage('privacy')"><span class="setting-icon"><svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/></svg></span> Privacy Policy</li>
+            <li class="settings-item"><span class="setting-icon"><svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg></span> Data-saving and offline
+                <label class="switch"><input type="checkbox" id="dataSavingToggle" onchange="toggleDataSaving()"><span class="slider"></span></label>
             </li>
         </ul>
     </div>
 
-    <!-- 3. PRIVACY POLICY PAGE -->
+    <!-- 6. PRIVACY POLICY PAGE (ENGLISH RULES) -->
     <div id="page-privacy" class="page-container">
-         <p style="margin-bottom: 15px; cursor: pointer;" onclick="switchPage('settings')">← Back to Settings</p>
+        <p style="margin-bottom: 15px; cursor: pointer;" onclick="switchPage('settings')">← Back to Settings</p>
         <div class="card">
             <div class="card-title">📜 ARMA PLAY Rules & Privacy</div>
             <div class="policy-text">
                 <h3>1. Data Collection</h3>
-                <p>Hum aapka email ya phone number sirf login verification ke liye use karte hain. Aapka data kisi third-party ko nahi becha jata.</p>
-                
-                <h3>2. Data Saving</h3>
-                <p>Jab aap Data Saving mode on karte hain, toh hum audio bitrate kam kar dete hain taaki aapka mobile data bache. Offline mode mein sirf downloaded songs play honge.</p>
-                
+                <p>We use your email or phone number strictly for login verification. Your data is never sold or shared with third parties.</p>
+                <h3>2. Data Saving & Offline Mode</h3>
+                <p>When you enable Data Saving mode, we reduce the audio bitrate to help you save mobile data. In Offline Mode, only downloaded songs will be playable.</p>
                 <h3>3. Content Rules</h3>
-                <p>ARMA PLAY par kisi bhi prakar ka illegal, copyright-infringing, ya offensive content upload karna strictly mana hai. Aisa karne par account ban kiya ja sakta hai.</p>
-                
+                <p>Uploading or sharing any illegal, copyright-infringing, or offensive content on ARMA PLAY is strictly prohibited. Violations will result in account bans.</p>
                 <h3>4. Account Security</h3>
-                <p>Apna password aur OTP kisi ke saath share na karein. Agar aapko koi suspicious activity dikhe, toh turant support se contact karein.</p>
-                
-                <h3>5. Fair Usage</h3>
-                <p>Automated bots ya scripts ka use karke songs download karna ya stream karna allowed nahi hai. Server ko theek rakhne ke liye fair usage policy apply hoti hai.</p>
+                <p>Never share your password or OTP with anyone. If you notice any suspicious activity, contact support immediately.</p>
+                <h3>5. Fair Usage Policy</h3>
+                <p>The use of automated bots or scripts to download or stream songs is not allowed. We implement fair usage policies to keep the server stable for everyone.</p>
             </div>
         </div>
+    </div>
+
+    <!-- AI ARMA ASSISTANT -->
+    <div class="ai-btn" onclick="toggleAI()">AI</div>
+    <div class="ai-chat-box" id="ai-chat-box">
+        <div class="ai-chat-header">
+            <span>🤖 AI Arma</span>
+            <span style="cursor: pointer; color: white;" onclick="toggleAI()">✖</span>
+        </div>
+        <div id="ai-messages" style="font-size: 14px; color: #ddd; height: 100px; overflow-y: auto;">
+            Hello! I am AI Arma. How can I help you today?
+        </div>
+        <input type="text" class="ai-chat-input" id="ai-input" placeholder="Type your issue here..." onkeypress="handleAIInput(event)">
     </div>
 
     <!-- BOTTOM PLAYER & NAVIGATION -->
@@ -156,43 +209,52 @@
     </div>
 
     <div class="nav-bar">
-        <div class="nav-item" onclick="alert('Home page coming soon!')">
-            <span class="icon">🏠</span> Home
+        <div class="nav-item active" id="nav-home" onclick="switchPage('home')">
+            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Home
         </div>
-        <div class="nav-item" onclick="alert('Search page coming soon!')">
-            <span class="icon">🔍</span> Search
+        <div class="nav-item" id="nav-search" onclick="switchPage('search')">
+            <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg> Search
         </div>
-        <div class="nav-item" onclick="alert('Library page coming soon!')">
-            <span class="icon">📚</span> Library
+        <div class="nav-item" id="nav-library" onclick="switchPage('library')">
+            <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z"/></svg> Library
         </div>
-        <div class="nav-item active" onclick="switchPage('settings')">
-            <span class="icon">⚙️</span> Settings
+        <div class="nav-item" id="nav-settings" onclick="switchPage('settings')">
+            <svg viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg> Settings
         </div>
     </div>
 
     <!-- --- JAVASCRIPT LOGIC --- -->
     <script>
-        // 1. Clock Update
+        // 1. Clock
         setInterval(() => {
             const now = new Date();
             document.getElementById('clock').innerText = "Current Time: " + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         }, 1000);
 
-        // 2. Page Navigation Logic
+        // 2. Navigation Logic
         function switchPage(pageId) {
-            document.querySelectorAll('.page-container').forEach(page => {
-                page.classList.remove('active');
-            });
+            // Hide all pages
+            document.querySelectorAll('.page-container').forEach(page => page.classList.remove('active'));
+            // Remove active from all nav items
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            
+            // Show selected page
             document.getElementById('page-' + pageId).classList.add('active');
+            
+            // Highlight Nav item (if applicable)
+            const navItem = document.getElementById('nav-' + pageId);
+            if(navItem) navItem.classList.add('active');
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
         }
 
-        // 3. Login Toggle Logic (Email vs Phone)
+        // 3. Login Toggle
         function toggleLogin(type) {
             document.getElementById('tab-email').classList.remove('active');
             document.getElementById('tab-phone').classList.remove('active');
             document.getElementById('form-email').style.display = 'none';
             document.getElementById('form-phone').style.display = 'none';
-
             if(type === 'email') {
                 document.getElementById('tab-email').classList.add('active');
                 document.getElementById('form-email').style.display = 'block';
@@ -202,57 +264,77 @@
             }
         }
 
-        // 4. Handle Login & Profile Update
+        // 4. Handle Login
         function handleLogin() {
             const email = document.getElementById('input-email').value;
             const phone = document.getElementById('input-phone').value;
             
-            // LocalStorage mein save karna (Demo ke liye)
             if(email) {
                 localStorage.setItem('arma_email', email);
-                // Email se naam nikalna (jaise user.armaplay@gmail.com -> user.armaplay)
                 let username = email.split('@')[0];
                 localStorage.setItem('arma_username', username);
             }
-            if(phone) {
-                localStorage.setItem('arma_phone', phone);
-            }
+            if(phone) localStorage.setItem('arma_phone', phone);
             
             loadProfile();
             alert("Login Successful! Profile Updated.");
         }
 
-        // 5. Load Profile Data (Jo save hua hai)
+        // 5. Load Profile
         function loadProfile() {
             const savedEmail = localStorage.getItem('arma_email');
             const savedName = localStorage.getItem('arma_username');
             const savedPhone = localStorage.getItem('arma_phone');
 
-            if(savedEmail) {
-                document.getElementById('profile-email').innerHTML = `Email: <strong>${savedEmail}</strong>`;
-            }
-            if(savedName) {
-                document.getElementById('profile-name').innerHTML = `Username: <strong>${savedName}</strong>`;
-            }
-            if(savedPhone) {
-                document.getElementById('profile-phone').innerHTML = `Phone: <strong>${savedPhone}</strong>`;
-            }
+            if(savedEmail) document.getElementById('profile-email').innerHTML = `Email: <strong>${savedEmail}</strong>`;
+            if(savedName) document.getElementById('profile-name').innerHTML = `Username: <strong>${savedName}</strong>`;
+            if(savedPhone) document.getElementById('profile-phone').innerHTML = `Phone: <strong>${savedPhone}</strong>`;
         }
 
-        // 6. Data Saving Toggle Logic
+        // 6. Data Saving Toggle
         function toggleDataSaving() {
             const isChecked = document.getElementById('dataSavingToggle').checked;
             if(isChecked) {
-                // Data saving ON logic yahan aayega
-                console.log("Data Saving Mode: ON. Audio quality set to LOW.");
-                alert("Data Saving Mode ON. Video/Audio quality will be reduced to save data.");
+                alert("Data Saving Mode ON. Audio quality will be reduced to save data.");
             } else {
-                // Data saving OFF logic
-                console.log("Data Saving Mode: OFF. Audio quality set to HIGH.");
+                alert("Data Saving Mode OFF. High quality audio enabled.");
             }
         }
 
-        // Initialize Profile on Load
+        // 7. AI Arma Assistant Logic
+        function toggleAI() {
+            const chatBox = document.getElementById('ai-chat-box');
+            chatBox.style.display = (chatBox.style.display === 'block') ? 'none' : 'block';
+        }
+
+        function handleAIInput(event) {
+            if(event.key === 'Enter') {
+                const input = document.getElementById('ai-input');
+                const msg = input.value.trim();
+                if(msg) {
+                    const messagesDiv = document.getElementById('ai-messages');
+                    // Show user message
+                    messagesDiv.innerHTML += `<div style="text-align: right; margin: 5px 0; color: #1db954;">You: ${msg}</div>`;
+                    input.value = '';
+                    
+                    // Simulate AI Response
+                    setTimeout(() => {
+                        let reply = "I understand you need help. Please check your internet connection or refresh the page.";
+                        if(msg.toLowerCase().includes('server') || msg.toLowerCase().includes('down')) {
+                            reply = "If the server is down, please refresh the page (F5) or try clearing your browser cache. It might also be a GitHub Pages issue.";
+                        } else if(msg.toLowerCase().includes('login')) {
+                            reply = "For login issues, please ensure you enter a valid Email or Phone number in the Account section. If the problem persists, try clearing your browser's Local Storage.";
+                        } else if(msg.toLowerCase().includes('song')) {
+                            reply = "I cannot play songs directly yet, but the player is ready at the bottom. More music features will be added soon!";
+                        }
+                        messagesDiv.innerHTML += `<div style="margin: 5px 0; color: #fff;">🤖 AI: ${reply}</div>`;
+                        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                    }, 800);
+                }
+            }
+        }
+
+        // Initialize
         window.onload = loadProfile;
     </script>
 </body>
