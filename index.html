@@ -385,3 +385,58 @@
     </script>
 </body>
 </html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARMA PLAY</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="profile-icon">A</div>
+        <h2>ARMA <span>PLAY</span></h2>
+        <i class="fas fa-cog" onclick="location.href='settings.html'"></i>
+    </header>
+
+    <!-- Main Content (Scrollable) -->
+    <main>
+        <h1>Good Morning</h1>
+        
+        <!-- Grid Layout for Cards -->
+        <div class="grid-container">
+            <div class="card">
+                <img src="your-image.jpg" alt="Radio">
+                <p>Masoom Sharma Radio</p>
+            </div>
+            <!-- Add more cards here -->
+        </div>
+    </main>
+
+    <!-- Music Player (Floating) -->
+    <div class="music-player" id="player">
+        <div class="song-info">
+            <p id="song-title">No song playing</p>
+            <p id="song-artist">ARMA PLAY</p>
+        </div>
+        <div class="controls">
+            <button onclick="playMusic()"><i class="fas fa-play"></i></button>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="index.html" class="active"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="search.html"><i class="fas fa-search"></i><span>Search</span></a>
+        <a href="#"><i class="fas fa-book"></i><span>Your Library</span></a>
+    </nav>
+
+    <script src="script.js"></script>
+</body>
+</html>
